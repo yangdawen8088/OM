@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>抽奖记录表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css" />
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css" />
+    <!--日期选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <link href="css/style.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>抽奖记录</h4></div>
+                <div class="card-body">
+
+                        <!--奖品表按钮-->
+                        <div class="tab-pane fade active in" id="home">
+                            <form class="form-inline" method="post" id="searchRoleForm">
+                                <div class="form-group">
+                                    <label>奖品名称:</label>
+                                    <input type="text" class="form-control" name="prizeName" >
+                                </div>
+                                <div class="form-group">
+                                    <label>中奖者账号:</label>
+                                    <input type="text" class="form-control" name="memberId" >
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-info btn_query btn-round" type="button" id="searchWinnerFormBtn">查询</button>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-warning btn_query btn-round" type="button" id="winnerEditBtn">编辑</button>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-purple btn_query btn-round" type="button" id="recordingRefreshBtn">刷新</button>
+                                </div>
+                            </form>
+                            <table  id="tb_winner"></table>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 奖品记录表-编辑模态框 -->
+    <div class="modal fade" id="winnerEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" >
+        <div class="modal-dialog" role="document" >
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="winnerEditForm" action="/lottery/remote/winner/update"  method="post" data-target="validator">
+                        <input type="hidden" class="form-control"  name="id" >
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="prizeName" class="control-label">奖品名称：</label>
+                                <input type="text" class="form-control" id="prizeName" name="prizeName" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="dizi" class="control-label">中奖发货地址：省 - 市 - 区 - 详细</label>
+                                <div class="form-group" id="dizi">
+                                    <div data-toggle="distpicker">
+                                        <div class="row">
+                                            <div class="form-group col-md-5">
+                                                <!--省（地址）-->
+                                                <select class="form-control" id="province" data-province="广东省" name="memberProvince"></select>
+                                            </div>
+                                            <div class="form-group col-md-5">
+                                                <!--市（地址）-->
+                                                <select class="form-control" id="city" data-city="湛江市" name="memberCity"></select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group col-md-5">
+                                                <!--区（地址）-->
+                                                <select class="form-control" id="area" data-district="赤坎区" name="memberArea"></select>
+                                            </div>
+                                            <div class="row col-lg-5">
+                                                <!--详细（地址）-->
+                                                <textarea class="form-control" id="detailed" rows="1" name="memberDetailed" placeholder="详细地址" ></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <label for="memberPhone" class="control-label">收货电话：</label>
+                                <input type="text" class="form-control" id="memberPhone" name="memberPhone" onkeyup="clearNoNum(this)" aria-describedby="basic-account" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" id="winnerSubtn" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="/js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<!--上传图片插件-->
+<script type="text/javascript" src="js/zero2one/zero2one.drop.js"></script>
+<!--消除数字以外的字符插件-->
+<script type="text/javascript" src="js/inputmoney.js"></script>
+
+<!-- 地址 -->
+<script src="js/distpicker/distpicker.data.js"></script>
+<script src="js/distpicker/distpicker.js"></script>
+<script src="js/distpicker/main.js"></script>
+
+<script type="text/javascript">
+
+
+    // 加载奖品记录表信息列表
+    var columns = [
+        {checkbox: true},
+        {field: 'id',title: 'ID',visible:false},
+        {field: 'prizeName',title: '奖品名称'},
+        {field: 'prizeId',title: '奖品id',visible:false},
+        {field: 'prizeState',title: '奖品是否已送出',formatter: function (value, row, index) {
+                if (value=='0') {
+                    return "<button class=\"btn btn-dark btn-sm\">未&nbsp;发&nbsp;货</button>";
+                }else if(value=='1'){
+                    return "<button class=\"btn btn-success btn-sm\">已&nbsp;发&nbsp;货</button>";
+                }
+            }},
+        {field: 'prizeType',title: '奖品类型',formatter: function (value, row, index) {
+                if (value=='0') {
+                    return "积分";
+                }else if(value=='1'){
+                    return "实物";
+                }else if(value=='2'){
+                    return "会员";
+                }
+            }},
+        // {field: 'prizeNum',title: '中一次获得数量'},
+        {field: 'winningTime',title: '中奖时间', formatter: function (value) {
+                return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+            }},
+        {field: 'memberId',title: '中奖者账号'},
+        {field: 'memberName',title: '中奖人名称'},
+        {field: 'address',title: '中奖发货地址',formatter: function (value, row, index) {
+            if (row.memberProvince=='' || row.memberDetailed==null){
+                return '无';
+            }else {
+                return row.memberProvince+" "+ row.memberCity +" "+ row.memberArea +" "+ row.memberDetailed;
+            }
+            }},
+        {field: 'memberPhone',title: '收货电话'},
+        {field: 'prizeOrder',title: '发货单号'}
+    ];
+
+    //进入主界面加载数据
+    zero2one.datagrid("tb_winner", "/lottery/remote/winner/list",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchRoleForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchWinnerFormBtn").click(function () {
+        zero2one.reload("tb_winner");
+    });
+
+    //初始化地址
+    $(function(){
+        $("#distpicker").distpicker('destroy');
+        $("#distpicker").distpicker({
+            province: '省份名',
+            city: '城市名',
+            district: '区名',
+            autoSelect: true,
+            placeholder: false
+        });
+    });
+
+    //点击编辑按钮弹出模态框
+    $("#winnerEditBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#tb_winner').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length == 1){
+            //填充表单
+            $("#winnerEditForm").formloader({data: datas[0]});
+            //地址回显
+            $("#province").val(datas[0].memberProvince);
+            $("#city").val(datas[0].memberCity);
+            $("#area").val(datas[0].memberArea);
+            $("#detailed").val(datas[0].memberDetailed);
+
+        }else{
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+            return;
+        }
+        $("#winnerEditModal").modal("show");
+    });
+
+    //保存按钮的点击事件
+    $("#winnerSubtn").click(function () {
+
+        zero2one.request("/lottery/remote/winner/update",$("#winnerEditForm").serialize(),function (data) {
+            if (data.success) {
+                //固定显示当前表
+                $('#tb_winner').bootstrapTable('refresh');//刷新表
+                $("#winnerEditModal").modal("hide");//隐藏模态框
+
+            }else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        });
+    });
+
+
+    //刷新按鈕点击事件
+    $("#recordingRefreshBtn").click(function () {
+        $.messager.confirm("刷新", "您是否要刷新?", function () {
+            zero2one.request("/lottery/remote/winner/refresh", $("#winnerEditForm").serialize(), function (data) {
+                if (data.success) {
+                    //固定显示当前表
+                    $('#tb_winner').bootstrapTable('refresh');//刷新表
+                    $("#winnerEditModal").modal("hide");//隐藏模态框
+                } else {
+                    $.messager.alert("温馨提示", data.msg)
+                }
+            });
+        })
+    });
+
+</script>
+
+</body>
+</html>

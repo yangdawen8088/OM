@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.MemberFansMapper">
+
+
+    <select id="total" resultType="java.lang.Integer">
+         SELECT COUNT(*) FROM member_fans
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+    </select>
+
+
+    <select id="totalGrade" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM member_fans
+        WHERE level_type= #{grade}
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+
+    </select>
+
+    <select id="fansRows" resultType="java.util.HashMap">
+        SELECT  mf.level_type levelType,mf.fans_grade fansGrade, mf.invite_time inviteTime,mi.member_phone memberPhone,
+        mi.member_avatar memberAvatar,mi.nick_name nickName
+        FROM member_fans mf
+        LEFT JOIN member_info mi ON mf.fans_id=mi.member_id
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND mf.member_id = #{memberId}
+            </if>
+        </where>
+        ORDER BY invite_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="fansRowsGrade" resultType="java.util.HashMap">
+        select y.level_type levelType,y.fans_grade fansGrade, y.invite_time inviteTime,y.member_phone memberPhone,
+        y.member_avatar memberAvatar,y.nick_name nickName,
+        IFNULL(f.y.star_id,0) starId ,IFNULL(s.add_consume,0) addConsume from
+        (SELECT  mf.level_type ,mf.fans_grade , mf.invite_time ,mi.member_phone ,
+        mi.member_avatar ,mi.nick_name ,mi.star_id ,mi.member_id
+        FROM member_fans mf
+        LEFT JOIN member_info mi ON mf.fans_id=mi.member_id
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND mf.member_id = #{memberId}  and level_type= #{grade}
+            </if>
+        </where>
+        ) y
+        LEFT JOIN member_star_info s on s.member_id=y.member_id
+        ORDER BY invite_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+
+
+    <select id="memberFansRows" resultType="java.util.HashMap">
+       SELECT 	CONCAT(member_id,'')memberId, level_type levelType, CONCAT(fans_id,'')fansId, fans_name fansName, fans_grade fansGrade, invite_time inviteTime
+        FROM member_fans
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND mf.member_id = #{memberId}
+            </if>
+        </where>
+        ORDER BY invite_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+</mapper>

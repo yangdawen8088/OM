@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.user.mapper.UserMapper">
+
+    <!-- 添加用户 -->
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
+         INSERT INTO sys_p_user(account,password,username,email,dept_id,user_id,create_time,profile)
+         VALUES(#{account},#{password},#{username},#{email},#{deptId},#{userId},NOW(),#{profile})
+    </insert>
+
+    <!--  批量添加用户角色 -->
+    <insert id="addUserRole">
+        INSERT INTO sys_p_user_role(user_id, role_code)
+        VALUES
+        <foreach collection="roleCodes" item="roleCode" separator=",">
+            (#{id},#{roleCode})
+        </foreach>
+    </insert>
+
+    <!-- 根据用户账号和原密码修改旧密码 -->
+    <update id="editPassword">
+           UPDATE sys_p_user SET PASSWORD=#{newPwd} WHERE account = #{account} AND PASSWORD = #{password}
+    </update>
+
+    <!-- 根据用户账号修改个人信息 -->
+    <update id="editUser">
+          UPDATE sys_p_user SET username=#{username},email=#{email},profile=#{profile} WHERE account=#{account}
+    </update>
+
+    <!-- 根据用户账号修改头像图片路径 -->
+    <update id="editHeadPhoto">
+          UPDATE sys_p_user SET head_photo=#{url} WHERE account=#{account}
+    </update>
+
+    <!-- 根据用户id修改用户状态 -->
+    <update id="changeUserStatus">
+        UPDATE sys_p_user SET user_status=#{status} WHERE find_in_set(id,#{ids})
+    </update>
+
+
+    <update id="updateUser">
+         UPDATE sys_p_user SET username=#{username},email=#{email},profile=#{profile},dept_id=#{deptId} WHERE account=#{account}
+    </update>
+
+    <!--  存在则更新,没有则新增 -->
+    <update id="updateUserRole">
+        insert into sys_p_user_role(user_id, role_code)
+        VALUES
+        <foreach collection="roleCodes" item="roleCode" separator=",">
+            (#{id},#{roleCode})
+        </foreach>
+    </update>
+
+    <!-- 删除用户角色 -->
+    <delete id="delUserRole">
+        delete from sys_p_user_role where user_id = #{id}
+    </delete>
+
+    <!-- 根据用户账号和密码获取用户信息 -->
+    <select id="login" resultType="com.zero2oneit.mall.system.user.entity.User">
+        SELECT
+              id,account,username,email,phone,head_photo headPhoto,dept_id deptId,user_status userStatus,profile
+        FROM sys_p_user
+        <where>
+            <if test="account != null and account !=''">
+                and binary account=#{account}
+            </if>
+            <if test="password != null and password !=''">
+                and binary password=#{password}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM sys_p_user u
+        <include refid="common_where_if"/>
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+           SELECT u.id,u.account,u.username,u.email,u.profile,u.create_time,
+                  (CASE WHEN u.user_status = 0 THEN '注销' ELSE '有效' END) user_status,
+                  d.id deptId,d.dept_name deptName,GROUP_CONCAT(r.role_name) role_name
+           FROM
+           sys_p_user u
+           LEFT JOIN sys_p_dept d ON u.dept_id = d.id
+           LEFT JOIN sys_p_user_role ur ON u.id = ur.user_id
+           LEFT JOIN sys_p_role r ON ur.role_code = r.role_code
+           <include refid="common_where_if"/>
+           GROUP BY u.id
+           ORDER BY u.create_time DESC
+           limit #{starIndex},#{pageSize}
+    </select>
+
+    <!-- 根据用户id查询用户角色 -->
+    <select id="getUserAllRole" resultType="java.util.HashMap">
+       SELECT t.role_name,t.role_code, 2 type_id FROM sys_p_role t
+       WHERE EXISTS(SELECT 1 FROM sys_p_user_role u WHERE t.role_code = u.role_code AND u.user_id=#{id})
+       UNION ALL
+       SELECT t.role_name,t.role_code, 1 type_id FROM sys_p_role t
+       WHERE NOT EXISTS(SELECT 1 FROM sys_p_user_role u WHERE t.role_code = u.role_code AND u.user_id=#{id})
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="account != null and account !=''">
+                and u.account = #{account}
+            </if>
+            <if test="username != null and username !=''">
+                and u.username like CONCAT('%',#{username},'%')
+            </if>
+        </where>
+    </sql>
+
+</mapper>

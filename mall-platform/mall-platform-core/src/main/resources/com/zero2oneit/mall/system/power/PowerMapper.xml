@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.power.mapper.PowerMapper">
+
+    <!-- 添加用户权限 -->
+    <insert id="saveUserFunction">
+        INSERT INTO sys_p_user_f(user_id,function_id)
+        SELECT #{userId},function_id FROM sys_p_menu WHERE FIND_IN_SET(function_id,#{functionIds})
+    </insert>
+
+    <!-- 删除用户权限 -->
+    <delete id="delUserFunction">
+        DELETE FROM sys_p_user_f WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 加载用户权限 -->
+    <select id="loadUserFunction" resultType="java.lang.Integer">
+        SELECT t.id FROM sys_p_menu t,sys_p_user_f f WHERE t.function_id = f.function_id AND f.user_id = #{userId}
+    </select>
+
+    <!-- 加载角色权限 -->
+    <select id="loadRoleFunction" resultType="java.lang.Integer">
+        SELECT t.id FROM sys_p_menu t,sys_p_role_f f WHERE t.function_id = f.function_id AND f.role_code = #{roleCode}
+    </select>
+
+    <!-- 初始化所有用户按钮权限 -->
+    <select id="loadBtnPermissions" resultType="com.zero2oneit.mall.system.power.entity.PowerBtn">
+          SELECT user_id userId,GROUP_CONCAT(function_id) functionId FROM (
+          SELECT t.user_id,t.function_id FROM sys_p_user_f t,sys_p_function p WHERE t.function_id=p.id AND p.f_type=2
+          UNION
+          SELECT r.user_id,f.function_id FROM sys_p_role_f f,sys_p_user_role r,sys_p_function p WHERE f.role_code=r.role_code AND f.function_id=p.id AND p.f_type=2
+          ) b GROUP BY user_id
+    </select>
+
+    <select id="deptUsersList" resultType="com.zero2oneit.mall.system.power.entity.DeptUser">
+        SELECT id,dept_name name,parent_id parentId,OPEN,dept_level deptLevel,NULL userId FROM sys_p_dept
+        UNION ALL
+        SELECT (10000+u.id) id,u.username name,u.dept_id parentId,0 OPEN,3 deptLevel,u.id userId FROM sys_p_user u, sys_p_dept d WHERE u.dept_id=d.id
+    </select>
+
+    <select id="loadUserData" resultType="java.lang.Integer">
+        SELECT (10000+data_id) id FROM sys_p_user_d where user_id = #{userId}
+    </select>
+
+    <select id="loadRoleData" resultType="java.lang.Integer">
+        SELECT (10000+data_id) id FROM sys_p_role_d where role_code = #{roleCode}
+    </select>
+
+    <select id="selectPermsByUserId" resultType="java.lang.String">
+        SELECT p.request_url FROM sys_p_user_f t,sys_p_function p WHERE t.function_id=p.id AND t.user_id=#{userId}
+        UNION
+        SELECT p.request_url FROM sys_p_role_f f,sys_p_user_role r,sys_p_function p
+        WHERE f.role_code=r.role_code AND f.function_id=p.id AND r.user_id=#{userId}
+    </select>
+
+    <!-- 添加角色权限 -->
+    <insert id="saveRoleFunction">
+        INSERT INTO sys_p_role_f(role_code,function_id)
+        SELECT #{roleCode},function_id FROM sys_p_menu WHERE FIND_IN_SET(function_id,#{functionIds})
+    </insert>
+
+    <insert id="saveUserData">
+        INSERT INTO sys_p_user_d(user_id,data_id)
+        SELECT #{userId},id FROM sys_p_user WHERE FIND_IN_SET(id,#{functionIds})
+    </insert>
+
+    <insert id="saveRoleData">
+        INSERT INTO sys_p_role_d(role_code,data_id)
+        SELECT #{roleCode},id FROM sys_p_user WHERE FIND_IN_SET(id,#{functionIds})
+    </insert>
+
+    <!-- 删除角色权限 -->
+    <delete id="delRoleFunction">
+        DELETE FROM sys_p_role_f WHERE role_code = #{roleCode}
+    </delete>
+
+    <delete id="delUserData">
+        DELETE FROM sys_p_user_d WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="delRoleData">
+         DELETE FROM sys_p_role_d WHERE role_code = #{roleCode}
+    </delete>
+
+</mapper>

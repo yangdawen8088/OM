@@ -1,0 +1,50 @@
+checkbox.round .wx-checkbox-input,
+checkbox.round .uni-checkbox-input {
+	border-radius: 100upx;
+}
+
+uni-checkbox .uni-checkbox-input {
+	border-radius: 50% !important;
+	color: #ffffff !important;
+	width: 32rpx;
+	height: 32rpx;
+}
+uni-checkbox .uni-checkbox-input.uni-checkbox-input-checked {
+	color: #fff;
+	border-color: #F22222 !important;
+	background: #F22222;
+}
+
+uni-checkbox .uni-checkbox-input.uni-checkbox-input-checked:after {
+	font-size: 40rpx;
+}
+uni-checkbox .uni-checkbox-input, uni-checkbox:not([disabled]) .uni-checkbox-input:hover{
+	border-color: #d1d1d1;
+}
+/* #ifdef APP-PLUS ||MP-WEIXIN */
+		checkbox .wx-checkbox-input {
+			border-radius: 50% !important;
+			width: 32rpx;
+			height: 32rpx;
+			/* color: #ffffff !important; */
+		}
+	
+		checkbox .wx-checkbox-input.wx-checkbox-input-checked {
+			color: #fff;
+			background: #F22222;
+			border-color: #F22222;
+		}
+	
+/* #endif */
+/* 多行文本溢出处理 */
+.texts-cut{
+	white-space: normal;
+	word-break: break-all;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	font-size: 24rpx;
+	color: #333;
+}

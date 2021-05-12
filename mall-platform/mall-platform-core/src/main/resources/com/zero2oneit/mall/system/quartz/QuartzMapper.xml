@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.quartz.mapper.QuartzMapper">
+
+    <!--
+       任务管理表主要
+       qrtz_cron_triggers ：执行规则
+       qrtz_job_details ：明细
+       qrtz_triggers ： 任务运行状态
+    -->
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="jobId">
+        insert into sys_job(job_id,job_name,job_group,invoke_target,cron_expression,misfire_policy,concurrent,
+        status,remark,create_by,create_time)
+        values(#{jobId},#{jobName},#{jobGroup},#{invokeTarget},#{cronExpression},#{misfirePolicy},
+           #{concurrent},#{status},#{remark},'admin',sysdate())
+    </insert>
+
+
+    <insert id="addJobLog">
+        insert into sys_job_log(job_log_id,job_name,job_group,invoke_target,job_message,status,exception_info,create_time)
+        values(#{jobLogId},#{jobName},#{jobGroup},#{invokeTarget},#{jobMessage},#{status},#{exceptionInfo},sysdate())
+    </insert>
+
+    <update id="edit">
+        update sys_job
+        set job_name = #{jobName},
+        job_group = #{jobGroup},
+        invoke_target = #{invokeTarget},
+        cron_expression = #{cronExpression},
+        misfire_policy = #{misfirePolicy},
+        concurrent = #{concurrent},
+        status = #{status},
+        remark = #{remark},
+        update_by = 'admin',
+        update_time = sysdate()
+        where job_id = #{jobId}
+    </update>
+
+    <delete id="deleteJobById">
+            delete from sys_job where job_id = #{jobId}
+    </delete>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+             SELECT COUNT(1) FROM sys_job where 1=1
+            <if test="jobName != null and jobName !=''">
+                and job_name like CONCAT('%', #{jobName}, '%')
+            </if>
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+            SELECT
+                   job_id jobId,job_name jobName,job_group jobGroup,invoke_target invokeTarget,
+                   cron_expression cronExpression,misfire_policy misfirePolicy,concurrent,status,create_time,remark
+              FROM sys_job
+            <if test="jobName != null and jobName !=''">
+                and job_name like CONCAT('%', #{jobName}, '%')
+            </if>
+            order by create_time desc
+            limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectLogTotal" resultType="java.lang.Integer">
+             SELECT COUNT(1) FROM sys_job_log where 1=1
+            <if test="jobName != null and jobName !=''">
+                and job_name like CONCAT('%', #{jobName}, '%')
+            </if>
+    </select>
+
+    <select id="selectLogRows" resultType="java.util.HashMap">
+            SELECT job_log_id,job_name,job_group,invoke_target,job_message,status,create_time,exception_info FROM sys_job_log where 1=1
+            <if test="jobName != null and jobName !=''">
+                and job_name like CONCAT('%', #{jobName}, '%')
+            </if>
+            order by create_time desc
+            limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectJobById" resultType="com.zero2oneit.mall.system.quartz.entity.SysJob">
+             SELECT
+                   job_id jobId,job_name jobName,job_group jobGroup,invoke_target invokeTarget,
+                   cron_expression cronExpression,misfire_policy misfirePolicy,concurrent,status,create_time,remark
+              FROM sys_job where job_id = #{jobId}
+    </select>
+
+    <select id="selectJobAll" resultType="com.zero2oneit.mall.system.quartz.entity.SysJob">
+            SELECT
+                   job_id jobId,job_name jobName,job_group jobGroup,invoke_target invokeTarget,
+                   cron_expression cronExpression,misfire_policy misfirePolicy,concurrent,status,create_time,remark
+              FROM sys_job
+    </select>
+
+</mapper>

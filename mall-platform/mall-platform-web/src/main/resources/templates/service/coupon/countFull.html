@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>优惠券管理</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>板块名称:</label>
+                                <input type="text" class="form-control" name="plateName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="activation" onclick="changeStatus(1)">激活</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="Logout" onclick="changeStatus(0)">注销</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+
+                    <table id="grid_data"></table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">板块管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" action="/system/role/addOrEditRole" method="post" data-target="validator">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">板块名称：</label>
+                            <input type="hidden" name="id">
+                            <input type="text" class="form-control" id="recipient-name" name="plateName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">板块类型：</label>
+                            <div>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="typeId" value="0"/>自营</label>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="typeId" value="1"/>通用</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="sava">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: 'ID'},
+            {field: 'plateName',title: '商品所属板块名称'},
+            {field: 'statusId',title: '板块状态',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "无效";
+                    }else if(value=='1'){
+                        return "有效";
+                    }}},
+            {field: 'typeId',title: '板块类型',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "自营";
+                    }else if(value=='1'){
+                        return "通用";
+                    }}},
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("grid_data", "/remote/plate/platePage",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#grid_data').bootstrapTable('refresh');
+        });
+
+        //点击添加按钮弹出模态框
+        $("#addBtn").click(function () {
+            $("#addOrEditModal").modal("show");
+            $(":radio[name='typeId'][value='0']").prop("checked", "checked");
+        });
+
+        //点击编辑按钮弹出模态框
+        $("#editBtn").click(function () {
+
+            //获取选中行的数据
+            var datas = $('#grid_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length == 1){
+                //填充表单
+                $("#addOrEditForm").formloader({data: datas[0]});
+                $(":radio[name='typeId'][value='" + datas[0].typeId + "']").prop("checked", "checked");
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+                return;
+            }
+
+            $("#addOrEditModal").modal("show");
+        });
+
+        //保存按钮的点击事件
+        $("#sava").click(function () {
+            zero2one.request("/remote/plate/addOrEditPlate",$("#addOrEditForm").serialize(),function (data) {
+                if (data.success) {
+                    window.location.reload();
+                }else {
+                    $.messager.alert("温馨提示", data.msg)
+                }
+            });
+        });
+
+        //编辑板块状态
+        function changeStatus(statusId) {
+            //获取选中行的数据
+            var datas = $('#grid_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length > 0){
+                $.messager.confirm("温馨提示", "您确定要更改用户状态吗?", function () {
+                    //发送请求,执行批量删除
+                    $.post("/remote/plate/changeStatus", {"statusId" : statusId,"ids" : zero2one.array2str(datas)},
+                        function(data){
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                $.messager.alert("温馨提示", data.msg)
+                            }
+                        }, "json");
+                })
+            }else{
+                $.messager.alert("温馨提示", "请至少选择一条数据操作");
+
+            }
+        }
+
+    </script>
+
+</div>
+</body>
+</html>

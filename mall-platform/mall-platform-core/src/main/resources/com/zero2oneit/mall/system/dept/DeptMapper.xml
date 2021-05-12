@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.dept.mapper.DeptMapper">
+
+    <!-- 添加部门信息 -->
+    <insert id="add">
+        INSERT INTO sys_p_dept(dept_name,dept_level,parent_id,open)
+        VALUES(#{name},#{deptLevel},#{parentId},#{open})
+    </insert>
+
+    <!-- 编辑部门信息 -->
+    <update id="edit">
+        update sys_p_dept set dept_name=#{name},open=#{open},dept_level=#{deptLevel} where id=#{id}
+    </update>
+
+    <!-- 加载所有部门数据 -->
+    <select id="selectDeptList" resultType="com.zero2oneit.mall.system.dept.entity.Dept">
+        SELECT id,dept_name name,parent_id parentId,dept_level deptLevel,master_id masterId,open FROM sys_p_dept
+    </select>
+
+    <!-- 根据部门IDS获取部门下的所有员工 -->
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM sys_p_dept d,sys_p_user u WHERE d.id = u.dept_id
+        <if test="ids != null and ids !=''">
+            AND FIND_IN_SET(d.id,#{ids})
+        </if>
+    </select>
+
+    <!-- 根据部门IDS获取部门下的所有员工 -->
+    <select id="selectRows" resultType="java.util.HashMap">
+        SELECT d.id,d.dept_name,u.account,u.username FROM sys_p_dept d,sys_p_user u WHERE d.id = u.dept_id
+        <if test="ids != null and ids !=''">
+            AND FIND_IN_SET(d.id,#{ids})
+        </if>
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="getDeptByName" resultType="java.util.HashMap">
+        SELECT id,dept_name name FROM sys_p_dept WHERE dept_name LIKE CONCAT('%',#{keyword},'%')
+    </select>
+
+</mapper>

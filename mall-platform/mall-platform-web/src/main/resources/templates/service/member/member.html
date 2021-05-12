@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <title>会员管理</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="css/animate.css" rel="stylesheet">
+  <link href="css/style.min.css" rel="stylesheet">
+  <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <div id="toolbar" class="toolbar-btn-action">
+            <form class="form-inline" method="post" id="searchForm">
+              <div class="form-group">
+                <label>会员账号:</label>
+                <input type="text" class="form-control" name="memberAccount">
+                <label>会员昵称:</label>
+                <input type="text" class="form-control" name="nickName">
+                <label>手机号码:</label>
+                <input type="text" class="form-control" name="memberPhone">
+                <label>注册时间:</label>
+                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="registerTime" placeholder="开始时间">
+              </div>
+              <div class="form-group">
+                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card-body">
+          <table id="grid_data" class="table text-nowrap"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<#include "/footer.html"/>
+<!--日期选择插件-->
+<script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+<script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+<script src="js/main.min.js"></script>
+<script type="text/javascript">
+
+  //设置表头
+  var columns = [
+    {
+      field: 'operate',
+      title: '操作',
+      formatter: function (event, value, row, index) {
+          return '<a href="#!" class="btn btn-xs btn-primary m-r-5 up-btn" title="重置登录密码" data-toggle="tooltip"><i class="mdi mdi-lock-reset"></i></a>' +
+                  '<a href="#!" class="btn btn-xs btn-yellow m-r-5 edit-btn" title="赠送优惠券" data-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>' +
+                  '<a href="#!" class="btn btn-xs btn-purple m-r-5 watch-btn" title="查看我的粉丝" data-toggle="tooltip"><i class="mdi mdi-magnify"></i></a>' +
+                  '<a href="#!" class="btn btn-xs btn-cyan m-r-5 watch-btn" title="查看消费记录" data-toggle="tooltip"><i class="mdi mdi-magnify"></i></a>' +
+                  '<a href="#!" class="btn btn-xs btn-pink del-btn" title="查看优惠券" data-toggle="tooltip"><i class="mdi mdi-magnify"></i></a>';
+      },  // 自定义方法
+      events: {
+        'click .up-btn': function (event, value, row, index) {
+          resetPwd(row);
+        },
+        'click .down-btn': function (event, value, row, index) {
+          goodsDown(row);
+        },
+        'click .edit-btn': function (event, value, row, index) {
+          goodsEdit(row);
+        },
+        'click .watch-btn': function (event, value, row, index) {
+          goodsWatch(row);
+        },
+        'click .del-btn': function (event, value, row, index) {
+          goodsDelete(row);
+        }
+      }
+    },
+    {field: 'memberId',title: '会员ID'},
+    {field: 'memberAccount',title: '会员账号'},
+    {field: 'nickName',title: '会员昵称'},
+    {field: 'sex',title: '会员性别',formatter: function (value, row, index) {return value == 1 ? "男": value == 2 ? "女": "保密";}},
+    {field: 'memberGrade',title: '会员等级'},
+    {field: 'memberPhone',title: '手机号码'},
+    {field: 'registerTime',title: '注册时间',formatter: function (value) {
+        return zero2one.dateFormat(value, 'Y-m-d H:i:s')}}
+  ];
+
+  //进入主界面加载数据
+  zero2one.datagrid("grid_data", "/remote/member/list",function (params) {
+    return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+  }, columns);
+
+  //点击查询按钮重新加载页面数据
+  $("#searchFormBtn").click(function () {
+    $('#grid_data').bootstrapTable('refresh');
+  });
+
+  //重置登录密码
+  function resetPwd(row) {
+    $.messager.confirm("温馨提示", "您确定要重置登录密码吗?", function () {
+      zero2one.request("/remote/member/resetPwd",{memberId : row.memberId},function (data) {
+        window.location.reload();
+      });
+    })
+  }
+
+</script>
+</body>
+</html>

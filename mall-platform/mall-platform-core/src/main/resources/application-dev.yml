@@ -1,0 +1,56 @@
+#MyBatis 配置
+mybatis-plus:
+  # 加载全局的配置文件
+  config-location: classpath:mybatis/mybatis-config.xml
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapper-locations: classpath*:com/zero2oneit/mall/system/*/*Mapper.xml
+  # 搜索指定包别名
+  type-aliases-package: com.zero2oneit.mall.system.*.entity
+  global-config:
+    db-config:
+      id-type: auto
+
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    timeout: 1800000
+    password: qq123456
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://127.0.0.1:3306/om_sys?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&useSSL=true
+    password: brady
+    username: brady
+    druid:
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          merge-sql: true
+          slow-sql-millis: 1000
+        wall:
+          config:
+            multi-statement-allow: true
+      initial-size: 5
+      max-active: 100
+      max-wait: 60000
+      maxEvictableIdleTimeMillis: 900000
+      min-idle: 10
+      minEvictableIdleTimeMillis: 300000
+      stat-view-servlet:
+        allow: ''
+        enabled: true
+        login-password: ''
+        login-username: ''
+        url-pattern: /druid/*
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      timeBetweenEvictionRunsMillis: 60000
+      validation-query: select 'x'
+      web-stat-filter:
+        enabled: true

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>仓库基本信息</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>仓库基本信息</h4></div>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active in" id="home">
+
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>仓库名字:</label>
+                                <input type="text" class="form-control" name="houseName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn" onclick="modifyStatus(0)">删除</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="activation" onclick="changeUserStatus(0)">启用</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="Logout" onclick="changeUserStatus(1)">禁用</button>
+                            </div>
+                        </form>
+                        <table id="info_data"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--  添加与编辑模态框 -->
+<div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">仓库基本信息</h4>
+            </div>
+
+            <div class="modal-body">
+                <form id="addOrEditForm"  method="post">
+
+                    <div class="col-xs-12">
+                        <div class="input-group m-b-10">
+                            <span class="input-group-addon">仓库名字</span>
+                            <input type="hidden" name="houseId">
+                            <input type="text" class="form-control" id="houseName" name="houseName" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12">
+                        <div class="input-group m-b-10">
+                            <span class="input-group-addon">仓库负责人</span>
+                            <input type="text" class="form-control" id="housePerson" name="housePerson" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">仓库地址</span>
+                                <input type="text" class="form-control" id="houseAddress" name="houseAddress" onkeyup="this.value=this.value.replace(/\s+/g,'')">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" id="saveFormBtn" class="btn btn-primary" >保存</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+
+<script type="text/javascript">
+
+
+    //设置表头
+    var columns = [
+        {checkbox: true},
+        {field: 'houseId',title: '仓库ID'},
+        {field: 'houseName',title: '仓库名字'},
+        {field: 'houseAddress',title: '仓库地址'},
+        {field: 'housePerson',title: '仓库负责人'},
+        {field: 'createTime',title: '创建时间',formatter: function (value) {
+                return zero2one.dateFormat(value, 'Y-m-d')}},
+        {field: 'houseStatus',title: '仓库状态',formatter: function (value, row, index) {
+                if(value=='1') {
+                    var html= "<button class=\"btn btn-danger btn-sm\">禁用</button>";
+                    return html
+                }else if(value=='0') {
+                    var html= "<button class=\"btn btn-purple btn-sm\">启&nbsp;用</button>";
+                    return html
+                }
+            }}
+    ];
+
+
+    //进入主界面加载数据
+    zero2one.datagrid("info_data", "/remote/houseInfo/list",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        $('#info_data').bootstrapTable('refresh');
+    });
+    //改变状态
+    function changeUserStatus(state) {
+        //获取选中行的数据
+        var datas = $('#info_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+       /* var vo={"statues" : statues,"supplier_id" : zero2one.arraysuppstr(datas)};*/
+        var ids="";
+        $.each(datas,function (i,v) {
+            ids += v.houseId+",";
+        });
+        if(datas.length > 0){
+            $.messager.confirm("温馨提示", "您确定更改状态吗?", function () {
+                $.post("/remote/houseInfo/updateHouseByIds", {"state" : state,
+                    "ids" : ids},
+                    function (data) {
+                        if (data.success){
+                            $.messager.alert("温馨提示", "操作成功,2S之后刷新");
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 2000);
+                        }else {
+                            $.messager.alert("温馨提示","操作失败");
+                        }
+                 },"json");
+
+            })
+        }else{
+            $.messager.alert("温馨提示", "请至少选择一条数据操作");
+
+        }
+    }
+
+    //点击添加按钮弹出模态框
+    $("#addBtn").click(function () {
+        $("#addOrEditForm")[0].reset();
+        //$("#houseName").prop("readonly", false);
+        $("#addOrEditModal").modal("show");
+
+    });
+    //点击编辑按钮弹出模态框
+    $("#editBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#info_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length == 1){
+            $("#addOrEditForm").formloader({data: datas[0]});
+        }else{
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+            return;
+        }
+        $("#addOrEditModal").modal("show");
+    });
+    /*//点击删除按钮弹出模态框
+    $("#deleteBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#info_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        console.log(ids);
+        var ids="";
+        $.each(datas,function (i,v) {
+            ids += v.houseId+",";
+        });
+        var ids=ids.substring(0,ids.length-1);
+        if(datas.length > 0){
+            $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                //发送请求,执行批量删除
+                zero2one.request("/remote/houseInfo/delByIdhouse",{"ids": ids},function (data) {
+                    window.location.reload();
+                });
+            })
+        }else{
+            $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+            return;
+        }
+
+    });*/
+
+    //逻辑删除
+    function modifyStatus(state) {
+        //获取选中行的数据
+        var datas = $('#info_data').bootstrapTable('getSelections');
+        var ids="";
+        $.each(datas,function (i,v) {
+            ids += v.houseId+",";
+        });
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length > 0){
+            $.messager.confirm("温馨提示", "您确定要更改用户状态吗?", function () {
+                //发送请求,执行批量修改状态
+                $.post("/remote/houseInfo/delByIdhouse", {"state" : state,
+                        "ids" : ids},
+                    function(data){
+                        console.log(data);
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            $.messager.alert("温馨提示", data.msg)
+                        }
+                    }, "json");
+            })
+        }else{
+            $.messager.alert("温馨提示", "请至少选择一条数据操作");
+
+        }
+    }
+
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            houseName: {validators: {notEmpty: {message: '仓库名字不能为空'}}},
+            housePerson: {validators: {notEmpty: {message: '仓库负责人不能为空'}}},
+            houseAddress: {validators: {notEmpty: {message: '仓库地址不能为空'}}}
+        }
+    });
+
+
+    //保存按钮的点击事件
+    $("#saveFormBtn").click(function () {
+        if($.trim($("#houseName").val()).length == 0){
+            $("#exampleModalLabel").html("仓库名字不能为空");
+            return;
+        }
+        if($.trim($("#housePerson").val()).length == 0){
+            $("#exampleModalLabel").html("仓库负责人不能为空");
+            return;
+        }
+        if($.trim($("#houseAddress").val()).length == 0){
+            $("#exampleModalLabel").html("仓库地址不能为空");
+            return;
+        }
+        zero2one.request("/remote/houseInfo/updatehouse",$("#addOrEditForm").serialize(),function (data) {
+            if (data.success) {
+                window.location.reload();
+            }else {
+                $.messager.alert("温馨提示", data.msg);
+            }
+        });
+    });
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <title>商品管理</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <!--时间选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <!--日期选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+    <link href="css/style.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>商品名称:</label>
+                                <input type="text" class="form-control" name="productName">
+                            </div>
+                            <div class="form-group">
+                                <label>商品状态:</label>
+                                <select class="form-control" name="state">
+                                    <option value="">全部</option>
+                                    <option value="1">已启用</option>
+                                    <option value="2">已禁用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="activation"
+                                        onclick="modifyStatus(1)">启用
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="Logout"
+                                        onclick="modifyStatus(2)">禁用
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="checkInventory">查看库存</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+                    <table id="product_data"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">商品管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" action="/system/role/addOrEditRole" method="post" data-target="validator">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <input type="hidden" name="productId">
+                                <label for="productName" class="control-label">商品名称</label>
+                                <input type="text" class="form-control" id="productName" name="productName" required>
+                            </div>
+                            <div class="col-xs-6">
+                                <label for="barCode" class="control-label">商品条形码</label>
+                                <input type="text" class="form-control" id="barCode" name="barCode" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label for="productSku" class="control-label">商品规格</label>
+                                <input type="text" class="form-control" id="productSku" name="productSku" required>
+                            </div>
+                            <div class="col-xs-6">
+                                <label for="productUnit" class="control-label">商品单位</label>
+                                <input type="text" class="form-control" id="productUnit" name="productUnit" required>
+                            </div>
+                        </div>
+                        <div class="row">
+<!--                            <div class="col-xs-6">-->
+<!--                                <label for="productNum" class="control-label">商品数量</label>-->
+<!--                                <input type="text" class="form-control" id="productNum" name="productNum" required>-->
+<!--                            </div>-->
+                            <div class="col-xs-6">
+                                <label for="purchasePrice" class="control-label">采购价</label>
+                                <input type="text" class="form-control" id="purchasePrice" name="purchasePrice"
+                                       required onkeyup="value=value.replace(/[^\d^\.]+/g,'')">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label for="retailPrice" class="control-label">零售价</label>
+                                <input type="text" class="form-control" id="retailPrice" name="retailPrice" required onkeyup="value=value.replace(/[^\d^\.]+/g,'')">
+                            </div>
+                            <div class="col-xs-6">
+                                <label for="sellingPrice" class="control-label">销售价</label>
+                                <input type="text" class="form-control" id="sellingPrice" name="sellingPrice" required onkeyup="value=value.replace(/[^\d^\.]+/g,'')">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <label for="lowestPrice" class="control-label">最低售价</label>
+                                <input type="text" class="form-control" id="lowestPrice" name="lowestPrice" required onkeyup="value=value.replace(/[^\d^\.]+/g,'')">
+                            </div>
+                            <div class="col-xs-6">
+                                <label for="remarks" class="control-label">备注</label>
+                                <input type="text" class="form-control" id="remarks" name="remarks" required>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="sava">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  库存详细 -->
+    <div class="modal fade" id="seeDetailsMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabels">
+        <div class="modal-dialog" role="document" style="width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProductInformation">库存详细</h4>
+                </div>
+                <div class="modal-body" id="inventoryDetails"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!--时间选择插件-->
+    <script src="js/bootstrap-datetimepicker/moment.min.js"></script>
+    <script src="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/bootstrap-datetimepicker/locale/zh-cn.js"></script>
+    <!--日期选择插件-->
+    <script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'productId', title: 'ID'},
+            {field: 'productName', title: '名称'},
+            {
+                field: 'barCode', title: '商品条形码', formatter: function (value, row, index) {
+                    if (value == '') {
+                        return "无";
+                    } else {
+                        return value;
+                    }
+                }
+            },
+            {field: 'productSku', title: '商品规格'},
+            {field: 'productUnit', title: '商品单位'},
+            {
+                field: 'state', title: '状态', formatter: function (value, row, index) {
+                    if (value == '1') {
+                        return "已启用";
+                    } else if (value == '2') {
+                        return "已禁用";
+                    }
+                }
+            },
+            {field: 'purchasePrice', title: '采购价'},
+            {field: 'retailPrice', title: '零售价'},
+            {field: 'sellingPrice', title: '销售价'},
+            {field: 'lowestPrice', title: '最低售价'},
+            {field: 'remarks', title: '备注',formatter:function (value) {
+                    if (value==''){
+                        return "无";
+                    }
+                    return value;
+                }}];
+
+        //进入主界面加载数据
+        zero2one.datagrid("product_data", "/remote/goodPage/list", function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#product_data').bootstrapTable('refresh');
+        });
+
+        //点击添加按钮弹出模态框
+        $("#addBtn").click(function () {
+            $("#addOrEditModal").modal("show");
+            $("#addOrEditForm")[0].reset();
+        });
+
+        //点击编辑按钮弹出模态框
+        $("#editBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#product_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if (datas.length == 1) {
+                //填充表单
+                $("#addOrEditForm").formloader({data: datas[0]});
+            } else {
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+                return;
+            }
+            $("#addOrEditModal").modal("show");
+        });
+
+        //保存按钮的点击事件
+        $("#sava").click(function () {
+            zero2one.request("/remote/goodPage/addOrEditProduct", $("#addOrEditForm").serialize(), function (data) {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    $.messager.alert("温馨提示", data.msg)
+                }
+            });
+        });
+
+        //编辑商品状态
+        function modifyStatus(state) {
+            //获取选中行的数据
+            var datas = $('#product_data').bootstrapTable('getSelections');
+            var ids = "";
+            $.each(datas, function (i, v) {
+                ids += v.productId + ",";
+            });
+            //判断是否选中行数据，如果没有则提示
+            if (datas.length > 0) {
+                $.messager.confirm("温馨提示", "您确定要更改用户状态吗?", function () {
+                    //发送请求,执行批量修改状态
+                    $.post("/remote/goodPage/modifyStatus", {
+                            "state": state,
+                            "ids": ids
+                        },
+                        function (data) {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                $.messager.alert("温馨提示", data.msg)
+                            }
+                        }, "json");
+                })
+            } else {
+                $.messager.alert("温馨提示", "请至少选择一条数据操作");
+
+            }
+        }
+
+        //点击删除按钮弹出模态框
+        $("#deleteBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#product_data').bootstrapTable('getSelections');
+            var ids = "";
+            $.each(datas, function (i, v) {
+                ids += v.productId + ",";
+            });
+            var ids = ids.substring(0, ids.length - 1);
+            if (datas.length > 0) {
+                $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                    //发送请求,执行批量删除
+                    $.post("/remote/goodPage/deletes", {"ids": ids},
+                        function (data) {
+                            if (data.success){
+                                    $.messager.alert("温馨提示", "操作成功,2S之后刷新");
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 2000);
+                            }else {
+                                $.messager.alert("温馨提示",data.msg);
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 1500);
+                            }
+                        });
+                })
+            } else {
+                $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+
+            }
+        });
+
+        //查看库存按钮
+        $("#checkInventory").click(function () {
+            var datas = $('#product_data').bootstrapTable('getSelections');
+            if (datas.length !=0) {
+                var str="";
+                $.each(datas,function (i,v) {
+                    str += v.productId+",";
+                });
+                zero2one.request("/remote/goodStock/queryWarehouse",{"ids":str.substring(0,str.length-1)},function (data) {
+                    var content = '';
+                    if (data.data.length==0){
+                        content +="无库存";
+                    }else {
+                        for (let i = 0; i <data.data.length; i++ ) {
+                            content +=
+                                '<label style="font-size: x-large">商品名称：</label><label style="font-size: large">' + data.data[i].productName + '</label></br>'
+                                + '<label style="font-size: x-large">商品库存：</label><label style="font-size: large">' + data.data[i].productStock+'</label></br>'
+                                + '<hr>';
+                        }
+                    }
+                    $("#inventoryDetails").html(content);
+                    //打开模态框
+                    $("#seeDetailsMessage").modal("show");
+                });
+            } else {
+                $.messager.alert("温馨提示", "请选择一条或多条消息操作!")
+            }
+        })
+
+
+    </script>
+</div>
+</body>
+</html>

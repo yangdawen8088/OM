@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.log.mapper.LogMapper">
+
+    <!-- 添加一条操作日志信息 -->
+    <insert id="addOperationLog">
+        INSERT INTO sys_p_log(logtype,logname,user_id,class_name,method_name,create_time,succeed,message)
+        VALUES(#{logtype}, #{logname}, #{userId}, #{className}, #{methodName}, #{createTime}, #{succeed}, #{message})
+    </insert>
+
+    <!-- 添加一条平台用户登录日志信息 -->
+    <insert id="addFlatformLoginLog">
+        INSERT INTO sys_l_login(login_time,user_id,session_id,login_ip,ip_address,os,browser,login_type)
+        VALUES(#{loginTime}, #{userId}, #{sessionId}, #{loginIp}, #{ipAddress}, #{os}, #{browser}, #{loginType})
+    </insert>
+
+    <!-- 根据session-id更新登录日志表中的登出时间 -->
+    <update id="setLogoutTime">
+        UPDATE sys_l_login SET logout_time=#{date} WHERE session_id = #{sessionId}
+    </update>
+
+    <!-- 查询总记录数 -->
+    <select id="selectTotal" resultType="java.lang.Integer">
+
+        select count(1) from sys_l_login t, sys_p_user u
+        WHERE t.user_id = u.id
+        <include refid="login_where_if"/>
+
+    </select>
+
+    <!-- 查询列表数据 -->
+    <select id="selectRows" resultType="java.util.HashMap">
+
+        select t.id,u.account,t.login_time,t.login_ip,t.ip_address,
+        t.session_id,t.logout_time,os,browser
+        from sys_l_login t, sys_p_user u
+        where t.user_id = u.id
+        <include refid="login_where_if"/>
+        order by t.login_time desc
+        limit #{starIndex},#{pageSize}
+
+    </select>
+
+    <select id="selectOpTotal" resultType="java.lang.Integer">
+        select count(1) from sys_p_log m
+        WHERE 1=1
+        <include refid="op_where_if"/>
+    </select>
+
+
+    <select id="selectOpRows" resultType="java.util.HashMap">
+        SELECT p.account,m.logtype,m.logname,m.class_name,m.method_name,m.create_time,m.message
+        FROM sys_p_log m,sys_p_user p
+        WHERE m.user_id = p.id
+        <include refid="op_where_if"/>
+        order by m.create_time desc
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <sql id="login_where_if">
+        <if test="account != null and account !=''">
+            and u.account = #{account}
+        </if>
+        <if test="startTime != null">
+            and t.login_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and t.login_time &lt;= #{endTime}
+        </if>
+    </sql>
+
+    <sql id="op_where_if">
+        <if test="account != null and account !=''">
+            and p.account = #{account}
+        </if>
+        <if test="logType != null and logType !=''">
+            and m.logtype = #{logType}
+        </if>
+        <if test="startTime != null">
+            and m.create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and m.create_time &lt;= #{endTime}
+        </if>
+    </sql>
+
+</mapper>

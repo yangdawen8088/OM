@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <style type="text/css">
+    .tangram-suggestion-main {z-index: 99999999999;}
+    body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";font-size:14px;}
+    #l-map{height:600px;width:80%;}
+    #r-result{width:100%;}
+  </style>
+
+  <title>城市详情管理</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="css/animate.css" rel="stylesheet">
+  <link href="css/style.min.css" rel="stylesheet">
+  <link href="js/select2/select2.min.css" rel="stylesheet">
+  <!--修改图片-->
+  <link rel="stylesheet" href="js/dropzone/min/basic.min.css" />
+  <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css" />
+  <link rel="stylesheet" type="text/css" href="js/webuploader/webuploader.css">
+  <link rel="stylesheet" type="text/css" href="js/magnific-popup/magnific-popup.min.css">
+  <link rel="stylesheet" href="https://g.alicdn.com/de/prismplayer/2.8.2/skins/default/aliplayer-min.css" />
+  <script charset="utf-8" type="text/javascript" src="https://g.alicdn.com/de/prismplayer/2.8.2/aliplayer-min.js"></script>
+
+
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header"><h4>城市详情管理</h4></div>
+          <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="home">
+
+              <form class="form-inline" method="post" id="searchForm">
+                <div class="form-group">
+                  <label>标题名称:</label>
+                  <input type="text" class="form-control" name="title">
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn" >查询</button>
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-success btn_query btn-round" type="button" id="addBtn" >添加</button>
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除</button>
+                </div>
+              </form>
+              <table id="pro_data"></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+      <div class="modal-dialog modal-lg" role="document" style="width: 90%">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">城市详情管理</h4>
+          </div>
+          <div class="modal-body">
+            <form id="addOrEditForm" method="post">
+              <div data-toggle="distpicker">
+                <input type="hidden" name="id" id="id">
+                <label for="dizi" class="control-label">请选择城市：</label>
+                <div class="form-group" id="dizi">
+                  <div data-toggle="distpicker">
+                    <div class="form-group col-md-4">
+                      <select class="form-control" id="provinceName" data-province="广东省" name="provinceName"></select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <select class="form-control" id="city" data-city="湛江市" name="city"></select>
+                      <input type="hidden" id="cityId" name="cityId">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <select class="form-control" id="area" data-district="赤坎区" name="area"></select>
+                      <input type="hidden" id="areaId" name="areaId">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label">文章类型：</label>
+                <div>
+                  <label class="checkbox-inline i-checks"> <input type="radio" name="typeId" value="1"/>美食特产</label>
+                  <label class="checkbox-inline i-checks"> <input type="radio" name="typeId" value="2"/>风景名胜</label>
+                  <label class="checkbox-inline i-checks"> <input type="radio" name="typeId" value="3"/>名人特写</label>
+                  <label class="checkbox-inline i-checks"> <input type="radio" name="typeId" value="4"/>最新资讯</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="recipient-proName" class="control-label">标题名称：</label>
+                <input type="text" class="form-control" id="recipient-proName" name="title">
+              </div>
+              <div class="form-group col-md-12">
+                <button class="btn btn-info btn_query btn-round col-md-4 start" type="button">上传图片</button>
+                <div class="js-upload-photo col-md-4">
+                  <label for="picker_photo" class="control-label">图片：</label>
+                  <input type="hidden" name="photo" id="photo" value="">
+                  <div id="picker_photo">上传图片</div>
+                  <ul id="file_list_photo" class="list-inline clearfix lyear-uploads-pic"></ul>
+                </div>
+              </div>
+              <div class="form-group col-md-12" id="aliVideo">
+                <div id="J_prismPlayer" class="prism-player"></div>
+              </div>
+              <div>
+                <input type="hidden" id="video" name="video">
+                <input type="hidden" id="mp3" name="mp3">
+              </div>
+              <div class="row">
+                <div class="col-xs-12">
+                  <div class="input-group m-b-10">
+                    <label for="editor" class="control-label">内容详情：</label>
+                    <textarea id="editor" name="details"></textarea>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <div>
+              <div class="col-md-12">
+                <div>
+                  <form id="videoFrom" action="/remote/upload/video" method="post" enctype="multipart/form-data">
+                    <div class="form-group col-md-6">
+                      <label for="videoFile" class="control-label">上传视频：</label>
+                      <span class="btn btn-info video-button">
+                          <i class="mdi mdi-plus"></i>
+                          <span id="videoValue">添加视频...</span>
+                       </span>
+                      <input type="file" accept="video/*" name="file" id="videoFile" style="display: none">
+                    </div>
+                  </form>
+                </div>
+                <div>
+                  <form id="mp3From" action="/remote/upload/video" method="post" enctype="multipart/form-data">
+                    <div class="form-group col-md-6">
+                      <label for="mp3Flie" class="control-label">上传mp3：</label>
+                      <span class="btn btn-info mp3-button">
+                          <i class="mdi mdi-plus"></i>
+                          <span id="mp3Value">添加mp3...</span>
+                       </span>
+                      <input type="file" name="file" accept="audio/*" id="mp3Flie" style="display: none">
+                    </div>
+                  </form>
+                </div>
+                <button id="videoSubmit" style="left: 10%" class="btn btn-success btn-round col-md-6">点击确认上传视频及mp3
+                </button>
+              </div>
+            </div>
+            <div class="col-md-12"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              <button type="button" id="saveFormBtn" class="btn btn-primary">保存</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- boostrap-combox下拉框检索插件 -->
+<script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+<!-- ckeditor富文本插件 -->
+<script src="js/ckeditor/ckeditor.js"></script>
+<!--上传图片插件-->
+<script type="text/javascript" src="js/webuploader/webuploader.min.js"></script>
+<script type="text/javascript" src="js/magnific-popup/jquery.magnific-popup.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.uploader.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.video.js"></script>
+<!-- 地址 -->
+<script src="js/distpicker/distpicker.data.js"></script>
+<script src="js/distpicker/distpicker.js"></script>
+<script src="js/distpicker/main.js"></script>
+<script type="text/javascript">
+
+  //设置表头
+  var columns = [
+    {checkbox: true},
+    {field: 'id',title: 'ID',visible:false},
+    {field: 'provinceName',title: '省份名称'},
+    {field: 'cityName',title: '城市名称'},
+    {field: 'areaName',title: '区域名称'},
+    {field: 'type',title: '类型'},
+    {field: 'typeId',title: '类型',visible:false},
+    {field: 'title',title: '标题'},
+    {field: 'browseCount',title: '浏览人数',visible:false},
+    {field: 'image1',title: '图片',visible:false},
+    {field: 'image2',title: '图片',visible:false},
+    {field: 'image3',title: '图片',visible:false},
+    {field: 'image4',title: '图片',visible:false},
+    {field: 'image5',title: '图片',visible:false},
+    {field: 'details',title: '内容',visible:false},
+    {field: 'video',title: '宣传视频',formatter: function (value, row, index) {
+        if(value!=null&&value!=''){
+          return "有视频";
+        }else {
+          return "无视频"
+        }
+      }},
+    {field: 'mp3',title: '音频',formatter: function (value, row, index) {
+        if(value!=null&&value!=''){
+          return "有音频";
+        }else {
+          return "无音频"
+        }
+      }}
+  ];
+
+  var ck = CKEDITOR.replace( 'editor' );
+  var list=[];
+  var a= 0;
+
+  //进入主界面加载数据
+  zero2one.datagrid("pro_data", "/remote/culture/queryDetail",function (params) {
+    return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+  }, columns);
+
+  zero2one.girdClick("pro_data");
+
+  //点击查询按钮重新加载页面数据
+  $("#searchFormBtn").click(function () {
+    $('#pro_data').bootstrapTable('refresh');
+  });
+
+  //点击添加按钮弹出模态框
+  $("#addBtn").click(function () {
+    $("#videoValue").html("添加视频...");
+    $("#mp3Value").html("添加mp3...");
+    $("#id").empty();
+    $(".start").show();
+    $(".js-upload-photo").hide();
+    $("#file_list_photo").empty();
+    ck.setData("");//ck清空
+    $("#addOrEditForm")[0].reset();
+    $("#addOrEditModal").modal("show");
+  });
+
+  //点击编辑按钮弹出模态框
+  $("#editBtn").click(function () {
+    //获取选中行的数据
+    var datas = $('#pro_data').bootstrapTable('getSelections');
+    //判断是否选中行数据，如果没有则提示
+    if(datas.length == 1){
+      $("#file_list_photo").empty();
+      ck.setData(datas[0].details);//ck回显
+      //填充表单
+      $("#addOrEditForm").formloader({data: datas[0]});
+      //类型回显
+      $(":radio[name='typeId'][value='" + datas[0].typeId + "']").prop("checked", "checked");
+      //地址回显
+      $("#provinceName").val(datas[0].provinceName);
+      $("#city").val(datas[0].cityName);
+      $("#area").val(datas[0].areaName);
+      //图片回显
+      list.push(datas[0].image1);
+      list.push(datas[0].image2);
+      list.push(datas[0].image3);
+      list.push(datas[0].image4);
+      list.push(datas[0].image5);
+      zero2one.callBack(list);
+      $("#photo").val(list.join(','));
+      //上传图片
+      $(".start").show();
+      $(".js-upload-photo").hide();
+      list.splice(0,list.length);
+      $("#videoValue").html("添加视频...");
+      $("#mp3Value").html("添加mp3...")
+
+    }else{
+      $.messager.alert("温馨提示", "请选择一条数据操作");
+      return;
+    }
+    $("#addOrEditModal").modal("show");
+  });
+
+  $('#addOrEditForm').bootstrapValidator({
+    fields: {
+      title: {validators: {notEmpty: {message: '标题名称不能为空'}}},
+      city: {validators: {notEmpty: {message: '标题名称不能为空'}}},
+      area: {validators: {notEmpty: {message: '标题名称不能为空'}}},
+    }
+  });
+
+  //点击删除按钮弹出模态框
+  $("#deleteBtn").click(function () {
+    //获取选中行的数据
+    var datas = $('#pro_data').bootstrapTable('getSelections');
+    //判断是否选中行数据，如果没有则提示
+    if(datas.length > 0){
+      $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+        //发送请求,执行批量删除
+        zero2one.request("/remote/culture/deleteDetail/",{"id": zero2one.array2str(datas)},function (data) {
+          window.location.reload();
+        });
+      })
+    }else{
+      $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+
+    }
+  });
+
+  //清除选中行
+  function dji(tableId) {
+    $('#'+tableId).bootstrapTable("uncheckAll");
+  }
+
+  //保存
+  $("#saveFormBtn").click(function () {
+    var bv = $('#addOrEditForm').data('bootstrapValidator');
+    bv.validate();
+    if (bv.isValid()) {
+      var cityId= $("#city").find("option:selected").attr('data-code');
+      var areaID= $("#area").find("option:selected").attr('data-code');
+      $("#areaId").val(areaID);
+      $("#cityId").val(cityId);
+      //获取富文本编辑器的内容,设置到表单组件中
+      var data = ck.getData();
+      $("#editor").val(data);
+      zero2one.request("/remote/culture/updateDetail?f="+new Date().getTime(),$("#addOrEditForm").serialize(),function (data) {
+        window.location.reload();
+      });
+    }
+  });
+
+  //地址
+  $(function(){
+    $("#distpicker").distpicker('destroy');
+    $("#distpicker").distpicker({
+      province: '省份名',
+      city: '城市名',
+      district: '区名',
+      autoSelect: true,
+      placeholder: false
+    });
+  });
+
+  //点击触发上传
+  $(".start").click(function () {
+    $("#picker_photo").show();
+    $(".js-upload-photo").show();
+    if (a==0){
+      zero2one.webUploader("js-upload-photo",true,"photo");
+      a++
+    }
+    $(".start").hide()
+  });
+
+  $("#videoFrom").ajaxForm(function (data) {
+    if (data.code==200){
+      $("#video").val(data.data);
+      alert(data.msg)
+    }
+  });
+
+  $("#mp3From").ajaxForm(function (data) {
+    if (data.code==200){
+      $("#mp3").val(data.data);
+      alert(data.msg)
+    }
+  });
+  
+ $(".video-button").click(function () {
+   $("#videoFile").click()
+ });
+
+  $(".mp3-button").click(function () {
+    $("#mp3Flie").click()
+  });
+
+  $("#videoFile").bind('input propertychange', function() {
+    var value = $("#videoFile").val();
+    $("#videoValue").html(value);
+    if (videoValue!=''){
+      $("#videoFrom").submit()
+    }
+  });
+
+  $("#mp3Flie").bind('input propertychange', function() {
+    var value = $("#mp3Flie").val();
+    $("#mp3Value").html(value);
+    if (mp3Value!=''){
+      $("#mp3From").submit()
+    }
+  })
+
+</script>
+</body>
+</html>

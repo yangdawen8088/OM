@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.GoodSaleAreaMapper">
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM  goods_area_house
+            <where>
+                <if test="ids!=null and ids!=''">
+                    id=#{ids}
+                </if>
+            </where>
+    </select>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT    t.id,t.name,t.level,t.address,t.lat,t.lon,
+        (CASE WHEN t.status = 0 THEN '注销' ELSE '有效' END) status
+         FROM  goods_area_house t
+        <where>
+            <if test="ids!=null and ids!=''">
+                id=#{ids}
+            </if>
+        </where>
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="tree" resultType="com.zero2oneit.mall.common.bean.goods.GoodSaleAreaTree">
+          SELECT id,`name`,parent_id parentId,lat,lon,`level`,`status`,address
+          FROM goods_area_house WHERE `status`=1
+    </select>
+
+    <select id="productPlaceTree" resultType="com.zero2oneit.mall.common.bean.goods.GoodSaleAreaTree">
+         SELECT id,`name`,parent_id parentId,lat,lon,`level`,`status`,address
+          FROM goods_area_house WHERE `level`&lt;3
+    </select>
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.log.mapper.LogDetailMapper">
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        select count(1) from f_log_detail m
+        WHERE 1=1
+        <include refid="op_where_if"/>
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+        SELECT m.log_type,m.log_name,m.class_name,m.method_name,m.log_staus,m.create_time,m.error_msg
+        FROM f_log_detail m WHERE 1=1
+        <include refid="op_where_if"/>
+        order by m.create_time desc
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <sql id="op_where_if">
+        <if test="logName != null and logName !=''">
+            and m.log_name = #{logName}
+        </if>
+        <if test="logType != null and logType !=''">
+            and m.log_type = #{logType}
+        </if>
+        <if test="startTime != null">
+            and m.create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            and m.create_time &lt;= #{endTime}
+        </if>
+    </sql>
+
+</mapper>

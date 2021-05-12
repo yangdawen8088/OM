@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>仓库：出库表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>仓库管理</h4></div>
+
+                <div class="card-body">
+                    <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                        <li class="active"><a id="home-tab" onclick="dji('tb_OutOfStock')">出库表</a></li>
+                        <li><a  id="profile-tab">入库表</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <!--出库制表按钮-->
+                            <form class="form-inline" method="post" id="outOfStockForm">
+                                <div class="form-group">
+                                    <label>操作人名称:</label>
+                                    <input type="text" class="form-control" name="operatName">
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-info btn_query btn-round" type="button" id="outOfStockFormBtn">查询</button>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-success btn_query btn-round" type="button" id="addBtn" >添加</button>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除</button>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-purple btn_query btn-round" type="button" id="checkInventory">查看库存</button>
+                                </div>
+                            </form>
+                            <table id="tb_OutOfStock"></table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--  库存详细 -->
+    <div class="modal fade" id="seeDetailsMessage" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabels">
+        <div class="modal-dialog" role="document" style="width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProductInformation">库存详细</h4>
+                </div>
+                <div class="modal-body" id="inventoryDetails"></div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="/js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+
+<script type="text/javascript">
+
+    //清除选中行
+    function dji(tableId) {
+        $('#'+tableId).bootstrapTable("uncheckAll");
+    }
+
+
+    //转跳到入库表
+    $("#profile-tab").click(function () {
+        window.location.href= "inboundForm.html";
+    });
+
+
+    //---------------------------------------------------出库表------------------------------------
+
+    //设置表头:出库表
+    var columns = [
+        {checkbox: true},
+        {field: 'id',title: 'ID',visible:false},
+        {field: 'supplierId',title: '供应商Id',visible:false},
+        {field: 'productId',title: '出库商品Id',visible:false},
+        {field: 'houseId',title: '出库仓库Id',visible:false},
+        {field: 'supplierName',title: '供应商名称'},
+        {field: 'productName',title: '出库商品名称'},
+        {field: 'houseName',title: '出库仓库名称'},
+        {field: 'outhouserNum',title: '出库数量'},
+        {field: 'totalAmount',title: '合计金额',formatter:function (value) {
+               return value+" 元";
+            }},
+        {field: 'operatName',title: '操作人名称'},
+        {field: 'outhouserTime',title: '出库时间',formatter:function (value) {
+                return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+            }},
+        {field: 'remarks',title: '备注'}
+    ];
+
+    //进入主界面加载数据
+    zero2one.datagrid("tb_OutOfStock", "/remote/houseOuthouse/list",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("outOfStockForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#outOfStockFormBtn").click(function () {
+        zero2one.reload("tb_OutOfStock");
+    });
+
+
+    //点击添加按钮弹出模态框
+    $("#addBtn").click(function () {
+        var datas = $('#tb_OutOfStock').bootstrapTable('getSelections');
+        if(datas.length==1){
+            $.messager.alert("温馨提示", "添加时请不要选择数据");
+        }else {
+            window.location.href= "warehouseAddOrEdit.html";
+        }
+    });
+
+
+    //点击编辑按钮弹出模态框
+    $("#editBtn").click(function () {
+        var datas = $('#tb_OutOfStock').bootstrapTable('getSelections');
+        if(datas.length==1){
+            window.location.href= "/warehouseAddOrEdit.html?ruleId="+datas[0].id;
+        }else {
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+        }
+    });
+
+
+
+    //点击删除按钮弹出模态框
+    $("#deleteBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#tb_OutOfStock').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length > 0){
+            $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                //发送请求,执行批量删除
+                zero2one.request("/remote/houseOuthouse/delete",{"ids": zero2one.array2str(datas)},function (data) {
+                    $('#tb_OutOfStock').bootstrapTable('refresh');
+                    $("#addOrEditModal").modal("hide");
+                });
+            })
+        }else{
+            $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+
+        }
+    });
+
+
+    //查看库存按钮
+    $("#checkInventory").click(function () {
+        var datas = $('#tb_OutOfStock').bootstrapTable('getSelections');
+
+        if (datas.length !=0) {
+            var str="";
+            $.each(datas,function (i,v) {
+                str += v.productId+",";
+            });
+            zero2one.request("/remote/goodStock/queryWarehouse",{"ids":str.substring(0,str.length-1)},function (data) {
+                var content = '';
+                if (data.data.length==0){
+                    content +="无库存";
+                }else {
+                    for (let i = 0; i <data.data.length; i++ ) {
+                        content +=
+                            '<label style="font-size: x-large">商品名称：</label><label style="font-size: large">' + data.data[i].productName + '</label></br>'
+                            + '<label style="font-size: x-large">商品库存：</label><label style="font-size: large">' + data.data[i].productStock+'</label></br>'
+                            + '<hr>';
+                    }
+                }
+                $("#inventoryDetails").html(content);
+                //打开模态框
+                $("#seeDetailsMessage").modal("show");
+            });
+
+        } else {
+            $.messager.alert("温馨提示", "请选择一条或多条消息操作!")
+        }
+    })
+
+</script>
+
+</body>
+</html>

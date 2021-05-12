@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.notice.mapper.NoticeMapper">
+
+    <insert id="add">
+        INSERT INTO sys_p_notice(notice_type,notice_level,notice_title,release_time,user_id,notice_content)
+        VALUES(#{noticeType},#{noticeLevel},#{noticeTitle},#{releaseTime},#{userId},#{noticeContent})
+    </insert>
+
+    <update id="edit">
+        UPDATE sys_p_notice SET
+        notice_type=#{noticeType},notice_level=#{noticeLevel},notice_title=#{noticeTitle},
+        user_id=#{userId},release_time=#{releaseTime},notice_content=#{noticeContent}
+        WHERE id=#{id}
+    </update>
+
+    <update id="changeNoticeStatus">
+        UPDATE sys_p_notice SET notice_status=#{status} WHERE find_in_set(id,#{ids})
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM sys_p_notice where 1=1
+        <if test="noticeTitle != null and noticeTitle !=''">
+            and notice_title like CONCAT('%', #{noticeTitle}, '%')
+        </if>
+    </select>
+
+    <select id="selectTotalApi" resultType="java.lang.Integer">
+        SELECT count(*) FROM sys_p_notice where notice_type = 5 and notice_status = 1
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+        SELECT t.id,t.notice_title noticeTitle,p.username,t.release_time releaseTime,t.notice_content,
+                a.id noticeType,a.code_name type_name,
+                b.id noticeLevel,b.code_name level_name,
+                (CASE WHEN t.notice_status = 0 THEN '未发布' WHEN t.notice_status = 1 THEN '已发布'  ELSE '已下架' END) notice_status
+        FROM sys_p_notice t,sys_p_user p,sys_p_code a,sys_p_code b
+        WHERE t.user_id = p.id AND a.id=t.notice_type AND b.id=t.notice_level
+        <if test="noticeTitle != null and noticeTitle !=''">
+            and t.notice_title like CONCAT('%', #{noticeTitle}, '%')
+        </if>
+        order by t.release_time desc
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectRowsApi" resultType="java.util.HashMap">
+        SELECT  t.notice_title, t.release_time,t.notice_content
+        FROM sys_p_notice t
+        WHERE t.notice_type = 5 and t.notice_status = 1
+        order by t.release_time desc
+        limit #{starIndex},#{pageSize}
+    </select>
+
+</mapper>

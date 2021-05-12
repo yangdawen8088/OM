@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.GoodsBrandMapper">
+
+    <update id="status">
+        UPDATE goods_brand set brand_status=#{status} WHERE id=#{id}
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM goods_brand t
+        <include refid="common_where_if"/>
+    </select>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT
+        t.id,t.brand_name brandName,t.order_id orderId,t.initial,t.logo,t.category_id categoryId,t.brand_status brandStatus,
+        (CASE WHEN t.brand_status = 0 THEN '注销' ELSE '有效' END) brand_status,t.category_name categoryName
+        FROM goods_brand t
+        <include refid="common_where_if"/>
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="ids != null and ids !=''">
+                AND FIND_IN_SET(t.category_id,#{ids})
+            </if>
+        </where>
+    </sql>
+
+    <select id="getGoodsBrandByName" resultType="java.util.HashMap">
+        SELECT id,brand_name name FROM goods_brand where brand_name like CONCAT('%', #{keyword}, '%')
+    </select>
+
+</mapper>

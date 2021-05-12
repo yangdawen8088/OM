@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.MemberStarLevelMapper">
+
+    <update id="addManageAccount">
+        UPDATE member_star_level SET wallet=wallet + #{wallet}
+        WHERE id=#{id}
+
+    </update>
+    <select id="starlevelTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM member_star_level
+        <where>
+            <if test="starName !=null and starName!=''">
+                star_name LIKE CONCAT('%',#{starName},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="starlevelRow" resultType="java.util.HashMap">
+    SELECT 	id,
+            star_name starName,
+            one_condition oneCondition,
+            two_condition twoCondition,
+            one_manage oneManage,
+            two_manage twoManage,
+            all_dividends allDividends,
+            overdue_num overdueNum,
+            wallet
+        FROM  member_star_level
+        <where>
+            <if test="starName !=null and starName!=''">
+                star_name LIKE CONCAT('%',#{starName},'%')
+            </if>
+        </where>
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+</mapper>

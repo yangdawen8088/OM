@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        .tangram-suggestion-main {z-index: 99999999999;}
+        body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";font-size:14px;}
+        #l-map{height:600px;width:80%;}
+        #r-result{width:100%;}
+
+    </style>
+    <title>站点表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/select2/select2.min.css" rel="stylesheet">
+    <!--修改图片-->
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css" />
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css" />
+    <!--修改图片-->
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css"/>
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css"/>
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <link href="css/tg.tree.css" rel="stylesheet">
+    <style type="text/css">
+        .tangram-suggestion-main {
+            z-index: 99999999999;
+        }
+        .videoed {
+            display: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            left: 45%;
+            top: 45%;
+            z-index: 99;
+            border-radius: 100%;
+        }
+        .videos {
+            display: none;
+            border: 1px solid #080808;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            margin-left: -320px;
+            margin-top: -210px;
+            z-index: 100;
+            width: 640px;
+            height: 360px;
+        }
+
+        .vclose {
+            position: absolute;
+            right: 1%;
+            top: 1%;
+            border-radius: 100%;
+            cursor: pointer;
+        }
+
+        .u-input .zd-input__inner {
+            width: 100%;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: "微软雅黑";
+            font-size: 14px;
+        }
+
+        #l-map {
+            height: 600px;
+            width: 80%;
+        }
+
+        #r-result {
+            width: 100%;
+        }
+
+    </style>
+
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>会员id:</label>
+                                <input type="text" class="form-control" name="memberId">
+                            </div>
+                            <div class="form-group">
+                                <label>提货点名称:</label>
+                                <input type="text" class="form-control" name="pickName">
+                            </div>
+                            <div class="form-group">
+                                <label>审核状态:</label>
+                                <select name="statusId" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="0">审核中</option>
+                                    <option value="1">审核通过</option>
+                                    <option value="2">审核不通过</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn" >添加</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-cyan btn_query btn-round" type="button" id="checkBtn">审核
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+                    <table id="chief_data"></table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">站点管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="addOrEditForm"  method="post">
+
+                        <div class="col-xs-12">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">提货点名称</span>
+                                <input type="hidden" name="id">
+                                <input type="text" class="form-control" id="pickName" name="pickName">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">门牌号</span>
+                                <input type="text" class="form-control" id="houseNum" name="houseNum">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">会员id</span>
+                                <input type="text" class="form-control" id="memberId" name="memberId">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">开始营业时间</span>
+                                <input type="text" class="form-control" id="openHours" name="openHours">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">结束营业时间</span>
+                                <input type="text" class="form-control" id="endHours" name="endHours">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">申请人电话</span>
+                                    <input type="text" class="form-control" id="phone" name="phone">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">提货点地址</span>
+                                    <div id="r-result"><input class="form-control" type="text" id="pickAddr" name="pickAddr" size="20" /></div>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+
+                        <div class="col-xs-3">
+                            <div class="main u-main">
+                                <span class="label-left">门牌照</span>
+                                <div class="upload-content">
+                                    <div class="content-img">
+                                        <ul class="content-img-listPlusOne"></ul>
+                                        <div class="file">
+                                            <i class="gcl gcladd"></i>
+                                            <input type="file" name="file" accept="image/*" id="uploadPlusOne">
+                                            <input type="hidden" name="addOrEditStatusOne" VALUE="0" id="addOrEditStatusOne" placeholder="添加或编辑图片状态控制">
+                                            <input type="hidden" name="doorPhoto">
+                                            <input type="hidden" name="deleteUrlOne">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3">
+                            <div class="main u-main">
+                                <span class="label-left">身份证正面</span>
+                                <div class="upload-content">
+                                    <div class="content-img">
+                                        <ul class="content-img-listPlusTwo"></ul>
+                                        <div class="file">
+                                            <i class="gcl gcladd"></i>
+                                            <input type="file" name="filePlusOne" accept="image/*" id="uploadPlusTwo">
+                                            <input type="hidden" name="addOrEditStatusTwo" VALUE="0" id="addOrEditStatusTwo" placeholder="添加或编辑图片状态控制">
+                                            <input type="hidden" name="cardFront">
+                                            <input type="hidden" name="deleteUrlTwo">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3">
+                            <div class="main u-main">
+                                <span class="label-left">身份证反面</span>
+                                <div class="upload-content">
+                                    <div class="content-img">
+                                        <ul class="content-img-listPlusThree"></ul>
+                                        <div class="file">
+                                            <i class="gcl gcladd"></i>
+                                            <input type="file" name="filePlusTwo" accept="image/*" id="uploadPlusThree">
+                                            <input type="hidden" name="addOrEditStatusThree" VALUE="0" id="addOrEditStatusThree" placeholder="添加或编辑图片状态控制">
+                                            <input type="hidden" name="cardBack">
+                                            <input type="hidden" name="deleteUrlThree">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" >经度</span>
+                                    <input type="text" name="longitude" class="form-control" id="lon" aria-describedby="basic-account" readonly="readonly">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">纬度</span>
+                                    <input type="text" name="latitude" class="form-control" id="lat" aria-describedby="basic-account" readonly="readonly">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+
+                            <div align="center"><div id="l-map"></div>
+                                <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+                            </div>
+
+                        </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" id="saveFormBtn" class="btn btn-primary" >保存</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=MGR9YbWrgQMZkX9ZSAKugp1DGQnZhA0e"></script>
+    <script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- ckeditor富文本插件 -->
+    <script src="js/ckeditor/ckeditor.js"></script>
+    <!-- select2下拉框插件 -->
+    <script src="js/select2/select2.min.js"></script>
+    <script src="js/select2/i18n/zh-CN.js"></script>
+   <!--上传图片-->
+   <script src="js/goods/uploadImg.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!-- boostrap-combox下拉框检索插件 -->
+    <script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.bmap.js"></script>
+
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: '站点id'},
+            {field: 'memberId',title: '会员id'},
+            {field: 'pickName',title: '提货点名称'},
+            {field: 'pickAddr',title: '提货点地址'},
+            {field: 'houseNum',title: '门牌号'},
+            {field: 'openHours',title: '开始营业时间'},
+            {field: 'endHours',title: '结束营业时间'},
+            {field: 'switchId',title: '站点状态',formatter:function (value,row) {
+                    var checked = value == 1 ? "checked" : "";
+                    return '<label class="lyear-switch switch-solid switch-success"><input type="checkbox" '+checked+' onclick="status('+value+','+row.id+')"><span></span>'+(value == 1 ? "开启" : "关闭")+'</label>';
+
+             }},
+            {field: 'cardFront',title: '身份证正面',formatter: function (value, row, index) {
+                    if(value!=null&&value!=''){
+                      html="&nbsp;&nbsp;<img style='width: 60px;height: 60px; border:1px solid #2ba3f6' src='"+value+"'/>";
+                        return html;
+                    } else {
+                        return "无图片"
+                    }
+                }},
+            {field: 'cardBack',title: '身份证反面',formatter: function (value, row, index) {
+                    if(value!=null&&value!=''){
+                        html="&nbsp;&nbsp;<img style='width: 60px;height: 60px; border:1px solid #2ba3f6' src='"+value+"'/>";
+                        return html;
+                    } else {
+                        return "无图片"
+                    }
+                }},
+            {field: 'doorPhoto',title: '门牌照',formatter: function (value, row, index) {
+                    if(value!=null&&value!=''){
+                        html="&nbsp;&nbsp;<img style='width: 60px;height: 60px; border:1px solid #2ba3f6' src='"+value+"'/>";
+                        return html;
+                    } else {
+                        return "无图片"
+                    }
+                }},
+            {field: 'createTime',title: '申请时间', formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'phone',title: '申请人电话'},
+            {field: 'statusId',title: '审核状态',formatter:function (value,row) {
+                    if (value===0){
+                        return "<div class=\"btn btn-warning btn-sm\" >审核中 </div>"
+                    }else if (value===1){
+                        return "<div class=\"btn btn-success btn-sm\" >审核通过 </div>"
+                    }else {
+                        return "<div class=\"btn btn-danger btn-sm\" >审核不通过</div>"
+                    }
+                }},
+            {field: 'operatorTime',title: '处理时间', formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }}
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("chief_data", "/remote/chiefManage/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#chief_data').bootstrapTable('refresh');
+        });
+
+        //门派照上传
+        var imgFilePlusOne = uploadImg(".content-img-listPlusOne", "uploadPlusOne", 1024 * 1024 * 4, 0);
+
+        //身份证正面上传
+        var imgFilePlusTwo = uploadImg(".content-img-listPlusTwo", "uploadPlusTwo", 1024 * 1024 * 4, 0);
+
+        //身份证反面上传
+        var imgFilePlusThree = uploadImg(".content-img-listPlusThree", "uploadPlusThree", 1024 * 1024 * 4, 0);
+
+
+        //点击开关按钮修改状态
+        function status(value,id) {
+            zero2one. request("/remote/chiefManage/chiefStatusEdit", {"status": value,"id": id},function (data){
+                window.location.reload();
+            });
+        }
+
+        //审核申请
+        $("#checkBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#chief_data').bootstrapTable('getSelections');
+            if (datas.length >= 1) {
+                $.messager.confirm("温馨提示", "您是否要通过?", function () {
+                var strIds = '';
+                var memberIds = '';
+                var checkNum = 0;
+                var arrContact = [];
+                $.each(datas, function (i, v) {
+                    if (v.statusId === 1) {
+                        checkNum++;
+                    }
+                    strIds = strIds + v.id + ","
+                    memberIds=memberIds+v.memberId+","
+                    arrContact.push(datas[i])
+                });
+                    if (checkNum !== 0) {
+                    return $.messager.alert("温馨提示", "请勿选择已审核的数据")
+                }
+                    $.ajax({
+                        url: '/remote/chiefManage/chiefByIds',
+                        contentType:'application/json',
+                        type: 'post',
+                        data: JSON.stringify(arrContact),
+                        dataType: 'json',
+                        success: function (res) {
+                            if (res.success){
+                                $.messager.alert("温馨提示", "操作成功");
+                                window.location.reload();
+                            }else {
+                                $.messager.alert("温馨提示","操作失败");
+                            }
+                        }
+                    });
+
+             })
+            } else {
+                return $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+            }
+        });
+
+        //点击添加按钮弹出模态框
+        $("#addBtn").click(function () {
+            $("#addOrEditForm")[0].reset();
+            $("#addOrEditModal").modal("show");
+        });
+
+        //点击编辑按钮弹出模态框
+        $("#editBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#chief_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length == 1){
+                //填充表单
+                $("#addOrEditForm").formloader({data: datas[0]});
+                $("#tangram-suggestion--TANGRAM__1n").hide()
+                if(datas[0].doorPhoto.length > 0){
+                    addNewContent(".content-img-listPlusOne", datas[0].doorPhoto.split(","));
+                }
+                if(datas[0].cardFront.length > 0){
+                    addNewContent(".content-img-listPlusTwo", datas[0].cardFront.split(","));
+                }
+                if(datas[0].cardBack.length > 0){
+                    addNewContent(".content-img-listPlusThree", datas[0].cardBack.split(","));
+                }
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+                return;
+            }
+            $("#addOrEditModal").modal("show");
+        });
+
+        $('#addOrEditForm').bootstrapValidator({
+            fields: {
+                pickName: {validators: {notEmpty: {message: '提货点名称不能为空'}}},
+                openHours: {validators: {notEmpty: {message: '开始营业时间不能为空'}}},
+                endHours: {validators: {notEmpty: {message: '结束营业时间不能为空'}}},
+                memberId: {validators: {notEmpty: {message: '会员id不能为空'}}},
+                phone: {validators: {notEmpty: {message: '申请人电话不能为空'}}},
+                pickAddr: {validators: {notEmpty: {message: '提货点地址不能为空'}}}
+            }
+        });
+
+        $("#saveFormBtn").click(function () {
+            var bv = $('#addOrEditForm').data('bootstrapValidator');
+            bv.validate();
+            if (bv.isValid()) {
+                // 遍历图片imgFile添加到formFile里面
+                var formFile = new FormData();
+                $.each(imgFilePlusOne,function (i, v) {
+                    formFile.append("file", v)
+                });
+                $.each(imgFilePlusTwo,function (i, v) {
+                    formFile.append("filePlusOne", v)
+                });
+                $.each(imgFilePlusThree,function (i, v) {
+                    formFile.append("filePlusTwo", v)
+                });
+                handleImage('doorPhoto', 'deleteUrlOne');//编辑处理删除的图片
+                handleImage('cardFront', 'deleteUrlTwo');//编辑处理删除的图片
+                handleImage('cardBack', 'deleteUrlThree');//编辑处理删除的图片
+                zero2one.requestU("addOrEditForm","/remote/chiefManage/addOrEdit",formFile,function (data) {
+                    window.location.reload();
+                })
+            }
+        });
+        //地图
+        zero2one.bmap("广东", "pickAddr", "lat", "lon");
+
+</script>
+</div>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

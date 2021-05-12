@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>商品分类（社区）</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <link href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4>商品分类</h4>
+                    <div>
+                        <button class="btn btn-success btn-xs btn-round" id="addBtn">增加</button>
+                        <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+                        <button class="btn btn-danger btn-xs btn-round" onclick="delOrActive(0)">注销</button>
+                        <button class="btn btn-cyan btn-xs btn-round" onclick="delOrActive(1)">启用</button>
+                        <button class="btn btn-purple btn-xs btn-round" id="initBtn">初始化缓存</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="zTreeDemoBackground left">
+                        <ul id="tree" class="ztree"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>商品分类（社区）</h4>
+                </div>
+                <div class="card-body">
+                    <form id="searchForm">
+                        <input id="ids" name="ids" type="hidden" value="">
+                    </form>
+                    <table id="grid_data"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">商品分类（社区）</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" method="post">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-menuName">分类名称</span>
+                                    <input type="hidden" name="id">
+                                    <input type="hidden" name="parentId" id="parentId">
+                                    <input type="hidden" name="categoryLevel">
+                                    <input type="hidden" name="categoryStatus">
+                                    <input type="hidden" name="addOrEditStatus" VALUE="0" id="addOrEditStatus" placeholder="添加或编辑图片状态控制">
+                                    <input type="hidden" name="iconCls">
+                                    <input type="hidden" name="deleteUrl">
+                                    <input type="text" name="name" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-orderId">菜单排序</span>
+                                    <input type="text" name="orderId" class="form-control" onkeyup="this.value=this.value.replace(/\D/g,'')">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-open">是否展开</span>
+                                    <select class="form-control" name="open">
+                                        <option value="0" selected>折叠</option>
+                                        <option value="1">展开</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">修改分类</span>
+                                    <input type="text" name="typeName" class="form-control" aria-describedby="basic-dept" id="typeName" placeholder="商品分类">
+                                    <div class="input-group-btn">
+                                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="main u-main">
+                                    <span class="label-left">上传图片</span>
+                                    <div class="upload-content">
+                                        <div class="content-img">
+                                            <ul class="content-img-list"></ul>
+                                            <div class="file">
+                                                <i class="gcl gcladd"></i>
+                                                <input type="file" name="file" accept="image/*" id="upload">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <span style="color: red; font-size: 20px">(注：商品分类第四级才需要添加图片且修改分类)</span>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="saveBtn">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<#include "/footer.html"/>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- boostrap-combox下拉框检索插件 -->
+<script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+<script src="js/uploadImg.js"></script>
+<script type="text/javascript">
+
+    //页面初始化完成加载商品分类数据
+    zero2one.requestV("/remote/communitiesCategory/tree", {}, function (data) {
+        $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data);
+    });
+
+    //根据分类名称匹配商品分类数据
+    zero2one.suggest("typeName","/remote/communitiesCategory/getCategoryByName?keyword=","parentId","typeName","商品分类名称");
+
+    var zj;
+    var ids;
+    var parentId;
+    function onClick(event, treeId, treeNode) {
+        zj = {id:treeNode.id, name:treeNode.name, categoryLevel:treeNode.categoryLevel, open:treeNode.open==false?0:1,
+            orderId:treeNode.orderId,iconCls:treeNode.iconCls, categoryStatus:treeNode.categoryStatus};
+        ids = zero2one.getChildNodes("tree", treeNode);
+        $("#ids").val(treeNode.categoryLevel > 0 ? ids : "");
+        if(treeNode.getParentNode() != null){
+            parentId = treeNode.getParentNode().id;
+        }
+        getByIds();
+    }
+
+    function getByIds() {
+        var columns = [
+            {field: 'id',title: 'ID'},
+            {field: 'name',title: '分类名称'},
+            {field: 'category_level',title: '分类级别'},
+            {field: 'order_id',title: '分类排序'},
+            {field: 'open',title: '是否展开'},
+            {field: 'icon_cls',title: '分类图标', visible: false},
+            {field: 'category_status',title: '分类状态'}
+        ];
+        //进入主界面加载数据
+        $('#grid_data').bootstrapTable('refresh');
+        zero2one.datagrid("grid_data", "/remote/communitiesCategory/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+    }
+
+    //点击添加按钮
+    $("#addBtn").click(function () {
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择上级再操作");
+            return;
+        }
+        if(zj.categoryLevel == 3){
+            $.messager.alert("温馨提示", "不能再添加下级了");
+            return;
+        }
+        $("#addOrEditForm")[0].reset();
+        $("input[type='hidden']").val("");//清空hidden值
+        $(".content-img-list").html("");//清空图片回显信息
+        $("input[name=parentId]").val(zj.id);
+        $("input[name=categoryLevel]").val(zj.categoryLevel+1);
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击编辑按钮
+    $("#editBtn").click(function () {
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择要编辑的项再操作");
+            return;
+        }
+        $("#addOrEditForm").formloader({data: zj});
+        $("input[name=parentId]").val(parentId);
+        $("#addOrEditStatus").val(1);
+        $(".content-img-list").html("");//清空图片回显信息
+        if(zj.iconCls.length > 0){
+            addNewContent(".content-img-list", zj.iconCls.split(","));
+        }
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击初始化缓存按钮
+    $("#initBtn").click(function () {
+        $.messager.confirm("温馨提示", "您确定要初始化缓存吗?", function () {
+            zero2one.request("/remote/communitiesCategory/init",{},function (data) {
+                window.location.reload();
+            });
+        })
+    });
+
+    function delOrActive(status){
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择项再操作");
+            return;
+        }
+        $.messager.confirm("温馨提示", "您确定要注销吗?", function () {
+            zero2one.request("/remote/communitiesCategory/status",{id : ids, status: status},function (data) {
+                window.location.reload();
+            });
+        })
+    }
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            name: {validators: {notEmpty: {message: '商品分类名称不能为空'}}}
+        }
+    });
+
+    //选择图片还没有上传
+    var imgFile = uploadImg(".content-img-list", "upload", 1024 * 1024 * 4, 0);
+
+    $("#saveBtn").click(function () {
+        var bv = $('#addOrEditForm').data('bootstrapValidator');
+        bv.validate();
+        if (bv.isValid()) {
+            var formFile = new FormData();
+            // 遍历图片imgFile添加到formFile里面
+            $.each(imgFile,function (i, v) {
+                formFile.append("file", v)
+            });
+            handleImage('iconCls', 'deleteUrl');//编辑处理删除的图片
+            zero2one.requestU("addOrEditForm","/remote/communitiesCategory/addOrEdit",formFile,function (data) {
+                window.location.reload();
+            })
+        }
+    });
+
+</script>
+</body>
+</html>

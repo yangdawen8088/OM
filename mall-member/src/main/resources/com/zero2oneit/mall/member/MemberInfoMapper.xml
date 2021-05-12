@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.MemberInfoMapper">
+
+    <insert id="register">
+      INSERT INTO member_info(member_id, member_account, member_password, member_phone, register_time)
+      VALUES(#{params.member_id}, #{params.phone}, #{params.password}, #{params.phone}, NOW())
+    </insert>
+
+    <insert id="addUser">
+      INSERT INTO member_info(member_id, wx_applte_openid, nick_name, member_avatar, sex, member_phone, member_account, register_time)
+      VALUES(#{memberId}, #{openId}, #{nickname}, #{avatarUrl}, #{gender}, #{phoneNumber}, #{phoneNumber}, NOW())
+    </insert>
+
+    <select id="checkAccount" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM member_info t WHERE t.member_account= #{phone}
+    </select>
+
+    <select id="check" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM member_info t WHERE t.member_account= #{memberAccount} and t.pay_pwd=#{md5Password}
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM member_info t
+        <include refid="common_where_if"/>
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+        SELECT t.member_id memberId,t.member_account memberAccount,t.nick_name nickName,t.member_grade memberGrade,
+               t.sex,t.member_phone memberPhone,t.register_time registerTime
+          FROM member_info t
+        <include refid="common_where_if"/>
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="memberAccount != null and memberAccount !=''">
+                and t.member_account = #{memberAccount}
+            </if>
+            <if test="nickName != null and nickName !=''">
+                and t.nick_name like CONCAT('%',#{nickName},'%')
+            </if>
+            <if test="memberPhone != null and memberPhone !=''">
+                and t.member_phone like CONCAT('%',#{memberPhone},'%')
+            </if>
+            <if test="registerTime != null">
+                and t.register_time like CONCAT(#{registerTime},'%')
+            </if>
+        </where>
+    </sql>
+
+    <update id="editOrForget">
+        update member_info set member_password=#{params.password} where member_account = #{params.phone}
+    </update>
+
+    <update id="setPayPwd">
+        update member_info set pay_pwd=#{params.payPwd} where member_account = #{params.memberAccount}
+    </update>
+
+    <update id="editUser">
+        update member_info set wx_applte_openid=#{openId},nick_name=#{nickname},member_avatar=#{avatarUrl},sex=#{gender},member_phone=#{phoneNumber}
+        where member_account = #{phoneNumber}
+    </update>
+
+    <update id="edit">
+        UPDATE member_info SET
+        member_avatar=#{params.memberAvatar},nick_name=#{params.nickName},member_email=#{params.memberEmail},
+        sex=#{params.sex},birthday=#{params.birthday},address=#{params.address}
+        WHERE member_id=#{params.memberId}
+    </update>
+
+    <update id="resetPwd">
+        update member_info set member_password=#{md5Password} where member_id = #{memberId}
+    </update>
+
+    <update id="updateStaIdByMemberId">
+         UPDATE member_info SET  station_id=#{id}  WHERE member_id=#{memberId}
+    </update>
+
+</mapper>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>数据权限</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/materialdesignicons.min.css" rel="stylesheet">
+<link href="css/animate.css" rel="stylesheet">
+<link href="css/style.min.css" rel="stylesheet">
+<link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+<link rel="stylesheet" href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+  <div class="row">
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header"><h4>数据权限</h4></div>
+        <div class="card-body">
+          <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" onclick="dji('tb_users')">用户管理</a></li>
+            <li><a href="#profile" role="tab" id="profile-tab" data-toggle="tab" onclick="dji('tb_roles')">角色管理</a></li>
+          </ul>
+
+          <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="home">
+
+              <form class="form-inline" method="post" id="searchUserForm">
+                <div class="form-group">
+                  <label>用户名称:</label>
+                  <input type="text" class="form-control" name="username">
+                </div>
+                <div class="form-group">
+                  <label>用户账号:</label>
+                  <input type="text" class="form-control" name="account">
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-info btn_query btn-round" type="button" id="searchUserFormBtn">查询</button>
+                </div>
+              </form>
+              <table id="tb_users"></table>
+
+            </div>
+            <div class="tab-pane fade" id="profile">
+              <form class="form-inline" method="post" id="searchRoleForm">
+                <div class="form-group">
+                  <label>角色名称:</label>
+                  <input type="text" class="form-control" name="roleName">
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-info btn_query btn-round" type="button" id="searchRoleFormBtn">查询</button>
+                </div>
+              </form>
+              <table id="tb_roles"></table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <button class="btn btn-label btn-primary" id="activeBtn"><label><i class="mdi mdi-checkbox-marked-circle-outline"></i></label>数据授权</button>
+        </div>
+        <div class="card-body">
+            <div class="zTreeDemoBackground left">
+              <ul id="tree" class="ztree"></ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/ztree/jquery.ztree.excheck.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="/js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+
+<script type="text/javascript">
+
+    //页面初始化完成加载菜单数据
+    zero2one.requestV("/deptUsersList?f="+new Date().getTime(), {}, function (data) {
+        $.fn.zTree.init($("#tree"), {check: {enable: true},callback: {onCheck: zTreeOnCheck}}, data);
+    });
+
+    var userId,roleCode,functionIds;
+    function zTreeOnCheck(event, treeId, treeNode) {
+        functionIds = zero2one.getCheckedUserNodes("tree");
+    }
+
+    //加载角色信息列表
+    var columns = [
+        {checkbox: true},
+        {field: 'id',title: 'ID'},
+        {field: 'roleName',title: '角色名称'},
+        {field: 'roleCode',title: '角色编码'}
+    ];
+
+    //进入主界面加载数据
+    zero2one.datagrid("tb_roles", "/system/role/rolePage",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchRoleForm"));
+    }, columns);
+
+    //列表点击选中一行处理
+    $('#tb_roles').on('click-row.bs.table', function (e,row,$element) {
+        roleCode = row.roleCode;
+        $('#tb_roles').bootstrapTable("uncheckAll");
+        var treeObj = $.fn.zTree.getZTreeObj("tree");//找到对象
+        zero2one.request("/loadUserOrRoleData?f="+new Date().getTime(),{type:2, roleCode:roleCode},function (data) {
+            treeObj.checkAllNodes(false);//先取消勾选
+            for(var i = 0;i<data.data.length;i++) {
+                treeObj.checkNode(treeObj.getNodeByParam("id", data.data[i]), true, false);
+            }
+        });
+        // treeObj.checkNode(treeObj.getNodeByParam("id", 18), true, true); 两个true 表示以二级选中为主
+        // treeObj.checkNode(treeObj.getNodeByParam("id", 18), true, false); 两个true 表示以三级选中为主
+    });
+    //列表点击选中一行处理
+    $('#tb_users').on('click-row.bs.table', function (e,row,$element) {
+        userId = row.id;
+        $('#tb_users').bootstrapTable("uncheckAll");
+        var treeObj = $.fn.zTree.getZTreeObj("tree");//找到对象
+        zero2one.request("/loadUserOrRoleData?f="+new Date().getTime(),{type:1, userId:userId},function (data) {
+            treeObj.checkAllNodes(false);//先取消勾选
+            for(var i = 0;i<data.data.length;i++) {
+                treeObj.checkNode(treeObj.getNodeByParam("id", data.data[i]), true, false);
+            }
+        });
+        // treeObj.checkNode(treeObj.getNodeByParam("id", 18), true, true); 两个true 表示以二级选中为主
+        // treeObj.checkNode(treeObj.getNodeByParam("id", 18), true, false); 两个true 表示以三级选中为主
+    });
+
+    //点击查询按钮重新加载页面数据
+    $("#searchRoleFormBtn").click(function () {
+        zero2one.reload("tb_roles");
+    });
+
+    var columns = [
+        {checkbox: true},
+        {field: 'id',title: 'ID'},
+        {field: 'account',title: '用户账号'},
+        {field: 'username',title: '用户名称'}
+    ];
+
+    //进入主界面加载数据
+    zero2one.datagrid("tb_users", "/userPage",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchUserForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchUserFormBtn").click(function () {
+        $('#tb_users').bootstrapTable('refresh');
+    });
+
+    //点击授权按钮业务处理
+    $("#activeBtn").click(function () {
+
+        var users = $('#tb_users').bootstrapTable('getSelections');
+        var roles = $('#tb_roles').bootstrapTable('getSelections');
+
+        if(users.length > 0 && functionIds != null){
+            zero2one.request("/saveUserOrRoleData?f="+new Date().getTime(),{type:1, userId:userId, functionIds:functionIds},function (data) {
+                zero2one.success(data);
+            });
+        }else if(roles.length > 0 && functionIds != null){
+            zero2one.request("/saveUserOrRoleData?f="+new Date().getTime(),{type:2, roleCode:roleCode, functionIds:functionIds},function (data) {
+                zero2one.success(data);
+            });
+        } else{
+            $.messager.alert("温馨提示", "请选择一个用户或角色再进权限操作");
+        }
+    });
+
+    //清除选中行
+    function dji(tableId) {
+        $('#'+tableId).bootstrapTable("uncheckAll");
+    }
+
+</script>
+
+</body>
+</html>

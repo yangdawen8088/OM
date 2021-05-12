@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.dictionary.mapper.CodeMapper">
+
+    <insert id="add">
+            INSERT INTO sys_p_code(code_table,code_field,code_detail,code_num,code_name,op_id,op_time)
+            VALUES(#{codeTable},#{codeField},#{codeDetail},#{codeNum},#{codeName},#{userId},NOW())
+    </insert>
+
+    <update id="edit">
+            UPDATE sys_p_code
+            SET code_table=#{codeTable},code_field=#{codeField},code_detail=#{codeDetail},code_num=#{codeNum},code_name=#{codeName},op_id=#{userId},op_time=NOW()
+            WHERE id=#{id}
+    </update>
+
+    <update id="changeCodeStatus">
+            UPDATE sys_p_code SET code_status=#{status} WHERE find_in_set(id,#{ids})
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM sys_p_code where 1=1
+        <if test="codeDetail != null and codeDetail !=''">
+            and code_detail like CONCAT('%', #{codeDetail}, '%')
+        </if>
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+        SELECT id,code_table codeTable,code_field codeField,code_detail codeDetail,code_num codeNum,code_name codeName,
+        (CASE WHEN code_status = 0 THEN '注销' ELSE '有效' END) code_status
+        FROM sys_p_code where 1=1
+        <if test="codeDetail != null and codeDetail !=''">
+            and code_detail like CONCAT('%', #{codeDetail}, '%')
+        </if>
+        order by op_time desc
+        limit #{starIndex},#{pageSize}
+    </select>
+
+</mapper>

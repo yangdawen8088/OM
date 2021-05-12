@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.MemberLeadersMapper">
+
+    <select id="LeadersRows" resultType="java.util.HashMap">
+        SELECT CONCAT(member_id,'')memberId, level_type levelType, CONCAT(leader_id,'')leaderId
+        FROM fnyg_member.member_leaders
+
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+
+        LIMIT #{starIndex},#{pageSize}
+
+    </select>
+
+    <select id="total" resultType="java.lang.Integer">
+        select count(*) from fnyg_member.member_leaders
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+    </select>
+
+
+    <select id="getAllLeader" resultType="com.zero2oneit.mall.common.bean.member.LeaderVo">
+        SELECT parent_id memberId,mm.grade_id gradeId,mm.star_id starId,mm.star_open starOpen
+        FROM (
+        SELECT
+                @r AS _id,(SELECT @r := leader_id FROM (SELECT * FROM member_leaders WHERE level_type=1) v WHERE member_id = _id) AS parent_id,
+                @l := @l + 1 AS lvl
+        FROM
+                (SELECT @r := #{memberId}, @l := 0) var,
+                (SELECT * FROM member_leaders WHERE level_type=1) n
+        ) T1
+        JOIN (SELECT * FROM member_leaders WHERE level_type=1) T2
+        ON T1._id = T2.member_id
+        LEFT JOIN member_info mm ON parent_id=mm.member_id
+        ORDER BY lvl
+    </select>
+
+    <select id="findLeadersName" resultType="com.zero2oneit.mall.common.bean.member.MemberLeaders">
+             select * from fnyg_member.member_leaders
+         where
+         member_id = #{memberId}
+         and level_type=1
+    </select>
+
+</mapper>

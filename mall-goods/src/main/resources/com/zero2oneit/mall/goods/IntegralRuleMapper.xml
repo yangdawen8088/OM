@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.IntegralRuleMapper">
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT id, rule_name ruleName, integral_type integralType, convert_ratio convertRatio,
+        operator_name operatorName, operator_time operatorTime
+        FROM integral_rule
+        <include refid="common_where_if"/>
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        select count(1) from integral_rule
+        <include refid="common_where_if"/>
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="ruleName != null and ruleName !=''">
+                rule_name like CONCAT('%', #{ruleName}, '%')
+            </if>
+        </where>
+    </sql>
+
+</mapper>

@@ -1,0 +1,18 @@
+package ${package}.common.query.${moduleName};
+
+import com.zero2oneit.mall.common.utils.query.QueryObject;
+import lombok.Data;
+
+/**
+ * Description:
+ *
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+@Data
+public class ${className}QueryObject extends QueryObject {
+
+
+
+}

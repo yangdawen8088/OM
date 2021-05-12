@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <title>烽鸟驿站表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/select2/select2.min.css" rel="stylesheet">
+    <!--修改图片-->
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css"/>
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css"/>
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <link href="css/tg.tree.css" rel="stylesheet">
+    <style type="text/css">
+        .tangram-suggestion-main {
+            z-index: 99999999999;
+        }
+        .videoed {
+            display: none;
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            left: 45%;
+            top: 45%;
+            z-index: 99;
+            border-radius: 100%;
+        }
+        .videos {
+            display: none;
+            border: 1px solid #080808;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            margin-left: -320px;
+            margin-top: -210px;
+            z-index: 100;
+            width: 640px;
+            height: 360px;
+        }
+
+        .vclose {
+            position: absolute;
+            right: 1%;
+            top: 1%;
+            border-radius: 100%;
+            cursor: pointer;
+        }
+
+        .u-input .zd-input__inner {
+            width: 100%;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: "微软雅黑";
+            font-size: 14px;
+        }
+
+        #l-map {
+            height: 600px;
+            width: 80%;
+        }
+
+        #r-result {
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>站点名称:</label>
+                                <input type="text" class="form-control" name="stationName">
+                            </div>
+                            <div class="form-group">
+                                <label>站长名称:</label>
+                                <input type="text" class="form-control" name="memberName">
+                            </div>
+                            <div class="form-group">
+                                <label>站点电话:</label>
+                                <input type="text" class="form-control" name="phone">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-cyan btn_query btn-round" type="button" id="checkBtn">审核
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="station_data"></table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">驿站管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" method="post">
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">站点名称</span>
+                                <input type="hidden" name="id">
+                                <input type="text" class="form-control" id="stationName" name="stationName">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">联系电话</span>
+                                <input type="text" class="form-control" id="phone" name="phone">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">会员</span>
+                                <input type="hidden" class="form-control" id="memberId" name="memberId">
+                                <input type="text" class="form-control" id="memberName" name="memberName">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">区域</span>
+                                <input type="text" class="form-control" id="areaName" name="areaName">
+                                <input type="hidden" class="form-control" id="areaId" name="areaId">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="main u-main">
+                                <span class="label-left">上传图片</span>
+                                <div class="upload-content">
+                                    <div class="content-img">
+                                        <ul class="content-img-list"></ul>
+                                        <div class="file">
+                                            <i class="gcl gcladd"></i>
+                                            <input type="file" name="file" accept="image/*" id="upload">
+                                            <input type="hidden" name="addOrEditStatus" VALUE="0" id="addOrEditStatus" placeholder="添加或编辑图片状态控制">
+                                            <input type="hidden" name="picture">
+                                            <input type="hidden" name="deleteUrl">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">地址</span>
+                                    <div id="r-result"><input class="form-control" type="text" id="address"
+                                                              name="address" size="20"/></div>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">经度</span>
+                                    <input type="text" name="longitude" class="form-control" id="lon"
+                                           aria-describedby="basic-account" readonly="readonly">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">纬度</span>
+                                    <input type="text" name="latitude" class="form-control" id="lat"
+                                           aria-describedby="basic-account" readonly="readonly">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div align="center">
+                                <div id="l-map"></div>
+                                <div id="searchResultPanel"
+                                     style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+                            </div>
+                        </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" id="saveFormBtn" class="btn btn-primary">保存</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=MGR9YbWrgQMZkX9ZSAKugp1DGQnZhA0e"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- Jcrop截图插件 -->
+<script type="text/javascript" src="js/jcrop/jquery.Jcrop.js"></script>
+<script type="text/javascript" src="js/jcrop/out.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- ckeditor富文本插件 -->
+<script src="js/ckeditor/ckeditor.js"></script>
+<!-- select2下拉框插件 -->
+<script src="js/select2/select2.min.js"></script>
+<script src="js/select2/i18n/zh-CN.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<script src="js/goods/uploadImg.js"></script>
+<!-- boostrap-combox下拉框检索插件 -->
+<script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.bmap.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.goods.tree.js"></script>
+<script type="text/javascript">
+
+    //设置表头
+    var columns = [
+        {checkbox: true},
+        {field: 'id', title: '驿站id'},
+        {field: 'memberId', title: '站长id', visible: false},
+        {field: 'memberName', title: '站长名称'},
+        {field: 'stationName', title: '站点名称'},
+        {
+            field: 'stationStatus', title: '驿站状态', formatter: function (value, row) {
+                let po={};
+                po.value=value;
+                po.id=row.id;
+                if (value == 0) {
+                    return "     <div class=\"form-group m-b-1\">\n" +
+                        "    <div>状态：“关”</div>\n" +
+                        "    <div>\n" +
+                        "        <label class=\"lyear-switch switch-solid switch-success\">\n" +
+                        "            <input type=\"checkbox\"  onclick=\'stationStatusId(" + JSON.stringify(po) + ")\'>\n" +
+                        "            <span></span>\n" +
+                        "        </label>\n" +
+                        "    </div>\n" +
+                        "</div>";
+                } else {
+                    return "     <div class=\"form-group m-b-1\">\n" +
+                        "    <div>状态：“开”</div>\n" +
+                        "    <div>\n" +
+                        "        <label class=\"lyear-switch switch-solid switch-success\">\n" +
+                        "            <input type=\"checkbox\" checked=\"checked\"  onclick=\'stationStatusId(" + JSON.stringify(po)  + ")\'>\n" +
+                        "            <span></span>\n" +
+                        "        </label>\n" +
+                        "    </div>\n" +
+                        "</div>";
+                }
+            }
+        },
+        {field: 'phone', title: '联系电话'},
+        {field: 'address', title: '地址'},
+        {field: 'longitude', title: '经度', visible: false},
+        {field: 'latitude', title: '纬度', visible: false},
+        {field: 'grantType', title: '审核状态',formatter: function (value, row){
+            if (value===1){
+                return "<div class=\"btn btn-success btn-sm\" >已审核 </div>"
+            }else if (value===0){
+                return "<div class=\"btn btn-danger btn-sm\" >未审核 </div>"
+                }
+            }},
+    ];
+
+    //进入主界面加载数据
+    zero2one.datagrid("station_data", "/remote/stationManage/list", function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        $('#station_data').bootstrapTable('refresh');
+    });
+
+    //根据会员名称匹配会员数据
+    zero2one.suggest1("memberId", "/remote/stage/getByphone?keyword=", "memberId", "memberName", "会员信息");
+
+    //选择站点图片上传
+    var imgFile = uploadImg(".content-img-list", "upload", 1024 * 1024 * 4, 0);
+
+    //选择区域
+    zero2one.request("/remote/stationManage/tree", {}, function (data) {
+        $('#areaName').zdCascader({
+            data: data.data,
+            onChange: function (data1, data2, data3) {
+                $("#areaName").val(data3[2].name + "-" + data3[1].name + "-" + data3[0].name)
+                $("#areaId").val(data3[2].id + "-" + data3[1].id + "-" + data3[0].id)
+            }
+        });
+    });
+
+    //审核申请
+    $("#checkBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#station_data').bootstrapTable('getSelections');
+        if (datas.length >= 1) {
+            var strIds = '';
+            var checkNum = 0;
+            $.each(datas, function (i, v) {
+                if (v.grantType === 1) {
+                    checkNum++;
+                } else if (v.grantType === 0) {
+                    strIds = strIds + v.id + ","
+                }
+            });
+            if (checkNum !== 0) {
+                return $.messager.alert("温馨提示", "请勿选择已审核的数据");
+            }
+            zero2one.request("/remote/stationManage/checkByIds", {"ids": strIds.substring(0,strIds.length-1)}, function (data) {
+                window.location.reload();
+            });
+        } else {
+            return $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+        }
+    });
+
+    //点击添加按钮弹出模态框
+    $("#addBtn").click(function () {
+        $("#addOrEditForm")[0].reset();
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击编辑按钮弹出模态框
+    $("#editBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#station_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if (datas.length === 1) {
+            //填充表单
+            $("#addOrEditForm").formloader({data: datas[0]});
+            if(datas[0].picture.length > 0){
+                addNewContent(".content-img-list", datas[0].picture.split(","));
+            }
+        } else {
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+            return;
+        }
+        $("#addOrEditModal").modal("show");
+    });
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            stationName: {validators: {notEmpty: {message: '站点名称不能为空'}}},
+            memberName: {validators: {notEmpty: {message: '会员不能为空'}}},
+            areaName: {validators: {notEmpty: {message: '区域不能为空'}}},
+            phone: {validators: {notEmpty: {message: '电话不能为空'}}},
+            address: {validators: {notEmpty: {message: '地址不能为空'}}},
+        }
+    });
+
+    //点击删除按钮弹出模态框
+    $("#deleteBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#station_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if (datas.length >= 1) {
+            $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                //发送请求,执行批量删除
+                zero2one.request("/remote/stationManage/delByIds", {"ids": zero2one.array2str(datas)}, function (data) {
+                    window.location.reload();
+                });
+            })
+        } else {
+            return $.messager.alert("温馨提示", "请选择一条数据操作");
+        }
+    });
+
+    $("#saveFormBtn").click(function () {
+        var bv = $('#addOrEditForm').data('bootstrapValidator');
+        bv.validate();
+        if (bv.isValid()) {
+            var formFile = new FormData();
+            // 遍历图片imgFile添加到formFile里面
+            $.each(imgFile,function (i, v) {
+                formFile.append("file", v)
+            });
+            handleImage('picture', 'deleteUrl');//编辑处理删除的图片
+            zero2one.requestU("addOrEditForm","/remote/stationManage/addOrEdit",formFile,function (data) {
+                window.location.reload();
+            })
+        }
+    });
+
+    //驿站开启按钮
+    function stationStatusId(stringPo) {
+        $.post("/remote/stationManage/stationStatusEdit", {"value": stringPo.value, "id": stringPo.id}, function (data) {
+            if (data.success) {
+                $.messager.alert("温馨提示", "操作成功");
+                $('#station_data').bootstrapTable('refresh');
+            } else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        }, "json");
+    }
+
+    //地图
+    zero2one.bmap("广东", "address", "lat", "lon");
+
+</script>
+</body>
+</html>

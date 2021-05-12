@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>同城分类</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css" />
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css" />
+    <link rel="stylesheet" type="text/css" href="js/webuploader/webuploader.css">
+    <link rel="stylesheet" type="text/css" href="js/magnific-popup/magnific-popup.min.css">
+</head>
+<body>
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4>同城分类</h4>
+                    <div>
+                        <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+                    </div>
+<!--                    <div>-->
+<!--                        <button class="btn btn-success btn-xs btn-round" id="addsBtn">添加</button>-->
+<!--                    </div>-->
+                </div>
+                <div class="card-body">
+
+                    <div class="zTreeDemoBackground left">
+                        <ul id="tree" class="ztree"></ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+<!--        <div class="col-md-9">-->
+<!--            <div class="card">-->
+<!--                <div class="card-header">-->
+<!--                    <h4>商品管理</h4>-->
+<!--                </div>-->
+<!--                <div class="card-body">-->
+<!--                    <form id="searchForm">-->
+<!--                        <input id="ids" name="ids" type="hidden" value="">-->
+<!--                    </form>-->
+<!--                    <table id="tb_categroy"></table>-->
+
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">商品管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" action="" method="post" data-target="validator">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">商品分类名称：</label>
+                            <input type="hidden" name="id">
+                            <input type="text" class="form-control" id="recipient-name" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">热搜：</label>
+                            <div>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="hot" value="0"/>不热搜</label>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="hot" value="1"/>热搜</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">商品分类级别</label>
+                            <input type="text" class="form-control" id="level" name="level" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label  class="control-label">上级商品分类名称：</label>
+                            <input type="hidden" name="parentId">
+                            <input type="text" class="form-control"  name="parentName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="pic" class="control-label">上传图标：</label>
+                            <input type="hidden" name="pic" id="pic">
+                            <div id="example-dropzone"  class="dropzone"></div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="sava">保存</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+<!-- ckeditor富文本插件 -->
+<script src="js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<!--上传图片插件-->
+<script type="text/javascript" src="js/webuploader/webuploader.min.js"></script>
+<script type="text/javascript" src="js/magnific-popup/jquery.magnific-popup.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.uploader.js"></script>
+<!--上传图片插件-->
+<script type="text/javascript" src="js/zero2one/zero2one.drop.js"></script>
+<script type="text/javascript" src="js/inputmoney.js"></script>
+
+<script type="text/javascript">
+
+    //页面初始化完成加载部门数据
+    $.post("/remote/tccate/tccategory", {},
+        function(data){
+            $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data);
+        }, "json");
+
+
+    var zj;
+    var tb;
+    var ids;
+    function onClick(event, treeId, treeNode) {
+        if(treeNode.getParentNode() != null){
+            tb = {parentId:treeNode.getParentNode().parentId,
+                parentName:treeNode.getParentNode().name, id:treeNode.getParentNode().id,
+                name:treeNode.name, level:treeNode.level,pic:treeNode.pic
+                ,hot:treeNode.hot,sort:treeNode.sort};
+        }
+        zj = {id:treeNode.id, name:treeNode.name, level:treeNode.level,
+            pic:treeNode.pic,hot:treeNode.hot,sort:treeNode.sort};
+        console.log(treeNode);
+        console.log(treeNode.getParentNode());
+    }
+
+    //上传图片
+    zero2one.drop("example-dropzone","pic");
+    //点击编辑按钮弹出模态框
+    $("#editBtn").click(function () {
+
+         if(zj == null){
+             $.messager.alert("温馨提示", "请先选择要编辑的分类再操作");
+             return;
+         }
+        if(zj.level == 0){
+            $.messager.alert("温馨提示", "请顶级不能编辑");
+            return;
+        }
+        //加载表单数据
+        $("#addOrEditForm").formloader({data: zj});
+        $("#example-dropzone").empty();
+        var dropz = Dropzone.forElement('#example-dropzone');//获取Dropzone元素节点
+        //创建模拟文件
+        var mockFile = {
+            name:zj.pic , //显示的文件名
+            accepted:true
+        };
+        dropz.emit("addedfile", mockFile);
+        //图片地址
+        var imageUrl =zj.pic;
+        //生成缩略图
+        dropz.emit("thumbnail", mockFile,imageUrl);
+        //完成（如果没有，缩略图上会有一根进度条一直存在）
+        dropz.emit("complete", mockFile);
+
+         $("input[name=parentName]").val(tb==null?"":tb.parentName);
+        $("input[name=parentId]").val(tb==null?"":tb.id);
+        $(":radio[name='hot'][value='" + zj.hot + "']").prop("checked", "checked");
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //保存按钮的点击事件
+    $("#sava").click(function () {
+        zero2one.request("/remote/tccate/tcUpdateOrAdd",$("#addOrEditForm").serialize(),function (data) {
+            console.log($("#addOrEditForm").serialize());
+            if (data.success) {
+                window.location.reload();
+            }else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        });
+    });
+
+
+
+
+
+</script>
+
+</body>
+</html>

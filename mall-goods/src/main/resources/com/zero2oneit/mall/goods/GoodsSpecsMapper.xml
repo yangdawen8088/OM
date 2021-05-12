@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.GoodsSpecsMapper">
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT t.id,t.specs_name specsName FROM goods_specs t
+        <include refid="common_where_if"/>
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        select count(1) from goods_specs t
+        <include refid="common_where_if"/>
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="specsName != null and specsName !=''">
+                AND t.specs_name  like CONCAT('%', #{specsName}, '%')
+            </if>
+        </where>
+    </sql>
+
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.ChiefApplyMapper">
+
+    <update id="updateStaIdById">
+        UPDATE chief_apply SET status_id=1 WHERE id= #{id};
+    </update>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT id,member_id memberId,pick_name pickName,pick_addr pickAddr,house_num houseNum,latitude,longitude,
+        open_hours openHours,end_hours endHours,card_front cardFront,card_back cardBack,phone,door_photo doorPhoto,
+        create_time createTime,switch_id switchId,status_id statusId,operator_name operatorName,operator_time operatorTime
+        FROM chief_apply
+        <where>
+            <if test="memberId!=null and memberId!=''">
+                AND  member_id =#{memberId}
+            </if>
+            <if test="pickName!=null and pickName!=''">
+                AND pick_name LIKE CONCAT('%',#{pickName},'%')
+            </if>
+            <if test="statusId!=null">
+                AND status_id LIKE CONCAT('%',#{statusId},'%')
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM chief_apply
+        <where>
+            <if test="memberId!=null and memberId!=''">
+                AND  member_id =#{memberId}
+            </if>
+            <if test="pickName!=null and pickName!=''">
+                AND pick_name LIKE CONCAT('%',#{pickName},'%')
+            </if>
+            <if test="statusId!=null">
+                AND status_id LIKE CONCAT('%',#{statusId},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

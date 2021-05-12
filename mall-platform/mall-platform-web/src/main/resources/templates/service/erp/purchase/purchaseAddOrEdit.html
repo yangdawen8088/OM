@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>采购添加-编辑</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<!--                    //详细-->
+<div class="container-fluid p-t-15">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form class="form-horizontal" id="formData" onsubmit="return false;">
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0" for="houseName">仓库名称:</label>
+                            <div class="col-xs-6">
+                                <input type="hidden" name="purchaseId">
+                                <input type="hidden" name="productId">
+                                <input type="hidden" name="houseId">
+                                <input class="form-control" type="text" id="houseName" name="houseName" placeholder="请选择仓库名称" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0" for="supplierName">供应名称:</label>
+                            <div class="col-xs-6">
+                                <input type="hidden" name="supplierId">
+                                <input class="form-control" type="text" id="supplierName" name="supplierName" placeholder="请选择供应商名称" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0" for="productName">商品名称:</label>
+                            <div class="col-xs-6">
+                                <input class="form-control" type="text" id="productName" name="productName" placeholder="请选择商品" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0" for="purchaseNum">采购数量:</label>
+                            <div class="col-xs-6">
+                                <input class="form-control" type="text" id="purchaseNum" name="purchaseNum" onkeyup="value=zhzs(this.value)" placeholder="请输入采购的数量">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0" for="purchasePrice">采购单价:</label>
+                            <div class="col-xs-6">
+                                <input class="form-control" type="text" id="purchasePrice" name="purchasePrice" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0" for="totalAmount">采购总额:</label>
+                            <div class="col-xs-6">
+                                <input class="form-control" type="text" id="totalAmount" name="totalAmount" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label font-0">备注:</label>
+                            <div class="col-xs-6">
+                                <textarea class="form-control" rows="2" id="remarks" name="remarks"></textarea>
+                            </div>
+                        </div>
+                        <div class="u-f-ajc p-15">
+                            <button type="button" class="btn btn-primary" id="sava">保存</button>
+                            <button type="button" class="btn btn-primary" id="selectProduct">选择商品</button>
+                            <button type="button" class="btn btn-primary" id="selectSupplier">选择供应商</button>
+                            <button type="button" class="btn btn-primary" id="selectHouse">选择仓库</button>
+                            <button type="button" class="btn btn-primary" id="operating">商品操作</button>
+                        </div>
+                    </form>
+                    <div class="card-body" id="productData" style="display:none">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>商品名称:</label>
+                                <input type="text" class="form-control" name="productName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+                            </div>
+                        </form>
+                        <table id="product_data"></table>
+                        <button type="button" class="btn btn-purple" id="confirmSelection">确认选择</button>
+                        <button type="button" class="btn btn-secondary" id="cancelSelection">取消修改</button>
+                    </div>
+
+                    <div class="card-body" id="supplierData" style="display:none">
+                        <form class="form-inline" method="post" id="supplierForm">
+                            <div class="form-group">
+                                <label>供应商名称:</label>
+                                <input type="text" class="form-control" name="supplierName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="supplierFormBtn">查询</button>
+                            </div>
+                        </form>
+                        <table id="supplier_data"></table>
+                        <button type="button" class="btn btn-purple" id="supplierConfirmSelection">确认选择</button>
+                        <button type="button" class="btn btn-secondary" id="supplierCancelSelection">取消修改</button>
+                    </div>
+
+                    <div class="card-body" id="houseData" style="display:none">
+                        <form class="form-inline" method="post" id="houseForm">
+                            <div class="form-group">
+                                <label>仓库名称:</label>
+                                <input type="text" class="form-control" name="houseName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="houseFormBtn">查询</button>
+                            </div>
+                        </form>
+                        <table id="house_data"></table>
+                        <button type="button" class="btn btn-purple" id="houseConfirmSelection">确认选择</button>
+                        <button type="button" class="btn btn-secondary" id="houseCancelSelection">取消修改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--                    -->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/main.min.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- boostrap-combox下拉框检索插件 -->
+<script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+
+<script type="text/javascript">
+
+    //设置表头
+    var columns = [
+        {checkbox: true},
+        {field: 'productId',title: 'ID'},
+        {field: 'productName',title: '名称'},
+        {field: 'barCode',title: '商品条形码'},
+        {field: 'productSku',title: '商品规格'},
+        {field: 'productUnit',title: '商品单位'},
+        {field: 'purchasePrice',title: '采购价'},
+    ];
+    //商品加载数据
+    zero2one.datagrid("product_data","/remote/goodPage/goodPages",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns);
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        $('#product_data').bootstrapTable('refresh');
+    });
+
+    //设置表头
+    var supplierColumns = [
+        {checkbox: true},
+        {field: 'supplierId',title: '供应商ID'},
+        {field: 'supplierName',title: '供应商名称'},
+    ];
+    //供应商加载数据
+    zero2one.datagrid("supplier_data","/remote/supplierInfo/supplierInfoJk",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("supplierForm"));
+    }, supplierColumns);
+    //点击查询按钮重新加载页面数据
+    $("#supplierFormBtn").click(function () {
+        $('#supplier_data').bootstrapTable('refresh');
+    });
+
+    //设置表头
+    var houseColumns = [
+        {checkbox: true},
+        {field: 'houseId',title: '仓库ID'},
+        {field: 'houseName',title: '仓库名字'},
+    ];
+    //仓库加载数据
+    zero2one.datagrid("house_data","/remote/houseInfo/houseInfoJk",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("houseForm"));
+    }, houseColumns);
+    //点击查询按钮重新加载页面数据
+    $("#houseFormBtn").click(function () {
+        $('#house_data').bootstrapTable('refresh');
+    });
+
+    //商品操作
+    $("#operating").click(function () {
+        window.location.href= "goodProduct.html";
+    });
+
+    //转化正整数
+    function zhzs(value){
+        //只可输入数字
+        value = value.replace(/[^\d]/g,'');
+        if(''!=value){
+            value = parseInt(value);
+        }
+        return value;
+    }
+
+    //点击商品显示表格
+    $("#selectProduct").click(function () {
+        $("#productData").css("display","block");
+    });
+    //取消商品修改按钮
+    $("#cancelSelection").click(function () {
+        $("#productData").css("display","none");//隐藏表格
+    });
+    //点击供应商显示表格
+    $("#selectSupplier").click(function () {
+        $("#supplierData").css("display","block");
+    });
+    //取消供应商修改按钮
+    $("#supplierCancelSelection").click(function () {
+        $("#supplierData").css("display","none");//隐藏表格
+    });
+    //点击仓库显示表格
+    $("#selectHouse").click(function () {
+        $("#houseData").css("display","block");
+    });
+    //取消仓库修改按钮
+    $("#houseCancelSelection").click(function () {
+        $("#houseData").css("display","none");//隐藏表格
+    });
+
+    //商品确认选择按钮
+    $("#confirmSelection").click(function () {
+        var datas = $('#product_data').bootstrapTable('getSelections');
+        if (datas.length==1 && datas!=null){
+            $("#productData").css("display","none");//隐藏表格
+            $("#productName").val(datas[0].productName);
+            $("#productId").val(datas[0].productId);
+            $("#purchasePrice").val(datas[0].purchasePrice);
+            $("#purchaseNum").val("");
+            $("#totalAmount").val("")
+        }else {
+            $.messager.alert("温馨提示", "请选择一条商品数据操作！");
+        }
+    });
+    //供应商确认选择按钮
+    $("#supplierConfirmSelection").click(function () {
+        var datas = $('#supplier_data').bootstrapTable('getSelections');
+        if (datas.length==1 && datas!=null){
+            $("#supplierData").css("display","none");//隐藏表格
+            $("#supplierName").val(datas[0].supplierName);
+            $("#supplierId").val(datas[0].supplierId);
+        }else {
+            $.messager.alert("温馨提示", "请选择一条供应商数据操作！");
+        }
+    });
+    //仓库确认选择按钮
+    $("#houseConfirmSelection").click(function () {
+        var datas = $('#house_data').bootstrapTable('getSelections');
+        if (datas.length==1 && datas!=null){
+            $("#houseData").css("display","none");//隐藏表格
+            $("#houseName").val(datas[0].houseName);
+            $("#houseId").val(datas[0].houseId);
+        }else {
+            $.messager.alert("温馨提示", "请选择一条仓库数据操作！");
+        }
+    });
+
+    //输入数量同步总金额
+    $('#purchaseNum').bind('input propertychange', function() {
+        var tatal=0;
+        var  purchaseNum=$('#purchaseNum').val();
+        var purchasePrice= $('#purchasePrice').val();
+        if (!isNaN(purchaseNum)) {
+            tatal=purchaseNum*purchasePrice
+        }
+        $('#totalAmount').val(tatal.toFixed(2))
+    });
+
+    //获取A页面带来的ID,根据ID查回值填充表单
+    var loc=location.href;
+    var n1=loc.length;//地址的总长度
+    var n2=loc.indexOf("=");//取得=号的位置
+    var id=decodeURI(loc.substr(n2+1, n1-n2));//从=号后面的内容
+    if(id>0){
+        $.ajax({
+            url: '/remote/erpPurchase/getPurchase',
+            contentType:'application/json',
+            type: 'post',
+            data: id,
+            dataType: 'json',
+            success: function (res) {
+                console.log(res.data);
+                $("#supplierName").val(res.data.supplierName);
+                $("#supplierId").val(res.data.supplierId);
+                $("#houseId").val(res.data.houseId);
+                $("#houseName").val(res.data.houseName);
+                $("#purchaseNum").val(res.data.purchaseNum);
+                $("#totalAmount").val(res.data.totalAmount);
+                $("#remarks").val(res.data.remarks);
+                $("#productId").val(res.data.productId);
+                $("#productName").val(res.data.productName);
+                $("#purchasePrice").val( res.data.purchasePrice);
+            }
+        });
+    }
+
+    //添加-编辑
+    $("#sava").click(function () {
+       var  supplierName= $("#supplierName").val();
+        var supplierId=$("#supplierId").val();
+        var houseId=$("#houseId").val();
+        var houseName=$("#houseName").val();
+        var purchaseNum=$("#purchaseNum").val();
+        var totalAmount=$("#totalAmount").val();
+        var remarks=$("#remarks").val();
+
+        if(id>0){
+            var productId=$("#productId").val();
+            var productName=$("#productName").val();
+            var vo ={"productId":productId,"productName":productName,"purchaseId":id,"supplierId":supplierId,"supplierName":supplierName,"houseId":houseId,"houseName":houseName,"purchaseNum":purchaseNum,"totalAmount":totalAmount,"remarks":remarks}
+        }else {
+            var datas = $('#product_data').bootstrapTable('getSelections');
+            var supplierDatas = $('#supplier_data').bootstrapTable('getSelections');
+            var houseDatas = $('#house_data').bootstrapTable('getSelections');
+            if(datas.length == ""){
+                return $.messager.alert("请选择商品");
+            }
+            if(supplierDatas.length == ""){
+                return $.messager.alert("请选择供应商");
+            }
+            if(houseDatas.length == ""){
+                return $.messager.alert("请选择仓库");
+            }
+            var vo ={"productId":datas[0].productId,"productName":datas[0].productName,"purchaseId":"",
+                "supplierId":supplierDatas[0].supplierId,"supplierName":supplierDatas[0].supplierName,
+                "houseId":houseDatas[0].houseId,"houseName":houseDatas[0].houseName,
+                "purchaseNum":purchaseNum,"totalAmount":totalAmount,"remarks":remarks}
+        }
+
+        if(purchaseNum == null||purchaseNum == ""){
+            return $.messager.alert("温馨提示","采购数量不能为空");
+        }
+
+        $.ajax({
+            url: '/remote/erpPurchase/addOrEditPurchase',
+            contentType:'application/json',
+            type: 'post',
+            data: JSON.stringify(vo),
+            dataType: 'json',
+            success: function (res) {
+                if (res.success){
+                    $.messager.alert("温馨提示", "操作成功,2S之后刷新");
+                    setTimeout(function () {
+                        window.location.href= "purchase.html";
+                    }, 2000);
+                }else {
+                    $.messager.alert("温馨提示",res.message);
+                }
+            }
+        });
+    })
+
+</script>
+</body>
+</html>

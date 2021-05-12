@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>团购规则</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <!--日期选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>规则名称:</label>
+                                <input type="text" class="form-control" name="ruleName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加团购规则</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑团购规则</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除团购规则</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary btn_query btn-round" type="button" id="addProductBtn">团购商品管理</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+                    <table id="grid_data" class="table text-nowrap"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>添加/编辑</span>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div id="error_tips" style="color: #c9302c"></div>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" method="post" enctype="multipart/form-data">
+                        <div class="row">
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-account">规则名称</span>
+                                    <input type="hidden" name="id">
+                                    <input type="text" name="ruleName" class="form-control">
+                                    <span class="mdi mdi-account form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="start-time">开始时间</span>
+                                    <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="startTime" placeholder="开始时间">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="end-time">结束时间</span>
+                                    <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="endTime" placeholder="结束时间">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">拼团时效(单位 小时)</span>
+                                    <input type="text" name="groupPeriod" class="form-control control" onkeyup="this.value=this.value.replace(/[^bai0-9-]+/,'');" value="1">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">拼团人数</span>
+                                    <input type="text" name="groupCount" class="form-control" onkeyup="this.value=this.value.replace(/[^bai0-9-]+/,'');" value="2">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">购买数量限制</span>
+                                        <input type="text" name="buyLimit" class="form-control control" onkeyup="this.value=this.value.replace(/[^bai0-9-]+/,'');" value="1">
+                                 </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">单次购买数量限制</span>
+                                    <input type="text" name="singleBuyLimit" class="form-control control" onkeyup="this.value=this.value.replace(/[^bai1-9-0]+/,'');" value="1">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">补齐人数</span>
+                                    <input type="text" name="supplyCount"  class="form-control" onkeyup="this.value=this.value.replace(/[^bai0-9-]+/,'');" value="0">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon">规则排序</span>
+                                    <input type="text" name="ruleOrder" class="form-control" onkeyup="this.value=this.value.replace(/[^bai0-9-]+/,'');">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary addSaveBtn" id="saveBtn">保存</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!--日期选择插件-->
+    <script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.curd.js"></script>
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: '编号'},
+            {field: 'ruleName',title: '规则名称'},
+            {field: 'startTime',title: '开始时间',formatter: function (value) { return zero2one.dateFormat(value, 'Y-m-d') }},
+            {field: 'endTime',title: '结束时间',formatter: function (value) { return zero2one.dateFormat(value, 'Y-m-d') }},
+            {field: 'groupPeriod',title: '拼团时效(单位 小时)'},
+            {field: 'groupCount',title: '拼团人数'},
+            {field: 'buyLimit',title: '购买数量限制'},
+            {field: 'singleBuyLimit',title: '单次购买数量限制'},
+            {field: 'supplyCount',title: '补齐人数'},
+            {field: 'ruleOrder',title: '规则排序'},
+            {field: 'ruleStatus',title: '规则状态',formatter: function (value, row, index) {
+                var checked = value == 1 ? "checked" : "";
+                return '<label class="lyear-switch switch-solid switch-success"><input type="checkbox" '+checked+' onclick="status('+value+','+row.id+')"><span></span> '+(value== 1 ? "开启" : "关闭")+' </label>'; }}
+        ];
+
+        //加载列表信息
+        zero2one.table("/remote/group/list", columns);
+
+        //根据条件查询列表信息
+        zero2one.query();
+
+        //点击添加按钮弹出模态框
+        zero2one.addModal();
+
+        //点击编辑按钮弹出模态框
+        $("#editBtn").click(function () {
+            var datas = $('#grid_data').bootstrapTable('getSelections');
+            if (datas.length === 1) {
+                if (datas[0].ruleStatus === 1) { return $.messager.alert("温馨提示", "状态:开启的数据不能操作");
+                } else {
+                    $("#addOrEditForm").formloader({data: datas[0]});
+                }
+            } else { return $.messager.alert("温馨提示", "请选择一条数据操作"); }
+            $("#addOrEditModal").modal("show");
+        });
+
+        //点击删除按钮弹出模态框
+        $("#deleteBtn").click(function () {
+            var datas = $('#grid_data').bootstrapTable('getSelections');
+            if (datas.length >= 1) {
+                if (datas[0].ruleStatus === 1) { return $.messager.alert("温馨提示", "状态:开启的数据不能操作");
+                } else { $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                        zero2one.request("/remote/group/delByIds", {"ids": zero2one.array2str(datas)}, function (data) {
+                            if (data.success) { $.messager.alert("温馨提示", "操作成功");
+                                $('#grid_data').bootstrapTable('refresh');
+                            } else { $.messager.alert("温馨提示", data.msg) }
+                        });
+                    })
+                }
+            } else { return $.messager.alert("温馨提示", "请选择一条数据操作"); }
+        });
+
+        //点击保存按钮提交请求且提交前先执行表单验证
+        $('#addOrEditForm').bootstrapValidator({
+            fields: {
+                ruleName: {validators: {notEmpty: {message: '规则名称不能为空'}}},
+                startTime: {validators: {notEmpty: {message: '开始时间不能为空'}}},
+                endTime: {validators: {notEmpty: {message: '结束时间不能为空'}}},
+                ruleOrder: {validators: {notEmpty: {message: '规则排序不能为空'}}}
+            }
+        });
+        zero2one.save("/remote/group/addOrEdit");
+
+        //修改拼团规则状态
+        function status(value,id){
+            zero2one. request("/remote/group/status", {"status": value,"id": id},function (data){
+                if (data.success) {
+                    $.messager.alert("温馨提示", "操作成功");
+                    $('#grid_data').bootstrapTable('refresh');
+                } else { $.messager.alert("温馨提示", data.msg) }
+            })
+        }
+
+        //监听input的值
+        $(function() {
+            $(".control").blur(function(){
+                if ($(".control").val()<1 || $(".control").val()==null) { $(".control").val(1); }
+            });
+            $("input[name='groupCount']").blur(function(){
+                if ($("input[name='groupCount']").val()<2 || $("input[name='groupCount']").val()==null) { $("input[name='groupCount']").val(2); }
+            });
+            $("input[name='supplyCount']").blur(function(){
+                if ($("input[name='supplyCount']").val()>=$("input[name='groupCount']").val()) { $("input[name='supplyCount']").val($("input[name='groupCount']").val()-1); }
+            });
+        });
+
+    </script>
+</div>
+</body>
+</html>

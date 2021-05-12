@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>商场商品表</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>商场已购商品</h4></div>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active in" id="home">
+                        <form class="form-inline" method="post" id="searchForm" action="/remote/OrdersGoods/goodsExcel">
+                            <div class="form-group">
+                                <label>商品名称:</label>
+                                <input type="text" class="form-control" name="title">
+                            </div>
+                            <div class="form-group">
+                                <label>时间日期:</label>
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="startTime" placeholder="开始时间" style="width:120px;"> -
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="endTime" placeholder="结束时间" style="width:120px;">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round"  type="button" id="productDetails" >商品详细</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary btn_query btn-round" type="button" id="generate-excel">导出商品数据</button>
+                            </div>
+                        </form>
+                        <table id="Goods_data"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--  驿站详细模态框 -->
+    <div class="modal fade" id="ProductDetailsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabels">
+        <div class="modal-dialog" role="document" style="width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProductInformation">商品内容</h4>
+                </div>
+                <div class="modal-body" id="commodityMessage"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+    <script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!--日期选择插件-->
+    <script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
+
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: '商品购买编号',visible:false},
+            {field: 'productId',title: '商品Id',visible:false},
+            {field: 'skuId',title: 'skuId',visible:false},
+            {field: 'title',title: '商品名称'},
+            {field: 'price',title: '标价',visible:false},
+            {field: 'totalPrice',title: '总价'},
+            {field: 'count',title: '一天购买数量'},
+            {field: 'skuAttrs',title: '商品规格'},
+            {field: 'picture',title: '商品图片',formatter:function (value) {
+                    if (value != null){
+                        return "<img style='width: 80px' src='"+value+"'/>";
+                    }else {
+                        return  "无图片";
+                    }
+                }},
+            {field: 'productStock',title: '商品库存',visible:false},
+            {field: 'needJq',title: '需要金券',visible:false},
+            {field: 'giveJf',title: '赠送积分',visible:false},
+            {field: 'payTime',title: '时间日期',formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d')}}
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("Goods_data", "/remote/OrdersGoods/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#Goods_data').bootstrapTable('refresh');
+        });
+
+
+        //商品详细按钮
+        $("#productDetails").click(function () {
+
+            //获取商品选中数据
+            var datas = $('#Goods_data').bootstrapTable('getSelections');
+
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length == 1){
+                var content='';
+
+                content+='<label style="font-size: x-large">商品名称：</label><label style="font-size: large">'+datas[0].title+'</label></br>'
+                    +'<label style="font-size: x-large">标价：</label><label style="font-size: large">'+datas[0].price+'</label></br>'
+                    +'<label style="font-size: x-large">总价：</label><label style="font-size: large">'+datas[0].totalPrice+'</label></br>'
+                    +'<label style="font-size: x-large">一天购买数量：</label><label style="font-size: large">'+datas[0].count+'</label></br>'
+                    +'<label style="font-size: x-large">skuId：</label><label style="font-size: large">'+datas[0].skuId+'</label></br>'
+                    +'<label style="font-size: x-large">赠送积分：</label><label style="font-size: large">'+datas[0].giveJf+'</label></br>'
+                    +'<label style="font-size: x-large">赠送金券：</label><label style="font-size: large">'+datas[0].giveVoucher+'</label></br>';
+                content+='<label style="font-size: x-large">赠送优惠券：</label><label style="font-size: large">'+datas[0].giveVoucher+'</label></br>'
+                    +'<label style="font-size: larger">图片:</label></br>'+"<img style='width: auto;height: auto;border-radius: 10%'  src='"+datas[0].picture+"'/>"+'</br>'
+                    +'<hr>';
+
+                $("#commodityMessage").html(content);
+                //打开模态框
+                $("#ProductDetailsModal").modal("show");
+
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+            }
+        });
+
+        //导出商品数据按钮
+        $("#generate-excel").click(function(){
+            $.messager.confirm("提示", "您是否要导出所的数据?", function () {
+                $("#searchForm").submit();
+            });
+        });
+
+
+
+
+    </script>
+</div>
+</body>
+</html>

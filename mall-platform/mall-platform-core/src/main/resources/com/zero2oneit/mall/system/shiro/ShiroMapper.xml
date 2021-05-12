@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.shiro.mapper.ShiroMapper">
+
+    <sql id="selectOnlineVo">
+       select sessionId, login_name, dept_name, ipaddr, login_location, browser, os, status, start_timestamp, last_access_time, expire_time
+	   from sys_user_online
+    </sql>
+
+    <insert id="saveOnline">
+		replace into sys_user_online(sessionId, login_name, dept_name, ipaddr, login_location, browser, os, status, start_timestamp, last_access_time, expire_time)
+        values (#{sessionId}, #{loginName}, #{deptName}, #{ipaddr}, #{loginLocation}, #{browser}, #{os}, #{status}, #{startTimestamp}, #{lastAccessTime}, #{expireTime})
+    </insert>
+
+    <delete id="deleteOnlineById">
+        delete from sys_user_online where sessionId = #{sessionId}
+    </delete>
+
+    <delete id="deleteOnline">
+        delete from sys_user_online
+    </delete>
+
+    <select id="selectOnlineById" resultType="com.zero2oneit.mall.system.shiro.entity.SysUserOnline">
+        <include refid="selectOnlineVo"/>
+        where sessionid = #{sessionId}
+    </select>
+
+    <select id="selectOnlineByExpired" resultType="com.zero2oneit.mall.system.shiro.entity.SysUserOnline">
+        <include refid="selectOnlineVo"/> o
+        WHERE o.last_access_time <![CDATA[ <= ]]> #{lastAccessTime} ORDER BY o.last_access_time ASC
+    </select>
+
+    <select id="selectOnlineSessionIds" resultType="java.lang.String">
+        select sessionId from sys_user_online
+    </select>
+
+</mapper>

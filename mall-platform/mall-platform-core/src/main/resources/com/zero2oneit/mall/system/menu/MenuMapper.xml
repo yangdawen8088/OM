@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.menu.mapper.MenuMapper">
+
+    <!-- 添加一级菜单 -->
+    <insert id="addOneLevelMenu">
+        INSERT INTO sys_p_menu(parent_id,name,menu_level,order_id,icon_cls,open,function_id)
+        VALUES(#{parentId},#{name},#{menuLevel},#{orderId},#{iconCls},#{open},#{id})
+    </insert>
+
+    <!-- 添加功能信息 -->
+    <insert id="addFunction" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_p_function(name,menu_url,request_url,f_type,access_rule)
+        VALUES(#{name},#{menuUrl},#{requestUrl},#{ftype},#{accessRule})
+    </insert>
+
+    <!-- 多表更新 -->
+    <update id="edit">
+        UPDATE sys_p_menu m LEFT JOIN sys_p_function f ON m.function_id = f.id
+        SET m.name=#{name},m.order_id=#{orderId},m.icon_cls=#{iconCls},m.open=#{open},f.name=#{name},
+        f.menu_url=#{menuUrl},f.request_url=#{requestUrl},f.f_type=#{ftype},f.access_rule=#{accessRule}
+        WHERE m.id=#{id}
+    </update>
+
+    <!-- 批量注销菜单 -->
+    <delete id="delMenuByIds">
+        UPDATE sys_p_menu SET menu_status = #{menuStatus} WHERE FIND_IN_SET(id,#{ids})
+    </delete>
+
+
+    <select id="selectMenuList" resultType="com.zero2oneit.mall.system.menu.entity.Menu">
+          SELECT
+                 t.id,t.name,t.parent_id parentId,t.menu_level menuLevel,t.order_id orderId,t.function_id functionId,
+                 t.icon_cls iconCls,t.open,f.menu_url menuUrl,f.request_url requestUrl,f.access_rule accessRule,f.f_type ftype
+            FROM sys_p_menu t
+            LEFT JOIN sys_p_function f ON t.function_id = f.id ORDER BY t.order_id
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+          SELECT count(*) FROM sys_p_menu t LEFT JOIN sys_p_function f ON t.function_id = f.id
+          where 1=1
+          <if test="ids != null and ids !=''">
+            AND FIND_IN_SET(t.id,#{ids})
+          </if>
+          ORDER BY t.order_id
+    </select>
+
+    <select id="selectRows" resultType="java.util.HashMap">
+           SELECT
+                 t.function_id,t.id menu_id,t.name,t.order_id,t.menu_level,
+                 (CASE WHEN t.open = 0 THEN '折叠' ELSE '展开' END) 'OPEN',
+                 (CASE WHEN t.menu_status = 0 THEN '注销' ELSE '启用' END) menu_status,
+                 (CASE WHEN IFNULL(f.access_rule,-1) = -1 THEN '' WHEN IFNULL(f.access_rule,-1) = 0 THEN '不需要' ELSE '需要' END) access_rule,
+                 (CASE WHEN IFNULL(f.f_type,0) = 0 THEN '' WHEN IFNULL(f.f_type,-1) = 1 THEN '菜单' ELSE '按钮' END) f_type,
+                 t.icon_cls,IFNULL(f.menu_url,'') menu_url,IFNULL(f.request_url,'') request_url
+            FROM sys_p_menu t
+            LEFT JOIN sys_p_function f ON t.function_id = f.id
+            where 1=1
+            <if test="ids != null and ids !=''">
+                AND FIND_IN_SET(t.id,#{ids})
+            </if>
+            ORDER BY t.order_id limit #{starIndex},#{pageSize}
+    </select>
+
+    <!-- 加载主页菜单 -->
+    <select id="loadHomeMenus" resultType="java.util.HashMap">
+        SELECT GROUP_CONCAT(CONCAT_WS(',',d.id,d.name,d.menu_url) ORDER BY parent_id ASC, order_id ASC SEPARATOR ';') menu_url,d.pname,d.parent_id,d.icon_cls FROM (
+        SELECT n.id,n.name,n.order_id,n.parent_id,m.menu_url,p.name pname,p.icon_cls FROM sys_p_user_f t,sys_p_menu n,sys_p_menu p,sys_p_function m
+        WHERE t.function_id=n.function_id AND n.function_id = m.id AND n.parent_id = p.id
+        AND n.menu_status=1 AND n.menu_level=2 AND t.user_id=#{userId}
+        UNION
+        SELECT n.id,n.name,n.order_id,n.parent_id,m.menu_url,p.name pname,p.icon_cls FROM sys_p_menu n,sys_p_menu p,sys_p_function m
+        WHERE n.parent_id=p.id AND n.function_id=m.id AND m.access_rule=0
+        UNION
+        SELECT n.id,n.name,n.order_id,n.parent_id,m.menu_url,p.name pname,p.icon_cls FROM sys_p_role_f t,sys_p_menu n,sys_p_menu p,sys_p_function m,sys_p_user_role k
+        WHERE t.function_id=n.function_id AND n.function_id = m.id AND t.role_code = k.role_code AND n.parent_id = p.id
+        AND n.menu_status=1 AND n.menu_level=2 AND k.user_id=#{userId}
+        ) d GROUP BY d.pname ORDER BY parent_id ASC
+    </select>
+
+    <!-- 加载主页菜单封装树版本 -->
+    <select id="loadHomeTreeMenu" resultType="com.zero2oneit.mall.common.utils.tree.HomeMenu">
+        SELECT * FROM (
+        SELECT '1' id,'&lt;span&gt;平台首页&lt;/span&gt;' NAME,'mdi mdi-home' icon,1 is_home,0 is_out,0 pid,'#' url,0 order_id FROM DUAL
+        UNION ALL
+        SELECT p.id,p.name,p.icon_cls icon,0 is_home,0 is_out,0 pid,'' url,p.order_id FROM sys_p_user_f t,sys_p_menu n,sys_p_menu p,sys_p_function m
+        WHERE t.function_id=n.function_id AND n.function_id = m.id AND n.parent_id = p.id
+        AND n.menu_status=1 AND n.menu_level=2 AND t.user_id=#{userId} GROUP BY p.id
+        UNION
+        SELECT p.id,p.name,p.icon_cls icon,0 is_home,0 is_out,0 pid,'' url,p.order_id FROM sys_p_role_f t,sys_p_menu n,sys_p_menu p,sys_p_function m,sys_p_user_role k
+        WHERE t.function_id=n.function_id AND n.function_id = m.id AND t.role_code = k.role_code AND n.parent_id = p.id
+        AND n.menu_status=1 AND n.menu_level=2 AND k.user_id=#{userId} GROUP BY p.id
+        UNION
+        SELECT p.id,p.name,p.icon_cls icon,0 is_home,0 is_out,0 pid,'' url,p.order_id FROM sys_p_menu n,sys_p_menu p,sys_p_function m
+        WHERE n.parent_id=p.id AND n.function_id=m.id AND m.access_rule=0
+        UNION ALL
+        SELECT n.id,n.name,n.icon_cls icon,0 is_home,0 is_out,n.parent_id pid,m.menu_url url,n.order_id FROM sys_p_user_f t,sys_p_menu n,sys_p_function m
+        WHERE t.function_id=n.function_id AND n.function_id = m.id
+        AND n.menu_status=1 AND n.menu_level=2 AND t.user_id=#{userId}
+        UNION
+        SELECT n.id,n.name,n.icon_cls icon,0 is_home,0 is_out,n.parent_id pid,m.menu_url url,n.order_id FROM sys_p_menu n,sys_p_menu p,sys_p_function m
+        WHERE n.parent_id=p.id AND n.function_id=m.id AND m.access_rule=0
+        UNION
+        SELECT n.id,n.name,n.icon_cls icon,0 is_home,0 is_out,n.parent_id pid,m.menu_url url,n.order_id FROM sys_p_role_f t,sys_p_menu n,sys_p_function m,sys_p_user_role k
+        WHERE t.function_id=n.function_id AND n.function_id = m.id AND t.role_code = k.role_code
+        AND n.menu_status=1 AND n.menu_level=2 AND k.user_id=#{userId}
+        ) b ORDER BY pid,order_id ASC
+    </select>
+
+</mapper>

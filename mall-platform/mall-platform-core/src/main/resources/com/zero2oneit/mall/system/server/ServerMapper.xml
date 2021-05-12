@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.server.mapper.ServerMapper">
+
+    <!-- 添加部门信息 -->
+    <insert id="add">
+        INSERT INTO sys_p_server(server_name,server_level,parent_id,open)
+        VALUES(#{name},#{serverLevel},#{parentId},#{open})
+    </insert>
+
+    <!-- 编辑部门信息 -->
+    <update id="edit">
+        update sys_p_server set server_name=#{name},open=#{open},server_level=#{serverLevel} where id=#{id}
+    </update>
+
+    <!-- 加载所有部门数据 -->
+    <select id="selectServerList" resultType="com.zero2oneit.mall.system.server.entity.SysServer">
+        SELECT id,server_name name,parent_id parentId,server_level serverLevel,open FROM sys_p_server
+    </select>
+
+</mapper>

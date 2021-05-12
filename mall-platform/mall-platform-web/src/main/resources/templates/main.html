@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>首页 - 后台管理系统模板</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/materialdesignicons.min.css" rel="stylesheet">
+<link href="css/style.min.css" rel="stylesheet">
+</head>
+  
+<body>
+<div class="container-fluid p-t-15">
+
+  <div class="row">
+
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header bg-info">
+          <h4>分布式开源商城</h4>
+        </div>
+        <div class="card-body">
+          <p>OM（OPEN-MALL）项目致力于打造分布式开源电商平台，开源板块包含社区团购（客户端、团长端、供应商端、仓库端、骑手端）、跨境电商、全球购一件代发（商家端）、MT外卖（商家端、骑手配送端）, 本开源项目仅供学习。</p>
+          <p>项目地址：<a href="https://gitee.com/brother-ting/om" target="_blank">https://gitee.com/brother-ting/om</a></p>
+          <p>联系我们：QQ群号：768162721(1群)    微信：18520707666</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6 col-md-3">
+      <div class="card bg-info">
+        <div class="card-body clearfix">
+          <div class="pull-right">
+            <p class="h6 text-white m-t-0">今日新增用户数</p>
+            <p class="h3 text-white m-b-0">102,125.00</p>
+          </div>
+          <div class="pull-left"> <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-account fa-1-5x"></i></span> </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card bg-info">
+        <div class="card-body clearfix">
+          <div class="pull-right">
+            <p class="h6 text-white m-t-0">昨日新增用户数</p>
+            <p class="h3 text-white m-b-0">920,000</p>
+          </div>
+          <div class="pull-left"> <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-account fa-1-5x"></i></span> </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card bg-success">
+        <div class="card-body clearfix">
+          <div class="pull-right">
+            <p class="h6 text-white m-t-0">今日销售额</p>
+            <p class="h3 text-white m-b-0">34,005,000</p>
+          </div>
+          <div class="pull-left"> <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-currency-cny fa-1-5x"></i></span> </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card bg-success">
+        <div class="card-body clearfix">
+          <div class="pull-right">
+            <p class="h6 text-white m-t-0">昨日销售额</p>
+            <p class="h3 text-white m-b-0">920,000</p>
+          </div>
+          <div class="pull-left"> <span class="img-avatar img-avatar-48 bg-translucent"><i class="mdi mdi-currency-cny fa-1-5x"></i></span> </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>每周用户</h4>
+        </div>
+        <div class="card-body">
+          <canvas class="js-chartjs-bars"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>交易历史记录</h4>
+        </div>
+        <div class="card-body">
+          <canvas class="js-chartjs-lines"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  
+</div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/main.min.js"></script>
+
+<!--图表插件-->
+<script type="text/javascript" src="js/Chart.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(e) {
+    var $dashChartBarsCnt  = jQuery( '.js-chartjs-bars' )[0].getContext( '2d' ),
+            $dashChartLinesCnt = jQuery( '.js-chartjs-lines' )[0].getContext( '2d' );
+
+    var $dashChartBarsData = {
+      labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+      datasets: [
+        {
+          label: '注册用户',
+          borderWidth: 1,
+          borderColor: 'rgba(0,0,0,0)',
+          backgroundColor: 'rgba(51,202,185,0.5)',
+          hoverBackgroundColor: "rgba(51,202,185,0.7)",
+          hoverBorderColor: "rgba(0,0,0,0)",
+          data: [2500, 1500, 1200, 3200, 4800, 3500, 1500]
+        }
+      ]
+    };
+    var $dashChartLinesData = {
+      labels: ['2003', '2004', '2005', '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014'],
+      datasets: [
+        {
+          label: '交易资金',
+          data: [20, 25, 40, 30, 45, 40, 55, 40, 48, 40, 42, 50],
+          borderColor: '#358ed7',
+          backgroundColor: 'rgba(53, 142, 215, 0.175)',
+          borderWidth: 1,
+          fill: false,
+          lineTension: 0.5
+        }
+      ]
+    };
+
+    new Chart($dashChartBarsCnt, {
+      type: 'bar',
+      data: $dashChartBarsData
+    });
+
+    var myLineChart = new Chart($dashChartLinesCnt, {
+      type: 'line',
+      data: $dashChartLinesData,
+    });
+  });
+</script>
+</body>
+</html>

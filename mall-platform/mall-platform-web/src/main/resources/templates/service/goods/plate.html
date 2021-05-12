@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>仿淘宝动态生成SKU表格实例(zxw)</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/goods/sku_style.css" />
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header"><h4>表单向导</h4></div>
+                <div class="card-body">
+
+                    <form action="#" method="post" class="guide-box" data-navigateable="true">
+                        <ul class="nav-step step-dots">
+                            <li class="nav-step-item active">
+                                <span>步骤一</span>
+                                <a class="active" data-toggle="tab" href="#step-1"></a>
+                            </li>
+
+                            <li class="nav-step-item">
+                                <span>步骤三</span>
+                                <a data-toggle="tab" href="#step-2"></a>
+                            </li>
+
+                            <li class="nav-step-item">
+                                <span>步骤四</span>
+                                <a data-toggle="tab" href="#step-3"></a>
+                            </li>
+
+                            <li class="nav-step-item">
+                                <span>步骤五</span>
+                                <a data-toggle="tab" href="#step-4"></a>
+                            </li>
+                        </ul>
+                        <!--对应内容-->
+                        <div class="nav-step-content">
+                            <div class="nav-step-pane hidden active" id="step-1">
+
+                                <div style="display: none;">
+                                    <ul class="SKU_TYPE"><li is_required='0' propid='3' sku-type-name="挺哥"></li></ul>
+                                    <ul><li><label><input type="checkbox" class="sku_value" propvalid='31' value="我来了你在哪里" /></label></li></ul>
+                                </div>
+
+                                <!--<button class=""></button>-->
+                                <button class="btn btn-info btn_query btn-round cloneSku" type="button">添加自定义sku属性</button>
+                                <!--sku模板,用于克隆,生成自定义sku-->
+                                <div id="skuCloneModel" style="display: none;">
+                                    <div class="clear"></div>
+                                    <ul class="SKU_TYPE">
+                                        <li is_required='0' propid='' sku-type-name="">
+                                            <a href="javascript:void(0);" class="delCusSkuType">移除</a>
+                                            <input type="text" class="cusSkuTypeInput" placeholder="规格名称"/>：
+                                        </li>
+                                    </ul>
+                                    <ul>
+                                        <li>
+                                            <input type="checkbox" class="model_sku_val" propvalid='' value="" />
+                                            <input type="text" class="cusSkuValInput" placeholder="规格属性"/>
+                                        </li>
+                                        <button class="btn btn-info btn_query btn-round cloneSkuVal" type="button">添加自定义属性值</button>
+                                    </ul>
+                                    <div class="clear"></div>
+                                </div>
+
+                                <!--单个sku值克隆模板-->
+                                <li style="display: none;" id="onlySkuValCloneModel">
+                                    <input type="checkbox" class="model_sku_val" propvalid='' value="" />
+                                    <input type="text" class="cusSkuValInput" />
+                                    <a href="javascript:void(0);" class="delCusSkuVal">删除</a>
+                                </li>
+                                <div class="clear"></div>
+                                <div id="batchEditSkuTable" style="display: none;">
+                                    <table class="skuTable">
+                                        <caption style="text-align: left;font-size: large">批量设置：</caption>
+                                        <tbody>
+                                        <tr>
+                                            <th>图片</th><th>库存</th><th>库存1</th><th>库存2</th><th>库存4</th><th>库存4</th><th>操作</th>
+                                        </tr>
+                                        <tr propvalids="" propids="" propvalnames="" propnames="" class="sku_table_tr">
+                                            <td><input type="file" name="files" accept="image/*"></td>
+                                            <td><input type="text" class="setting_sku_price" value=""></td>
+                                            <td><input type="text" class="setting_sku_stock" value=""></td>
+                                            <td><input type="text" class="setting_sku_stock" value=""></td>
+                                            <td><input type="text" class="setting_sku_stock" value=""></td>
+                                            <td><input type="text" class="setting_sku_stock" value=""></td>
+                                            <td><button id="watchPicture" class="btn btn-info btn_query btn-round">查看图片</button><button id="batchSet" class="btn btn-info btn_query btn-round">批量设置</button></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="skuTable"></div>
+                            </div>
+
+                            <div class="nav-step-pane hidden" id="step-2">
+                                <div class="form-group">
+                                    <label>邮箱地址</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+
+                            <div class="nav-step-pane hidden" id="step-3">
+                                <div class="form-group">
+                                    <label>设置密码</label>
+                                    <input class="form-control" type="password">
+                                </div>
+                            </div>
+
+                            <div class="nav-step-pane hidden" id="step-4">
+                                <div class="form-group">
+                                    <label>备注</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <!--End 对应内容-->
+                        <hr>
+                        <div class="nav-step-button">
+                            <button class="btn btn-secondary disabled" data-wizard="prev" type="button">上一步</button>
+                            <button class="btn btn-secondary" data-wizard="next" type="button">下一步</button>
+                            <button class="btn btn-primary hidden" data-wizard="finish" type="submit">完成</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/goods/createSkuTable.js"></script>
+<script type="text/javascript" src="js/goods/customSku.js"></script>
+<script type="text/javascript" src="js/goods/layer.js"></script>
+<script type="text/javascript" src="js/goods/getSetSkuVals.js"></script>
+<script type="text/javascript">
+
+    //图片上传
+    $("input[name=files]").on('change', function(e) {
+        var imgSize = this.files[0].size;
+        var fileList = this.files;
+
+        for (var i = 0; i < fileList.length; i++) {
+            var imgSrcI = getObjectURL(fileList[i]);
+            $(this).attr("value", imgSrcI);
+        }
+    });
+
+
+    //建立可存取到file的url
+    function getObjectURL(file) {
+        var url = null;
+        if (window.createObjectURL != undefined) { // basic
+            url = window.createObjectURL(file);
+        }else if (window.URL != undefined) { // mozilla(firefox)
+            url = window.URL.createObjectURL(file);
+        } else if (window.webkitURL != undefined) { // webkit or chrome
+            url = window.webkitURL.createObjectURL(file);
+        }
+        return url;
+    }
+
+    $("#watchPicture").click(function () {
+        window.open().document.write("<img src="+$(this).parent("td").siblings(":first").children("input").attr("value")+" />");
+    })
+
+</script>
+</html>

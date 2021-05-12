@@ -1,0 +1,23 @@
+package ${package}.${moduleName};
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+/**
+ * Description:启动类
+ *
+ * @author ${author}
+ * @email ${email}
+ * @date ${datetime}
+ */
+@EnableDiscoveryClient
+@SpringBootApplication
+@MapperScan("com.zero2oneit.mall.${moduleName}.mapper")
+public class ${className}Application {
+
+    public static void main(String[] args){
+        SpringApplication.run(${className}Application.class, args);
+    }
+
+}

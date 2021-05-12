@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>菜单管理</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/materialdesignicons.min.css" rel="stylesheet">
+<link href="css/animate.css" rel="stylesheet">
+<link href="css/style.min.css" rel="stylesheet">
+<link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+<link rel="stylesheet" href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <h4>菜单管理</h4>
+          <div>
+            <button class="btn btn-success btn-xs btn-round" id="addBtn">增加</button>
+            <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+            <button class="btn btn-danger btn-xs btn-round" id="delBtn">注销</button>
+            <button class="btn btn-cyan btn-xs btn-round" id="activeBtn">启用</button>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="zTreeDemoBackground left">
+            <ul id="tree" class="ztree"></ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header">
+          <h4>菜单功能</h4>
+        </div>
+        <div class="card-body">
+          <form id="searchForm">
+            <input id="ids" name="ids" type="hidden" value="">
+          </form>
+          <table id="grid_data"></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!--  添加与编辑模态框 -->
+  <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">菜单管理</h4>
+      </div>
+      <div class="modal-body">
+        <form id="addOrEditForm" method="post">
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-menuName">菜单名称</span>
+                <input type="hidden" name="id">
+                <input type="hidden" name="parentId">
+                <input type="hidden" name="menuLevel">
+                <input type="text" name="name" class="form-control">
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-orderId">菜单排序</span>
+                <input type="text" name="orderId" class="form-control" onkeyup="this.value=this.value.replace(/\D/g,'')">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-icon_cls">配置图标</span>
+                <input type="text" name="iconCls" class="form-control">
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-open">是否展开</span>
+                <select class="form-control" name="open">
+                  <option value="0" selected>折叠</option>
+                  <option value="1">展开</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-menu_url">菜单路径</span>
+                <input type="text" name="menuUrl" class="form-control">
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-request_url">请求接口</span>
+                <input type="text" name="requestUrl" class="form-control">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-access_rule">是否授权</span>
+                <select class="form-control" name="accessRule">
+                  <option value="1" selected>是</option>
+                  <option value="0">否</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="input-group m-b-10">
+                <span class="input-group-addon" id="basic-f_type">功能类型</span>
+                <select class="form-control" name="ftype">
+                  <option value="1">菜单</option>
+                  <option value="2">按钮</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary" id="saveFormBtn">保存</button>
+          </div>
+        </form>
+      </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+
+<script type="text/javascript">
+
+    //页面初始化完成加载部门数据
+    zero2one.requestV("/menuList?f="+new Date().getTime(), {}, function (data) {
+        $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data);
+    });
+
+    var zj;
+    var ids;
+    function onClick(event, treeId, treeNode) {
+
+        zj = {id:treeNode.id, name:treeNode.name, menuLevel:treeNode.menuLevel, open:treeNode.open==false?0:1, orderId:treeNode.orderId,
+            functionId:treeNode.functionId, iconCls:treeNode.iconCls, menuUrl:treeNode.menuUrl, requestUrl:treeNode.requestUrl,
+            accessRule:treeNode.accessRule, ftype:treeNode.ftype
+        };
+
+        ids = zero2one.getChildNodes("tree", treeNode);
+        $("#ids").val(treeNode.menuLevel > 0 ? ids : "");
+        getMenuByIds();
+    }
+
+
+    function getMenuByIds() {
+        //设置表头
+        var columns = [
+            {field: 'function_id',title: '功能id'},
+            {field: 'menu_id',title: '菜单id'},
+            {field: 'name',title: '菜单名称'},
+            {field: 'menu_level',title: '菜单级别'},
+            {field: 'order_id',title: '菜单排序'},
+            {field: 'open',title: '是否展开'},
+            {field: 'access_rule',title: '是否需要授权'},
+            {field: 'menu_status',title: '菜单状态'},
+            {field: 'f_type',title: '功能类型'},
+            {field: 'icon_cls',title: '配置菜单图标'},
+            {field: 'menu_url',title: '菜单路径'},
+            {field: 'request_url',title: '请求路径'}
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("grid_data", "/getMenuByIds",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        $('#grid_data').bootstrapTable('refresh');
+    }
+
+    //点击添加按钮
+    $("#addBtn").click(function () {
+
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择上级菜单再操作");
+            return;
+        }
+
+        if(zj.menuLevel == 3){
+            $.messager.alert("温馨提示", "不能再添加下级菜单了");
+            return;
+        }
+
+        //填充上级ID
+        $("input[name=parentId]").val(zj.id);
+        $("input[name=menuLevel]").val(zj.menuLevel+1);
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击编辑按钮
+    $("#editBtn").click(function () {
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择要编辑的菜单再操作");
+            return;
+        }
+        //加载表单数据
+        $("#addOrEditForm").formloader({data: zj});
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击注销按钮
+    $("#delBtn").click(function () {
+        delMenuByIds(0);
+    });
+    //点击启用按钮
+    $("#activeBtn").click(function () {
+        delMenuByIds(1);
+    });
+
+    function delMenuByIds(status){
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择菜单再操作");
+            return;
+        }
+        $.messager.confirm("温馨提示", "您确定要注销菜单状态吗?", function () {
+            zero2one.request("/delMenuByIds?f="+new Date().getTime(),{menuIds : ids, menuStatus: status},function (data) {
+                window.location.reload();
+            });
+        })
+    }
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            name: {validators: {notEmpty: {message: '菜单名称不能为空'}}}
+        }
+    });
+
+    //点击保存按钮
+    $("#saveFormBtn").click(function () {
+        var bv = $('#addOrEditForm').data('bootstrapValidator');
+        bv.validate();
+        if (bv.isValid()) {
+            zero2one.request("/addOrEditMenu?f="+new Date().getTime(),$("#addOrEditForm").serialize(),function (data) {
+                window.location.reload();
+            });
+        }
+    });
+
+</script>
+
+</body>
+</html>

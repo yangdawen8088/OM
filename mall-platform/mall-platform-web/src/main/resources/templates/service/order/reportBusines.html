@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>投诉商家表</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/select2/select2.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>投诉记录</h4></div>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active in">
+
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>商家账号:</label>
+                                <input type="text" class="form-control" name="storeId">
+                            </div>
+                            <div class="form-group">
+                                <label>会员Id:</label>
+                                <input type="text" class="form-control" name="memberId">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="watchBtn">凭证详情</button>
+                            </div>
+                        </form>
+                        <table id="list_data"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  上传凭证模态框 -->
+    <div class="modal fade" id="pictureModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabels">
+        <div class="modal-dialog" role="document" style="width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProductInformation">上传凭证显示</h4>
+                </div>
+                <div class="modal-body" id="pictures"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+
+<script type="text/javascript">
+
+    //设置表头
+    var columns = [
+        {checkbox: true},
+        {field: 'Id',title: '投诉账号',visible:false},
+        {field: 'storeId',title: '商家账号'},
+        {field: 'memberId',title: '会员Id'},
+        {field: 'reportType',title: '投诉类型'},
+        {field: 'cause',title: '投诉原因'},
+        {field: 'describes',title: '投诉说明'},
+        {field: 'picture',title: '上传凭证',visible:false},
+        {field: 'phone',title: '联系电话'},
+        {field: 'createTime',title: '创建时间', formatter: function (value) {
+                return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+            }}
+    ];
+
+
+    //进入主界面加载数据
+    zero2one.datagrid("list_data", "/remote/ReportBusines/list",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        $('#list_data').bootstrapTable('refresh');
+    });
+
+
+    //点击商品详情
+    $("#watchBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#list_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length == 1&&datas[0].picture!=''){
+                arr=datas[0].picture.split(',');
+                var content='';
+                for (let i = 0; i <arr.length ; i++) {
+                    content+=
+                        '<label style="font-size: larger">凭证图:</label></br>'+"<img style='width: auto;height: auto;border-radius: 10%'  src='"+arr[i]+"'/>"+'</br>'
+                        +'<hr>'
+                }
+           $("#pictures").html(content);
+           //打开模态框
+           $("#pictureModal").modal("show");
+
+        }else{
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+        }
+    });
+
+</script>
+</body>
+</html>

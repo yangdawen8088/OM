@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.system.upgrade.mapper.UpgradeMapper">
+
+    <!-- 更改系统运行状态 -->
+    <update id="upgradeChangeStatus">
+        update sys_p_upgrade set status_id=#{status},status_code=#{statusCode} where id=#{id}
+    </update>
+
+    <!-- 查询总记录数 -->
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT COUNT(1) FROM sys_p_upgrade
+    </select>
+
+    <!-- 查询列表数据 -->
+    <select id="selectRows" resultType="java.util.HashMap">
+        SELECT id,title,(CASE WHEN status_id = 0 THEN '维护中' ELSE '运行中' END) status_id,status_code FROM sys_p_upgrade limit #{starIndex},#{pageSize}
+    </select>
+
+</mapper>

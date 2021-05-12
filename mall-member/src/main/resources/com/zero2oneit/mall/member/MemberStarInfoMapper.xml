@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.MemberStarInfoMapper">
+
+    <select id="findById" resultType="com.zero2oneit.mall.common.bean.member.MemberStarInfo">
+        select * from member_star_info where member_id=#{userId}
+
+    </select>
+    <select id="starInfoTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM member_star_info
+        <where>
+            <if test="memberAccount !=null and memberAccount !=''">
+                member_account LIKE CONCAT('%',#{memberAccount},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="starInfolistRow" resultType="java.util.HashMap">
+        SELECT CONCAT(member_id,'')memberId,
+            add_consume addConsume,
+            star_id starId,
+            addone_star addoneStar,
+            addtwo_star addtwoStar,
+            addthree_star addthreeStar,
+            creation_time creationTime,
+            one_star oneStar,
+            two_star twoStar,
+            three_star threeStar,
+            consumes,
+            star_open starOpen,
+            sub_one_star subOneStar,
+            sub_two_star subTwoStar,
+            member_account memberAccount,
+            sub_three_star subThreeStar
+	FROM member_star_info
+	<where>
+        <if test="memberAccount !=null and memberAccount !=''">
+            member_account LIKE CONCAT('%',#{memberAccount},'%')
+        </if>
+    </where>
+	 LIMIT #{starIndex},#{pageSize}
+
+    </select>
+</mapper>

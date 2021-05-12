@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>商场退款表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>商场退款记录</h4>
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm" action="/remote/fnygOrder/getMallRefundExcel">
+                            <div class="form-group">
+                                <label>申请时间:</label>
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="startTime" placeholder="开始时间" style="width:120px;"> -
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="endTime" placeholder="结束时间" style="width:120px;">
+                            </div>
+                            <div class="form-group">
+                                <label>会员账号:</label>
+                                <input type="text" class="form-control" name="memberId">
+                            </div>
+                            <div class="form-group">
+                                <label>订单账号:</label>
+                                <input type="text" class="form-control" name="orderId">
+                            </div>
+                            <div class="form-group">
+                                <label>申请状态:</label>
+                                <select name="applyStatus" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="1">退款中</option>
+                                    <option value="2">退货退款中</option>
+                                    <option value="3">换货中</option>
+                                    <option value="4">退款成功</option>
+                                    <option value="5">退货退款成功</option>
+                                    <option value="6">换货成功</option>
+                                    <option value="7">已撤销申请</option>
+                                    <option value="8">已继绝</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn">查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="watchBtn">商品详情</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round"  type="button" id="examinationPassedBtn">审核退款通过</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round"  type="button" id="RefundRefusedBtn">审核退款拒绝</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary btn_query btn-round" type="button" id="generate-excel">导出商品数据</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="list_data"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  商品详细模态框 -->
+    <div class="modal fade" id="merchantShipmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabels">
+        <div class="modal-dialog" role="document" style="width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProductInformation">商品内容</h4>
+                </div>
+                <div class="modal-body" id="commodityMessage"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!--日期选择插件-->
+    <script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
+
+    <script type="text/javascript">
+
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'outRefundNo',title: '退款订单号'},
+            {field: 'storeId',title: '商家账号',visible: false},
+            {field: 'storeName',title: '商家名称'},
+            {field: 'refundPrice',title: '退款金额'},
+            {field: 'picture',title: '商品图片',formatter: function (value, row, index) {
+                    if (value==null||value==''){
+                        return '无图片'
+                    }else {
+                        return  "<img style='width: 80px' src='"+value+"'/>";
+                    }
+                }},
+            {field: 'title',title: '---------------商品名称---------------'},
+            {field: 'skuAttr',title: '商品规格描述'},
+            {field: 'applyStatus',title: '申请状态',formatter: function (value, row, index) {
+                    if (value=='1') {
+                        return  "<button class=\"btn btn-warning btn-sm\">退款中</button>";
+                    }else if(value=='2'){
+                        return "<button class=\"btn btn-warning btn-sm\">退货退款中</button>";
+                    }else if(value=='3'){
+                        return  "<button class=\"btn btn-warning btn-sm\">换货中</button>";
+                    }else if(value=='4'){
+                        return  "<button class=\"btn btn-success btn-sm\">退款成功</button>";
+                    }else if(value=='5'){
+                        return  "<button class=\"btn btn-success btn-sm\">退货退款成功</button>";
+                    }else if(value=='6'){
+                        return  "<button class=\"btn btn-success btn-sm\">换货成功</button>";
+                    }else if(value=='7'){
+                        return  "<button class=\"btn btn-primary btn-sm\">已撤销申请</button>";
+                    }else if(value=='8'){
+                        return  "<button class=\"btn btn-danger btn-sm\">已拒绝</button>";
+                    }
+                }},
+            {field: 'receiveAddress',title: '买家收货地址'},
+            {field: 'logisticsCompany',title: '物流公司'},
+            {field: 'logisticsNo',title: '物流订单号'},
+            {field: 'goodStatus',title: '货物状态',formatter: function (value, row, index) {
+                    if (value==1) {
+                        return "未收到货";
+                    }else if(value==2){
+                        return "已收到货";
+                    }else {
+                        return "非已发货退款(无需退货)申请";
+                    }
+                }},
+            // {field: 'goodsPrice',title: '商品单价'},
+            {field: 'refundType',title: '退款渠道',formatter: function (value, row, index) {
+                    if (value=='pearl') {
+                        return "珍珠";
+                    }else if(value=='alipay'){
+                        return  "支付宝";
+                    }else if(value=='wxpay'){
+                        return  "微信";
+                    }
+            }},
+            {field: 'refundNum',title: '退款数量'},
+            {field: 'outTradeNo',title: '订单号'},
+            {field: 'applyTime',title: '申请时间',formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'cause',title: '退款原因'},
+            {field: 'describes',title: '退款说明'},
+            {field: 'refundPicture',title: '上传凭证',formatter: function (value, row, index) {
+                    if (value==null||value==''){
+                        return '无图片'
+                    }else {
+                        return  "<img style='width: 80px' src='"+value+"'/>";
+                    }
+                }},
+            {field: 'skuId',title: '产品skuId'},
+            {field: 'giveJf',title: '赠送积分'},
+            {field: 'needJq',title: '需要金券'},
+            {field: 'giveJq',title: '赠送金券'},
+            {field: 'memberId',title: '会员账号'},
+            {field: 'orderId',title: '订单账号'},
+            {field: 'id',title: '退款ID'}
+        ];
+
+
+        //进入主界面加载数据
+        zero2one.datagrid("list_data", "/remote/RefundOrder/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#list_data').bootstrapTable('refresh');
+        });
+
+
+        //点击审核退款通过按钮
+        $("#examinationPassedBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#list_data').bootstrapTable('getSelections');
+            if(datas.length ==1){
+                $.messager.confirm("温馨提示", "您是否要审核通过?", function () {
+                    $.post("/remote/agreeRefund", {"refundId" : datas[0].id},
+                        function(data){
+                            if (data.success) {
+                                $.messager.alert("温馨提示", "您已审核成功");
+                                window.location.reload();
+                            } else {
+                                $.messager.alert("温馨提示", data.msg);
+
+                            }
+                        }, "json");
+                })
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+
+            }
+        });
+
+        //点击审核退款拒绝按钮
+        $("#RefundRefusedBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#list_data').bootstrapTable('getSelections');
+            if(datas.length > 0){
+                $.messager.confirm("温馨提示", "您是否要审核通过?", function () {
+                    console.log(datas[0].id);
+                    $.post("/remote/rejectRefund", {"refundId" : datas[0].id},
+
+                        function(data){
+                            if (data.success) {
+                                $.messager.alert("温馨提示", "您已审核成功");
+                                window.location.reload();
+                            } else {
+                                $.messager.alert("温馨提示", data.msg);
+
+                            }
+                        }, "json");
+                })
+            }else{
+                $.messager.alert("温馨提示", "请至少选择一条数据操作");
+
+            }
+        });
+
+        $("#watchBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#list_data').bootstrapTable('getSelections');
+            if (datas.length == 1 && datas != ''){
+                var content='';
+                    content+=
+                        '<label style="font-size: x-large">☼商品名称：</label><label style="font-size: large">'+datas[0].title+'</label></br>'
+                        +'<label style="font-size: x-large">☼退款金额：</label><label style="font-size: large">'+datas[0].refundPrice+'元'+'</label></br>'
+                        +'<label style="font-size: x-large">☼商品单价：</label><label style="font-size: large">'+datas[0].goodsPrice+'元'+'</label></br>'
+                        +'<label style="font-size: x-large">☼规格：</label><label style="font-size: large">'+datas[0].skuAttr+'</label></br>'
+                        +'<label style="font-size: x-large">☼产品skuId：</label><label style="font-size: large">'+datas[0].skuId+'</label></br>'
+                        +'<label style="font-size: x-large">☼退款数量：</label><label style="font-size: large">'+datas[0].refundNum+'</label></br>'
+                        +'<label style="font-size: x-large">☼商店名称：</label><label style="font-size: large">'+datas[0].storeName+'</label></br>'
+                        +'<label style="font-size: larger">商品图片:</label></br>'+"<img style='width: auto;height: auto;border-radius: 10%'  src='"+datas[0].picture+"'/></br>"
+                        +'<hr>';
+                    if (datas[0].refundPicture == 0 ){
+                        content+='<label style="font-size: larger">上传凭证:</label></br>'+"<label style=\"font-size: larger\">无</label>";
+                    }else {
+                        content+='<label style="font-size: larger">上传凭证:</label></br>'+"<img style='width: auto;height: auto;border-radius: 10%'  src='"+datas[0].refundPicture+"'/>";
+                    }
+
+                $("#commodityMessage").html(content);
+                //打开模态框
+                $("#merchantShipmentModal").modal("show");
+
+            }else {
+                $.messager.alert("温馨提示", "请至少选择一条数据操作");
+            }
+        });
+
+
+
+        //导出商品数据按钮
+        $("#generate-excel").click(function(){
+            $.messager.confirm("提示", "您是否要导出所的数据?", function () {
+                $("#searchForm").submit();
+            });
+        });
+
+
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.CommunityCategoryMapper">
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT t.id,t.category_name categoryName,t.category_order categoryOrder,t.logo FROM community_category t
+        <include refid="common_where_if"/>
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        select count(1) from community_category t
+        <include refid="common_where_if"/>
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="categoryName != null and categoryName !=''">
+                AND t.category_name  like CONCAT('%', #{categoryName}, '%')
+            </if>
+        </where>
+    </sql>
+
+
+    <select id="getCategoryByName" resultType="java.util.HashMap">
+        SELECT t.id,t.name FROM community_categories t where t.name like CONCAT('%', #{keyword}, '%')
+    </select>
+
+</mapper>

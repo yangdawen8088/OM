@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.DistributeLogMapper">
+
+    <select id="GetAllBalance" resultType="java.util.Map">
+         select
+         (select  COALESCE(sum(price),0.00) from distribute_log where type_state=3 and business_id='888') totalPlatformJf,
+         (select  COALESCE(sum(price),0.00) from distribute_log where type_state=#{oneState} and business_id=#{businessId}) totalBusinessJf,
+         (select  COALESCE(sum(price),0.00) from distribute_log where type_state=#{twoState} and business_id=#{businessId}) totalBusinessMoney
+    </select>
+    <select id="getTotalPlatformJf" resultType="java.math.BigDecimal">
+         select  COALESCE(sum(price),0.00) from distribute_log where type_state=3 and business_id='888'
+    </select>
+</mapper>

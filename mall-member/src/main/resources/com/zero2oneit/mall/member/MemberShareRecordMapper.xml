@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.MemberShareRecordMapper">
+
+    <select id="memberShareRecordCount" resultType="java.lang.Integer">
+      SELECT COUNT(*) FROM member_share_record
+        WHERE member_id =#{memberId} and status=#{status} and level=#{level}
+    </select>
+
+    <select id="queryShareOrderList" resultType="java.util.HashMap">
+      SELECT CONCAT(id,'') id,title,picture,price,count,share,nick_name,member_phone,level,refund_count refundCount,platform, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') createTime FROM member_share_record
+         WHERE member_id =#{memberId} and status=#{status}  and level=#{level}
+        ORDER BY create_time desc
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+    <select id="selectShareMoney" resultType="java.util.Map">
+       SELECT  (SELECT SUM((a.count-a.refund_count)*a.share) FROM member_share_record a WHERE a.order_id=#{orderId} AND a.LEVEL=1) oneShare,
+       (SELECT SUM((b.count-b.refund_count)*b.share) FROM member_share_record b WHERE b.order_id=#{orderId} AND b.level=2) twoShare
+    </select>
+    <select id="listTotal" resultType="java.lang.Integer">
+          SELECT COUNT(*) FROM member_share_record
+        <where>
+            <if test="title!=null and title!=''">
+                AND  title LIKE CONCAT('%',#{title},'%')
+            </if>
+            <if test="nickName!=null and nickName!=''">
+                AND nick_name LIKE CONCAT('%',#{nickName},'%')
+            </if>
+            <if test="memberPhone!=null and memberPhone!=''">
+                AND member_phone LIKE CONCAT('%',#{memberPhone},'%')
+            </if>
+            <if test="startTime!=null and startTime.trim() neq ''">
+                AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="endTime!=null and endTime.trim() neq ''">
+                AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+        </where>
+    </select>
+
+    <select id="listRow" resultType="java.util.HashMap">
+      SELECT CONCAT(id,'') id,title,picture,price,count,share ,member_id memberId,nick_name nickName,member_phone memberPhone,level, status,platform, good_id goodId, DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') createTime, CONCAT(order_id,'')orderId
+       FROM member_share_record
+       <where>
+           <if test="title!=null and title!=''">
+               AND  title LIKE CONCAT('%',#{title},'%')
+           </if>
+           <if test="nickName!=null and nickName!=''">
+               AND nick_name LIKE CONCAT('%',#{nickName},'%')
+           </if>
+           <if test="memberPhone!=null and memberPhone!=''">
+               AND member_phone LIKE CONCAT('%',#{memberPhone},'%')
+           </if>
+           <if test="startTime!=null and startTime.trim() neq ''">
+               AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+           </if>
+           <if test="endTime!=null and endTime.trim() neq ''">
+               AND DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+           </if>
+       </where>
+         ORDER BY create_time desc
+         LIMIT #{starIndex},#{pageSize}
+    </select>
+
+</mapper>

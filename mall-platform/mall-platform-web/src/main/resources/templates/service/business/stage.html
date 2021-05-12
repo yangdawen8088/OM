@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+        .tangram-suggestion-main {z-index: 99999999999;}
+        body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";font-size:14px;}
+        #l-map{height:600px;width:80%;}
+        #r-result{width:100%;}
+
+    </style>
+    <title>烽鸟驿站表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/select2/select2.min.css" rel="stylesheet">
+    <!--修改图片-->
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css" />
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css" />
+
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>站点名称:</label>
+                                <input type="text" class="form-control" name="stationName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn" >添加</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="CreateYzAccount">创建驿站账号</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+                    <table id="stage_data"></table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">驿站管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <form id="addOrEditForm"  method="post">
+
+                         <div class="col-xs-12">
+                             <div class="input-group m-b-10">
+                                 <span class="input-group-addon">站点名称</span>
+                                 <input type="hidden" name="id">
+                                 <input type="text" class="form-control" id="stationName" name="stationName">
+                                 <div class="help-block with-errors"></div>
+                             </div>
+                         </div>
+
+                        <div class="col-xs-12">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">打印机编号</span>
+                                <input type="text" class="form-control" id="printerId" name="printerId">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">站长账号</span>
+                                <input type="text" class="form-control" id="account" name="account">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                         <div class="col-xs-6">
+                             <div class="input-group m-b-10">
+                                 <span class="input-group-addon">营业时间</span>
+                                 <input type="text" class="form-control" id="businessTime" name="businessTime">
+                                 <div class="help-block with-errors"></div>
+                             </div>
+                         </div>
+
+                        <div class="form-group">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon" id="basic-dept">站长名称</span>
+                                <input type="hidden" name="masterId" class="form-control" aria-describedby="basic-dept" id="masterId">
+                                <input type="text" name="masterName" class="form-control" aria-describedby="basic-dept" id="masterName">
+                                <div class="input-group-btn">
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">联系电话</span>
+                                <input type="text" class="form-control" id="phone" name="phone">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">地址</span>
+                                <div id="r-result"><input class="form-control" type="text" id="suggestId" name="address" size="20" /></div>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon" >经度</span>
+                                <input type="text" name="longitude" class="form-control" id="proPlace" aria-describedby="basic-account" readonly="readonly">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group m-b-10">
+                                <span class="input-group-addon">纬度</span>
+                                <input type="text" name="latitude" class="form-control" id="proModel" aria-describedby="basic-account" readonly="readonly">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+
+                        <div align="center"><div id="l-map"></div>
+                            <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+                        </div>
+
+                     </div>
+
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" id="saveFormBtn" class="btn btn-primary" >保存</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+    <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=MGR9YbWrgQMZkX9ZSAKugp1DGQnZhA0e"></script>
+    <script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+
+    <!-- Jcrop截图插件 -->
+    <script type="text/javascript" src="js/jcrop/jquery.Jcrop.js"></script>
+    <script type="text/javascript" src="js/jcrop/out.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- ckeditor富文本插件 -->
+    <script src="js/ckeditor/ckeditor.js"></script>
+    <!-- select2下拉框插件 -->
+    <script src="js/select2/select2.min.js"></script>
+    <script src="js/select2/i18n/zh-CN.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!-- boostrap-combox下拉框检索插件 -->
+    <script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+
+    <script type="text/javascript">
+
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: '驿站id'},
+            {field: 'masterId',title: '站长id',visible:false},
+            {field: 'masterName',title: '站长名称'},
+            {field: 'account',title: '站长账号'},
+            {field: 'stationName',title: '站点名称'},
+            {field: 'businessTime',title: '营业时间'},
+            {field: 'stationStatus',title: '驿站状态',formatter:function (value,row) {
+                    if (value==0){
+                        return "     <div class=\"form-group m-b-1\">\n" +
+                            "    <div>状态：“关”</div>\n" +
+                            "    <div>\n" +
+                            "        <label class=\"lyear-switch switch-solid switch-success\">\n" +
+                            "            <input type=\"checkbox\"  onclick=\'stationStatusId("+value+","+row.id+")\'>\n" +
+                            "            <span></span>\n" +
+                            "        </label>\n" +
+                            "    </div>\n" +
+                            "</div>";
+                    }else {
+                        return "     <div class=\"form-group m-b-1\">\n" +
+                            "    <div>状态：“开”</div>\n" +
+                            "    <div>\n" +
+                            "        <label class=\"lyear-switch switch-solid switch-success\">\n" +
+                            "            <input type=\"checkbox\" checked=\"checked\"  onclick=\'stationStatusId("+value+","+row.id+")\'>\n" +
+                            "            <span></span>\n" +
+                            "        </label>\n" +
+                            "    </div>\n" +
+                            "</div>";
+                    }
+                }},
+            {field: 'phone',title: '联系电话'},
+            {field: 'address',title: '地址'},
+            {field: 'printerId',title: '打印机编号'},
+            {field: 'bindingNew',title: '绑定是否成功'}
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("stage_data", "/remote/stage/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#stage_data').bootstrapTable('refresh');
+        });
+
+        //根据站长名称匹配站长数据
+        zero2one.suggest1("masterName","/remote/stage/getByphone?keyword=","masterId","masterName","站长数据");
+
+        //点击添加按钮弹出模态框
+        $("#addBtn").click(function () {
+            $("#addOrEditForm")[0].reset();
+            $("#addOrEditModal").modal("show");
+        });
+
+        //点击编辑按钮弹出模态框
+        $("#editBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#stage_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length == 1){
+                //填充表单
+                $("#addOrEditForm").formloader({data: datas[0]});
+                $("#tangram-suggestion--TANGRAM__1n").hide()
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+                return;
+            }
+            $("#addOrEditModal").modal("show");
+        });
+
+        $('#addOrEditForm').bootstrapValidator({
+            fields: {
+                stationName: {validators: {notEmpty: {message: '站点名称不能为空'}}},
+                businessTime: {validators: {notEmpty: {message: '营业时间不能为空'}}},
+                account: {validators: {notEmpty: {message: '站长账号不能为空'}}},
+                phone: {validators: {notEmpty: {message: '电话不能为空'}}},
+                address: {validators: {notEmpty: {message: '地址不能为空'}}},
+                businessId: {validators: {notEmpty: {message: '商家id不能为空'}}},
+                printerId: {validators: {notEmpty: {message: '打印机编号不能为空'}}}
+            }
+        });
+
+        //点击删除按钮弹出模态框
+        $("#deleteBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#stage_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+
+            if(datas.length == 1){
+                $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                    //发送请求,执行批量删除
+                    zero2one.request("/remote/stage/delByIds",{"id": zero2one.array2str(datas)},function (data) {
+                        window.location.reload();
+                    });
+                })
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+
+            }
+        });
+
+        //创建驿站账号
+        $("#CreateYzAccount").click(function () {
+            //获取选中行的数据
+            var datas = $('#stage_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+
+            if(datas.length == 1){
+                $.messager.confirm("温馨提示", "您确定要创建驿站账号吗?", function () {
+                    //发送请求
+                     var vo={id:datas[0].id,masterId:datas[0].masterId,masterName:datas[0].masterName,phone:datas[0].phone};
+                    $.ajax({
+                        url: '/remote/stage/busCrearteAccount',
+                        contentType:'application/json',
+                        type: 'post',
+                        data: JSON.stringify(vo),
+                        dataType: 'json',
+                        success: function (res) {
+                             if (res.success){
+                                 $.messager.alert("温馨提示", "操作成功,2S之后刷新");
+                                 setTimeout(function () {
+                                     window.location.reload();
+                                 }, 2000);
+                             }else {
+                                 $.messager.alert("温馨提示","已存在账号");
+                             }
+                        }
+                    });
+                });
+
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+
+            }
+        });
+
+        $("#saveFormBtn").click(function () {
+            var bv = $('#addOrEditForm').data('bootstrapValidator');
+            bv.validate();
+            if (bv.isValid()) {
+                zero2one.request("/remote/stage/addOrEdit",$("#addOrEditForm").serialize(),function (data) {
+                    window.location.reload();
+                });
+            }
+        });
+
+        // 百度地图API功能
+        function G(id) {
+            return document.getElementById(id);
+        }
+        var map = new BMap.Map("l-map");
+        map.centerAndZoom("广东",12);     // 初始化地图,设置城市和地图级别。
+        map.panBy(100,100);
+        map.enableScrollWheelZoom();    //启用滚轮放大缩小，默认禁用
+        map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+        map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+        map.addControl(new BMap.OverviewMapControl()); //添加默认缩略地图控件
+        var localSearch = new BMap.LocalSearch(map);
+        localSearch.enableAutoViewport(); //允许自动调节窗体大小
+
+        var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+            {"input" : "suggestId",
+             "location" : map
+            });
+        ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+            var str = "";
+            var _value = e.fromitem.value;
+            var value = "";
+            if (e.fromitem.index > -1) {
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }
+            str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+            value = "";
+            if (e.toitem.index > -1) {
+                _value = e.toitem.value;
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }
+            str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+            G("searchResultPanel").innerHTML = str;
+        });
+        var myValue;
+        ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+            var _value = e.item.value;
+            myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+
+            setPlace();
+        });
+
+        function setPlace(){
+            map.clearOverlays();    //清除地图上所有覆盖物
+            function myFun(){
+                var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+                map.centerAndZoom(pp, 18);
+                map.addOverlay(new BMap.Marker(pp));    //添加标注
+            }
+            var local = new BMap.LocalSearch(map, { //智能搜索
+                onSearchComplete: myFun
+            });
+            local.search(myValue);
+        }
+
+        //百度获取经纬度
+        //触发事件
+        $("#suggestId").blur(function(){
+            map.clearOverlays();//清空原来的标注
+            var keyword = document.getElementById("suggestId").value;
+            localSearch.setSearchCompleteCallback(function (searchResult) {
+                $("#tangram-suggestion--TANGRAM__1n").show();
+                var poi = searchResult.getPoi(0);
+                document.getElementById("proPlace").value = poi.point.lng;
+                document.getElementById("proModel").value=poi.point.lat;
+
+                map.centerAndZoom(poi.point, 13);
+                var marker = new BMap.Marker(new BMap.Point(poi.point.lng, poi.point.lat));  // 创建标注，为要查询的地方对应的经纬度
+                map.addOverlay(marker);
+                var content = document.getElementById("suggestId").value + "<br/><br/>经度：" + poi.point.lng + "<br/>纬度：" + poi.point.lat;
+                var infoWindow = new BMap.InfoWindow("<p style='font-size:14px;'>" + content + "</p>");
+                marker.addEventListener("click", function () { this.openInfoWindow(infoWindow); });
+                marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+            });
+            localSearch.search(keyword);
+
+        });
+
+
+
+        //驿站开启按钮
+        function stationStatusId(value,ids){
+            $.post("/remote/stage/stationStatusEdit", {"value": value,"ids": ids},function (data) {
+                if (data.success) {
+                    // $.messager.alert("提示", "您已修改开关成功");
+                    window.location.reload();
+                } else {
+                    $.messager.alert("温馨提示", data.msg)
+                }
+            },"json");
+        }
+
+
+    </script>
+</div>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

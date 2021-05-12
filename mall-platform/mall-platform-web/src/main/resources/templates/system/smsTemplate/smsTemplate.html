@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>短信模板管理</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/select2/select2.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>短信模板</h4></div>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active in" id="home">
+
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label for="name" class="control-label">短信名称：</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn" >添加</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="deleteBtn">删除</button>
+                            </div>
+                        </form>
+                        <table id="qa_data"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--  添加与编辑模态框 -->
+<div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="addOrEditForm"  method="post">
+                    <input type="hidden" name="id">
+                    <div class="row">
+                        <div class="col-xs-12">
+                        <label for="names" class="control-label">短信名称：</label>
+                        <input type="text" class="form-control" id="names" name="name">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                                <label for="content" class="control-label">模板内容：</label>
+                                <textarea id="content" name="content"></textarea>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" id="saveFormBtn" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ckeditor富文本插件 -->
+<script src="js/ckeditor/ckeditor.js"></script>
+
+<script type="text/javascript">
+
+    //设置表头
+    var columns = [
+        {checkbox: true},
+        {field: 'id',title: 'ID',visible:false},
+        {field: 'name',title: '短信名称'},
+        {field: 'content',title: '模板内容'}
+    ];
+
+    var ck = CKEDITOR.replace( 'content' );
+
+    //进入主界面加载数据
+    zero2one.datagrid("qa_data", "/system/smsTemplate/list",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        $('#qa_data').bootstrapTable('refresh');
+    });
+
+    //点击添加按钮弹出模态框
+    $("#addBtn").click(function () {
+        ck.setData("");//ck清空
+        $("#addOrEditForm")[0].reset();
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击编辑按钮弹出模态框
+    $("#editBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#qa_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length == 1){
+            ck.setData(datas[0].content);//ck回显
+            $("#content").val(datas[0].content);
+            //填充表单
+            $("#addOrEditForm").formloader({data: datas[0]});
+        }else{
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+            return;
+        }
+        $("#addOrEditModal").modal("show");
+    });
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            title: {validators: {notEmpty: {message: '标题不能为空'}}},
+            content: {validators: {notEmpty: {message: '内容不能为空'}}},
+        }
+    });
+
+    //点击删除按钮弹出模态框
+    $("#deleteBtn").click(function () {
+        //获取选中行的数据
+        var datas = $('#qa_data').bootstrapTable('getSelections');
+        //判断是否选中行数据，如果没有则提示
+        if(datas.length > 0){
+            $.messager.confirm("温馨提示", "您确定要删除选中的数据吗?", function () {
+                //发送请求,执行批量删除
+                zero2one.request("/system/smsTemplate/delete",{"ids": zero2one.array2str(datas)},function (data) {
+                    window.setTimeout("window.location.reload()",1000);//延迟1秒刷新
+                });
+            })
+        }else{
+            $.messager.alert("温馨提示", "请选择一条或多条数据操作");
+
+        }
+    });
+
+    //清除选中行
+    function dji(tableId) {
+        $('#'+tableId).bootstrapTable("uncheckAll");
+    }
+
+    //保存
+    $("#saveFormBtn").click(function () {
+        var bv = $('#addOrEditForm').data('bootstrapValidator');
+        bv.validate();
+        if (bv.isValid()) {
+            //获取富文本编辑器的内容,设置到表单组件中
+            var data = ck.getData();
+            $("#content").val(data);
+            zero2one.request("/system/smsTemplate/addOrEdit",$("#addOrEditForm").serialize(),function (data) {
+                window.location.reload();
+            });
+        }
+    });
+
+</script>
+</body>
+</html>

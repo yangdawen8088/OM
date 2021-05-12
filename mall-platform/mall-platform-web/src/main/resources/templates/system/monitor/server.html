@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>服务监控</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/materialdesignicons.min.css" rel="stylesheet">
+<link href="css/style.min.css" rel="stylesheet">
+<link rel="stylesheet" href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4>服务器管理</h4>
+                    <div>
+                        <button class="btn btn-success btn-xs btn-round" id="addBtn">增加
+                        </button>
+                        <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="zTreeDemoBackground left">
+                        <ul id="tree" class="ztree"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>服务监控信息</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>CPU信息</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>属性</th>
+                                                <th>值</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>核心数</td>
+                                                <td id="cpu_num"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>用户使用率</td>
+                                                <td id="cpu_used"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>系统使用率</td>
+                                                <td id="cpu_sys"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>当前空闲率</td>
+                                                <td id="cpu_free"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>内存信息</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>属性</th>
+                                                <th>内存</th>
+                                                <th>JVM</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td>总内存</td>
+                                                <td id="mem_total"></td>
+                                                <td id="jvm_total"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>已用内存</td>
+                                                <td id="mem_used"></td>
+                                                <td id="jvm_used"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>剩余内存</td>
+                                                <td id="mem_free"></td>
+                                                <td id="jvm_free"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>使用率</td>
+                                                <td id="mem_usage"></td>
+                                                <td id="jvm_usage"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>服务器信息</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>服务器名称</th>
+                                                <th>操作系统</th>
+                                                <th>服务器IP</th>
+                                                <th>系统架构</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td id="sys_computerName"></td>
+                                                <td id="sys_osName"></td>
+                                                <td id="sys_computerIp"></td>
+                                                <td id="sys_osArch"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Java虚拟机信息</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>Java名称</th>
+                                                <th>Java版本</th>
+                                                <th>启动时间</th>
+                                                <th>运行时长</th>
+                                                <th>安装路径</th>
+                                                <th>项目路径</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr>
+                                                <td id="jvm_name"></td>
+                                                <td id="jvm_version"></td>
+                                                <td id="jvm_startTime"></td>
+                                                <td id="jvm_runTime"></td>
+                                                <td id="jvm_home"></td>
+                                                <td id="sys_userDir"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>磁盘状态</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>盘符路径</th>
+                                                <th>文件系统</th>
+                                                <th>盘符类型</th>
+                                                <th>总大小</th>
+                                                <th>可用大小</th>
+                                                <th>已用大小</th>
+                                                <th>已用百分比</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="containes">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">服务器管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" action="/addOrEditServer" method="post" data-target="validator">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">名称：</label>
+                            <input type="hidden" name="id">
+                            <input type="text" class="form-control" id="recipient-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="example-select">级别</label>
+                            <select class="form-control" id="example-select" name="serverLevel">
+                                <option value="1">1级</option>
+                                <option value="2">2级</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="parent_id" class="control-label">上级名称：</label>
+                            <input type="hidden" name="parentId">
+                            <input type="text" class="form-control" id="parent_id" name="parentName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="dept-select">是否展开</label>
+                            <select class="form-control" id="dept-select" name="open">
+                                <option value="0" selected>折叠</option>
+                                <option value="1">展开</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+<script type="text/javascript" src="js/jquery.lyear.loading.js"></script>
+<script type="text/javascript">
+
+    //页面初始化完成加载数据
+    $.post("/serverList", {},
+        function(data){
+            $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data);
+        }, "json");
+
+    var flag;//判断是否是顶级
+    var zj;
+    var tb;
+    var ids;
+    function onClick(event, treeId, treeNode) {
+        flag = treeNode.serverLevel;
+
+        if(treeNode.getParentNode() != null){
+            tb = {parentId:treeNode.getParentNode().id, parentName:treeNode.getParentNode().name, id:treeNode.id, name:treeNode.name, serverLevel:treeNode.serverLevel, open:treeNode.open==false?0:1};
+        }
+        zj = {id:treeNode.id, name:treeNode.name, serverLevel:treeNode.serverLevel, open:treeNode.open};
+
+        if(treeNode.serverLevel == 2){
+            queryServerByServerName(treeNode.name.split(":")[1]);
+        }
+
+    }
+
+    function queryServerByServerName(serverName){
+        var l = $('body').lyearloading({
+            opacity: 0.6,
+            backgroundColor: '#ffffff',
+            imgUrl: 'http://www.bixiaguangnian.com/home/images/loader.gif',
+            spinnerText: '请求处理中，请稍后...',
+            textColorClass: 'text-info'
+        });
+        setTimeout(function() {
+            l.destroy();
+        }, 2000);
+        zero2one.request("/queryServerByServerName",{serverName: serverName}, function (data) {
+            //cpu
+            $("#cpu_num").html(data.data.cpu.cpuNum);
+            $("#cpu_used").html(data.data.cpu.used+"%");
+            $("#cpu_sys").html(data.data.cpu.sys+"%");
+            $("#cpu_free").html(data.data.cpu.free+"%");
+            //mem
+            $("#mem_total").html(data.data.mem.total+'G');
+            $("#jvm_total").html(data.data.jvm.total+"M");
+            $("#mem_used").html(data.data.mem.used+"G");
+            $("#jvm_used").html(data.data.jvm.used+"M");
+            $("#mem_free").html(data.data.mem.free+'G');
+            $("#jvm_free").html(data.data.jvm.free+"M");
+            $("#mem_usage").html(data.data.mem.usage+"%");
+            $("#jvm_usage").html(data.data.jvm.usage+"%");
+            //sys
+            $("#sys_computerName").html(data.data.sys.computerName);
+            $("#sys_osName").html(data.data.sys.osName);
+            $("#sys_computerIp").html(data.data.sys.computerIp);
+            $("#sys_osArch").html(data.data.sys.osArch);
+            //jvm
+            $("#jvm_name").html(data.data.jvm.name);
+            $("#jvm_version").html(data.data.jvm.version);
+            $("#jvm_startTime").html(data.data.jvm.startTime);
+            $("#jvm_runTime").html(data.data.jvm.runTime);
+            $("#jvm_home").html(data.data.jvm.home);
+            $("#sys_userDir").html(data.data.sys.userDir);
+            var sysFiles = data.data.sysFiles;
+            var str = "";
+            for (let i = 0; i < sysFiles.length; i++) {
+            str += "<tr>"+"<td>"+sysFiles[i].dirName+"</td>"
+                        +"<td>"+sysFiles[i].sysTypeName+"</td>"
+                        +"<td>"+sysFiles[i].typeName+"</td>"
+                        +"<td>"+sysFiles[i].total+"</td>"
+                        +"<td>"+sysFiles[i].free+"</td>"
+                        +"<td>"+sysFiles[i].used+"</td>"
+                        +"<td>"+sysFiles[i].usage+"%</td></tr>";
+            }
+            $("#containes").html(str);
+        })
+    }
+
+    //点击添加按钮弹出模态框
+    $("#addBtn").click(function () {
+
+        $('input[name=id]').val('');
+
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择上级再操作");
+            return;
+        }
+        if(zj.serverLevel == 2){
+            $.messager.alert("温馨提示", "不能再添加下级了");
+            return;
+        }
+        //上级部门填充自己的ID和名称
+        $("input[name=parentId]").val(zj==null?"":zj.id);
+        $("input[name=parentName]").val(zj==null?"":zj.name);
+        $("#example-select").val(zj.serverLevel+1);
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击添加按钮弹出模态框
+    $("#editBtn").click(function () {
+
+        //	判断是否选中当前要编辑的
+        if(tb == null){
+            $.messager.alert("温馨提示", "请先选择要编辑的再操作");
+            return;
+        }
+        //判断是否是顶级
+        if(flag == 0){
+            $.messager.alert("温馨提示", "顶级无需编辑操作");
+            return;
+        }
+        //加载表单数据
+        $("#addOrEditForm").formloader({data: tb});
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //部门添加与编辑
+    $("#addOrEditForm").ajaxForm(function (data) {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            $.messager.alert("温馨提示", data.msg)
+        }
+    });
+
+</script>
+</html>

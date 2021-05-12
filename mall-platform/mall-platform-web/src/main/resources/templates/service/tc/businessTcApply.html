@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>申请管理</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <!--时间选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <!--日期选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+    <link href="css/style.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>账号:</label>
+                                <input type="text" class="form-control" name="account">
+                            </div>
+                            <div class="form-group">
+                                <label>时间查询:</label>
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="applyTime" placeholder="申请时间">-
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="approveTime" placeholder="审核通过时间">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="passReview">审核</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="watchBtn">商家详情</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+
+                    <table id="grid_data"></table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">申请记录</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm"  method="post" data-target="validator">
+                        <div class="form-group">
+                            <label class="control-label">审核状态：</label>
+                            <input type="hidden" name="id" id="id">
+                            <input type="hidden" name="businessId" id="businessId">
+                            <input type="hidden" name="account" id="account">
+                            <input type="hidden" name="storeType" id="storeType">
+                            <!--订单号-->
+                            <input type="hidden" name="outTradeNo" id="outTradeNo">
+                            <!--订单状态-->
+                            <input type="hidden" name="orderState" id="orderState">
+                            <input type="hidden" name="money" id="money">
+                            <div>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="approveStatus" value="1"/>审核通过</label>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="approveStatus" value="2"/>审核不通过</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">申请结果：</label>
+                            <textarea class="form-control" id="result" name="approveResult" rows="3"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="sava">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  详细模态框 -->
+    <div class="modal fade" id="merchantShipmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabels">
+        <div class="modal-dialog" role="document" style="width: 60%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ProductInformation">商品内容</h4>
+                </div>
+                <div class="modal-body" id="commodityMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!--时间选择插件-->
+    <script src="js/bootstrap-datetimepicker/moment.min.js"></script>
+    <script src="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/bootstrap-datetimepicker/locale/zh-cn.js"></script>
+    <!--日期选择插件-->
+    <script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'businessId',title: '商家Id'},
+            {field: 'account',title: '商家账号'},
+            // {field: 'businessType',title: '商家类型',formatter: function (value, row, index) {
+            //         if (value=='1') {
+            //             return "个人";
+            //         }else if(value=='2'){
+            //             return "企业";
+            //         }}},
+            {field: 'storeType',title: '店铺类型',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "合作商家";
+                    }else if(value=='1'){
+                        return "联盟商家";
+                    }else if(value=='2'){
+                        return "联盟企业";
+                    }}},
+            {field: 'storeName',title: '店铺名称'},
+            {field: 'storeAddr',title: '店铺地址'},
+            {field: 'categoryNames',title: '经营类目名称'},
+            {field: 'applyTime',title: '申请时间', formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'approveTime',title: '审核时间', formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'approveStatus',title: '审核状态',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "审核中";
+                    }else if(value=='1'){
+                        return "审核通过";
+                    }else if(value=='2'){
+                        return "审核不通过";
+                    }}},
+            {field: 'orderState',title: '支付审核状态',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "未支付";
+                    }else if(value=='1'){
+                        return "已支付";
+                    }}},
+            {field: 'money',title: '支付金额'},
+            {field: 'approveId',title: '审核人名字'},
+            {field: 'approveResult',title: '申请结果'},
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("grid_data", "/remote/tcApply/tcApplyPage",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#grid_data').bootstrapTable('refresh');
+        });
+
+        //点击编辑按钮弹出模态框
+        $("#passReview").click(function () {
+            //获取选中行的数据
+            var datas = $('#grid_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length ==1){
+                $("#addOrEditForm").formloader({data: datas[0]});
+                $("#addOrEditModal").modal("show");
+            }else{
+                $.messager.alert("温馨提示", "请选择一条操作");
+
+            }
+
+        });
+
+        //保存按钮的点击事件
+        $("#sava").click(function () {
+            zero2one.request("/remote/tcApply/tcApplyStatus",$("#addOrEditForm").serialize(),function (data) {
+                if (data.success) {
+                    window.location.reload();
+                }else {
+                    $.messager.alert("温馨提示", data.msg)
+                }
+            });
+
+        });
+
+        $("#watchBtn").click(function () {
+            //获取选中行的数据
+            var datas = $('#grid_data').bootstrapTable('getSelections');
+            console.log(datas);
+            if (datas.length == 1 && datas != ''){
+                var content='';
+                // content+=
+                //     '<label style="font-size: x-large">☼店铺头像：</label><label style="font-size: large">'+datas[0].storeImage+'</label></br>'
+                //     +'<label style="font-size: x-large">☼店铺编号：</label><label style="font-size: large">'+datas[0].storeNum+'</label></br>'
+                //     +'<label style="font-size: x-large">☼店铺类型：</label><label style="font-size: large">'+datas[0].storeType+'</label></br>'
+                //     +'<label style="font-size: x-large">☼省-市-区：</label><label style="font-size: large">'+datas[0].provinceId+datas[0].cityId+datas[0].areaId+'</label></br>'
+                //     +'<label style="font-size: x-large">☼企业名称：</label><label style="font-size: large">'+datas[0].companyName+'</label></br>'
+                //     +'<label style="font-size: x-large">☼详细地址：</label><label style="font-size: large">'+datas[0].storeAddress+'</label></br>'
+                //     +'<label style="font-size: x-large">☼联系人姓名：</label><label style="font-size: large">'+datas[0].contactRen+'</label></br>'
+                //     +'<label style="font-size: x-large">☼联系人电话：</label><label style="font-size: large">'+datas[0].contactPhone+'</label></br>'
+                //     +'<label style="font-size: x-large">☼电子邮箱：</label><label style="font-size: large">'+datas[0].email+'</label></br>'
+                //     +'<label style="font-size: x-large">☼真实姓名：</label><label style="font-size: large">'+datas[0].realName+'</label></br>'
+                //     +'<label style="font-size: x-large">☼身份证：</label><label style="font-size: large">'+datas[0].idCard+'</label></br>'
+                //     +'<label style="font-size: larger">手执身份证照片 正面:</label></br>'+"<img style='width: auto;height: auto;border-radius: 10%'  src='"+datas[0].idCardP+"'/></br>"
+                //     +'<label style="font-size: larger">手执身份证照片 背面:</label></br>'+"<img style='width: auto;height: auto;border-radius: 10%'  src='"+datas[0].idCardA+"'/></br>"
+                //     +'<label style="font-size: x-large">☼组织机构代码：</label><label style="font-size: large">'+datas[0].organizationCode+'</label></br>'
+                //     +'<label style="font-size: x-large">☼注册资金：</label><label style="font-size: large">'+datas[0].registerCapital+'</label></br>'
+                //     +'<label style="font-size: x-large">☼省-企业注册地址：</label><label style="font-size: large">'+datas[0].qyProvinceId+'</label></br>'
+                //     +'<label style="font-size: x-large">☼市-企业注册地址：</label><label style="font-size: large">'+datas[0].qyCityId+'</label></br>'
+                //     +'<label style="font-size: x-large">☼区-企业注册地址：</label><label style="font-size: large">'+datas[0].qyAreaId+'</label></br>'
+                //     +'<label style="font-size: x-large">☼营业执照有效期：</label><label style="font-size: large">'+datas[0].validPeriod+'</label></br>'
+                //     +'<label style="font-size: x-large">☼营业执照失效日期如果为空表示长期有效：</label><label style="font-size: large">'+datas[0].invalidPeriod+'</label></br>'
+                //     +'<label style="font-size: x-large">☼经营范围：</label><label style="font-size: large">'+datas[0].businessScope+'</label></br>'
+                //     +'<label style="font-size: x-large">☼营业执照电子版文件：</label><label style="font-size: large">'+datas[0].businessLicense+'</label></br>'
+                //     +'<label style="font-size: x-large">☼银行开户名：</label><label style="font-size: large">'+datas[0].bankName+'</label></br>'
+                //     +'<label style="font-size: x-large">☼银行账号：</label><label style="font-size: large">'+datas[0].bankAccount+'</label></br>'
+                //     +'<label style="font-size: x-large">☼开户银行支行名称：</label><label style="font-size: large">'+datas[0].bankSubbranch+'</label></br>'
+                //     +'<label style="font-size: x-large">☼省-市-区：</label><label style="font-size: large">'+datas[0].bankAddress+'</label></br>'
+                //     +'<label style="font-size: x-large">☼企业结算银行开户名：</label><label style="font-size: large">'+datas[0].settleBankName+'</label></br>'
+                //     +'<label style="font-size: x-large">☼企业结算银行账号：</label><label style="font-size: large">'+datas[0].settleBankAccount+'</label></br>'
+                //     +'<label style="font-size: x-large">☼企业结算开户银行支行名称：</label><label style="font-size: large">'+datas[0].settleBankSubbranch+'</label></br>'
+                //     +'<label style="font-size: x-large">☼企业结算省-市-区：</label><label style="font-size: large">'+datas[0].settleBankAddress+'</label></br>'
+                //     +'<label style="font-size: x-large">☼经度：</label><label style="font-size: large">'+datas[0].lon+'</label></br>'
+                //     +'<label style="font-size: x-large">☼纬度：</label><label style="font-size: large">'+datas[0].lat+'</label></br>'
+                //     +'<label style="font-size: x-large">☼订单号：</label><label style="font-size: large">'+datas[0].outTradeNo+'</label></br>'
+                //     +'<hr>';
+
+                content+=
+                    '<label style="font-size: x-large">联系地址：</label><label style="font-size: large">'+datas[0].storeAddress+'</label></br>'
+                    +'<label style="font-size: x-large">☼店铺地址：</label><label style="font-size: large">'+datas[0].storeAddr+'</label></br>'
+                    +'<label style="font-size: x-large">☼联系人姓名：</label><label style="font-size: large">'+datas[0].contactRen+'</label></br>'
+                    +'<label style="font-size: x-large">☼联系人电话：</label><label style="font-size: large">'+datas[0].contactPhone+'</label></br>'
+                    +'<label style="font-size: x-large">☼身份证：</label><label style="font-size: large">'+datas[0].idCard+'</label></br>'
+                    +'<label style="font-size: larger">手执身份证照片 正面:</label></br>'+"<img style='width: 250px;height: 150px;border-radius: 10%'  src='"+datas[0].idCardP+"'/></br>"
+                    +'<label style="font-size: larger">手执身份证照片 背面:</label></br>'+"<img style='width: 250px;height: 150px;border-radius: 10%'  src='"+datas[0].idCardA+"'/></br>"
+                    +'<label style="font-size: larger">营业执照电子版文件:</label></br>'+"<img style='width: 250px;height: 150px;border-radius: 10%'  src='"+datas[0].businessLicense+"'/></br>"
+                    +'<label style="font-size: x-large">☼省-企业注册地址：</label><label style="font-size: large">'+datas[0].qyProvinceId+'</label></br>'
+                    +'<label style="font-size: x-large">☼市-企业注册地址：</label><label style="font-size: large">'+datas[0].qyCityId+'</label></br>'
+                    +'<label style="font-size: x-large">☼区-企业注册地址：</label><label style="font-size: large">'+datas[0].qyAreaId+'</label></br>'
+                    +'<label style="font-size: x-large">☼经营范围：</label><label style="font-size: large">'+datas[0].categoryNames+'</label></br>'
+                    +'<label style="font-size: x-large">☼纬度：</label><label style="font-size: large">'+datas[0].lat+'</label></br>'
+                    +'<label style="font-size: x-large">☼订单号：</label><label style="font-size: large">'+datas[0].outTradeNo+'</label></br>'
+                    +'<hr>';
+
+                $("#commodityMessage").html(content);
+                //打开模态框
+                $("#merchantShipmentModal").modal("show");
+
+            }else {
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+            }
+
+        })
+
+
+    </script>
+
+</div>
+</body>
+</html>

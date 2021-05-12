@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>优惠管理</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <!--时间选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <!--日期选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+    <link href="css/style.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div id="toolbar" class="toolbar-btn-action">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>优惠活动时间:</label>
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="startTime" placeholder="开始时间"> -
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="endTime" placeholder="结束时间">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-warning btn_query btn-round" type="button" id="editBtn">编辑</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-purple btn_query btn-round" type="button" id="activation" onclick="changeStatus(1)">激活</button>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger btn_query btn-round" type="button" id="Logout" onclick="changeStatus(0)">注销</button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+                <div class="card-body">
+
+                    <table id="coupon_data"></table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">板块管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm"  method="post" data-target="validator">
+
+                        <div class="form-group">
+                            <label class="control-label">发行类型：</label>
+                            <div>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="businessId" value="0"/>自营</label>
+                                <label class="checkbox-inline i-checks"> <input type="radio" name="businessId" value="-1"/>平台通用</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">优惠卷类型：</label>
+                            <select name="couponType" class="form-control">
+                                <option value="0">全场赠券</option>
+                                <option value="1">会员赠券</option>
+                                <option value="2">购物赠券</option>
+                                <option value="3">注册赠券</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">优惠卷名字：</label>
+                            <input type="hidden" name="id">
+                            <input type="hidden" name="publish" id="publish">
+                            <input type="text" class="form-control" id="couponName" name="couponName" required>
+                        </div>
+
+                       <!-- <div class="form-group">
+                            <label for="recipient-name" class="control-label">剩余数量：</label>
+                            <input type="num" class="form-control" id="num" name="num" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))" maxlength="10" required>
+                        </div>-->
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">金额：</label>
+                            <input type="text" class="form-control" id="amount" name="amount" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">每人限领张数：</label>
+                            <input type="num" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))" maxlength="10" class="form-control" id="perLimit" name="perLimit" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">使用门槛：</label>
+                            <input type="text" class="form-control" id="minPoint" name="minPoint" required>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label">开始时间：</label>
+                            <div class="col-sm-12">
+                                <input class="form-control js-datetimepicker" type="text" id="startTime" name="startTime" placeholder="请选择具体时间" value="" data-side-by-side="true" data-locale="zh-cn" data-format="YYYY-MM-DD HH:mm:ss" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">结束时间：</label>
+                            <div class="col-sm-12">
+                                <input class="form-control js-datetimepicker" type="text" id="endTime" name="endTime" placeholder="请选择具体时间" value="" data-side-by-side="true" data-locale="zh-cn" data-format="YYYY-MM-DD HH:mm:ss" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">使用类型：</label>
+                            <select name="useType" class="form-control">
+                                <option value="0">全场通用</option>
+                                <option value="1">指定分类</option>
+                                <option value="2">指定商品</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">备注：</label>
+                            <input type="hidden" name="id">
+                            <input type="text" class="form-control" id="note" name="note" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">发行数量：</label>
+                            <input type="num" class="form-control" id="publishCount" name="publishCount" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))" maxlength="10" required>
+                        </div>
+
+                      <!--  <div class="form-group">
+                            <label for="recipient-name" class="control-label">已使用数量：</label>
+                            <input type="num" class="form-control" id="useCount" name="useCount" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))" maxlength="10" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">领取数量：</label>
+                            <input type="num" class="form-control" id="receiveCount" name="receiveCount" onkeyup="value=(value.replace(/\D/g,'')==''?'':parseInt(value))" maxlength="10" required>
+                        </div>-->
+
+                        <div class="form-group">
+                            <label class="control-label">可以领取的开始日期：</label>
+                            <div class="col-sm-12">
+                                <input class="form-control js-datetimepicker" type="text" id="enableStartTime" name="enableStartTime" placeholder="请选择具体时间" value="" data-side-by-side="true" data-locale="zh-cn" data-format="YYYY-MM-DD HH:mm:ss" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">可以领取的结束日期：</label>
+                            <div class="col-sm-12">
+                                <input class="form-control js-datetimepicker" type="text" id="enableEndTime" name="enableEndTime" placeholder="请选择具体时间" value="" data-side-by-side="true" data-locale="zh-cn" data-format="YYYY-MM-DD HH:mm:ss" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">优惠码：</label>
+                            <input type="text" class="form-control" id="code" name="code">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">可以领取的会员等级：</label>
+                            <select name="memberLevel" class="form-control">
+                                <option value="0">不限等级</option>
+                                <option value="1">其他等级</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label" for="recipient-name">可选区域</label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="2"><span class="m-l-10">烽鸟驿站</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="3"><span class="m-l-10">烽鸟同城</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="4"><span class="m-l-10">扶贫助农</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="5"><span class="m-l-10">全国好货</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="6"><span class="m-l-10">9.9包邮</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="7"><span class="m-l-10">新人专区</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="8"><span class="m-l-10">代金券专区</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="9"><span class="m-l-10">今日推荐</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="10"><span class="m-l-10">今日爆款</span>
+                            </label>
+                            <label class="lyear-checkbox checkbox-primary text-none">
+                                <input type="checkbox" name="plateIds" value="-1"><span class="m-l-10">商城通用</span>
+                            </label>
+                        </div>
+
+
+                       <!-- <div class="form-group">
+                            <label class="control-label">发布状态：</label>
+                            <select name="publish" class="form-control">
+                                <option value="0">未发布</option>
+                                <option value="1">已发布</option>
+                            </select>
+                        </div>-->
+
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="sava">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+    <script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+    <!-- bootstrap表单验证插件 -->
+    <script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+    <!-- jquery-form表单提交插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+    <!-- bootstrap弹出框插件 -->
+    <script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+    <!-- 表单填充插件 -->
+    <script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+    <!--时间选择插件-->
+    <script src="js/bootstrap-datetimepicker/moment.min.js"></script>
+    <script src="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/bootstrap-datetimepicker/locale/zh-cn.js"></script>
+    <!--日期选择插件-->
+    <script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+    <script type="text/javascript" src="js/main.min.js"></script>
+
+
+    <script type="text/javascript">
+
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: 'ID'},
+            {field: 'businessId',title: '通用类型',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "自营";
+                    }else if(value=='-1'){
+                        return "平台通用";
+                    }
+                }},
+            {field: 'couponName',title: '优惠券名字'},
+            {field: 'couponType',title: '优惠券类型',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "全场赠券";
+                    }else if(value=='1'){
+                        return "会员赠券";
+                    }else if(value=='2'){
+                        return "购物赠券";
+                    }else if(value=='3'){
+                        return "注册赠券";
+                    }
+                }},
+            {field: 'num',title: '剩余数量'},
+            {field: 'minPoint',title: '使用门槛'},
+            {field: 'amount',title: '金额'},
+            {field: 'note',title: '备注'},
+            {field: 'publishCount',title: '发行数量'},
+            {field: 'useCount',title: '已使用数量'},
+            {field: 'receiveCount',title: '领取数量'},
+            {field: 'perLimit',title: '每人限领数'},
+            {field: 'code',title: '优惠码'},
+            {field: 'plateIds',title: '可使用区域'},
+            {field: 'enableStartTime',title: '领取开始时间',formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'enableEndTime',title: '领取结束时间',formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'startTime',title: '开始时间',formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'endTime',title: '结束时间',formatter: function (value) {
+                    return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+                }},
+            {field: 'useType',title: '使用类型',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        return "全场通用";
+                    }else if(value=='1'){
+                        return "指定分类";
+                    }else if(value=='2'){
+                        return "指定商品";
+                    }
+            }},
+            {field: 'publish',title: '发布状态',formatter: function (value, row, index) {
+                    if (value=='0') {
+                        var html= "<button class=\"btn btn-danger btn-sm\">未发布</button>";
+                        return html
+                    }else if(value=='1'){
+                        var html= "<button class=\"btn btn-purple btn-sm\">发&nbsp;&nbsp;布</button>";
+                        return html
+                    }}},
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("coupon_data", "/remote/couponservice/couponList",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        //点击查询按钮重新加载页面数据
+        $("#searchFormBtn").click(function () {
+            $('#coupon_data').bootstrapTable('refresh');
+        });
+
+        //点击添加按钮弹出模态框
+        $("#addBtn").click(function () {
+
+            $("#addOrEditForm")[0].reset();
+           // $("input[type='checkbox']").each(function(){this.checked=false;})
+            $('input[name="plateIds"]').attr("checked", false);
+            $('input[name="plateIds"][value=' + 2 + ']').prop("checked", true);
+            $(":radio[name='businessId'][value='0']").prop("checked", "checked");
+            $("#publish").val("0");
+            $("#addOrEditModal").modal("show");
+        });
+
+        //上架区域选中事件
+        $("input[name='plateIds']").change(function (e) {
+            if($(this).is(':checked')){
+                var that=$(this);
+                var plateIdArr = $("input[name='plateIds']:checked");
+                if (plateIdArr.length>1){
+                    $.each(plateIdArr,function (index,item) {
+                        if (item.value==="2"){
+                            that.attr("checked", false);
+                            return $.messager.alert("验证提示", "烽鸟驿站不能和其他同时选中");
+                        }
+                    });
+                }
+            }
+        });
+
+
+        //点击编辑按钮弹出模态框
+        $("#editBtn").click(function () {
+
+            //先清空数据
+            $("#addOrEditForm")[0].reset();
+            //$("#plateIds").attr("checked", false);
+            //$("input[name='plateIds']").attr("checked", false);
+            //获取选中行的数据
+            var datas = $('#coupon_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            $('input[name="plateIds"]').attr("checked", false);
+
+            console.log(datas);
+            if(datas.length == 1){
+                //填充表单
+                $("#addOrEditForm").formloader({data: datas[0]});
+                $(":radio[name='businessId'][value='" + datas[0].businessId + "']").prop("checked", "checked");
+                var useType= $("select[name='useType']").find("option[value="+datas[0].useType+"]").prop("selected", true);
+                var couponType= $("select[name='couponType']").find("option[value="+datas[0].couponType+"]").prop("selected", true);
+                var memberLevel= $("select[name='memberLevel']").find("option[value="+datas[0].memberLevel+"]").prop("selected", true);
+              //  var publish= $("select[name='publish']").find("option[value="+datas[0].publish+"]").prop("selected", true);
+                $("#perLimit").val(datas[0].perLimit);
+                $("#publishCount").val(datas[0].publishCount);
+                $("#publish").val("0");
+                var plateArr = datas[0].plateIds.split(',');
+                $.each(plateArr, function (index, item) {
+                    $('input[name="plateIds"][value=' + item + ']').prop("checked", true);
+                });
+
+            }else{
+                $.messager.alert("温馨提示", "请选择一条数据操作");
+                return;
+            }
+
+            $("#addOrEditModal").modal("show");
+        });
+
+        $('#addOrEditForm').bootstrapValidator({
+            fields: {
+                businessID: {validators: {notEmpty: {message: '请选择类型通用类型'}}},
+                couponType: {validators: {notEmpty : {message: '优惠券类型不能为空'}}},
+                couponName: {validators: {notEmpty : {message: '优惠券名称不能为空'}}},
+                amount: {validators: {notEmpty : {message: '金额不能为空'}}},
+                perLimit: {validators: {notEmpty : {message: '每人限领张数不能为空'}}},
+                minPoint: {validators: {notEmpty : {message: '使用门槛不能为空'}}},
+                useType: {validators: {notEmpty : {message: '使用类型不能为空'}}},
+                note: {validators: {notEmpty : {message: '备注不能为空'}}},
+                publishCount: {validators: {notEmpty : {message: '发行数量不能为空'}}},
+                plateIds: {validators: {notEmpty : {message: '可选择区域不能为空'}}},
+            }
+        });
+
+        //保存按钮的点击事件
+        $("#sava").click(function () {
+
+            var plateId="";
+            $("input[name='plateIds']:checked").each(function (index, item) {
+
+                if ($("input[name='plateIds']:checked").length-1===index) {
+                    plateId += $(this).val();
+                } else {
+                    plateId += $(this).val() + ",";
+                }
+            });
+
+            if (plateId===""){
+                return $.messager.alert("验证提示", "请选择上架区域");
+            }
+
+            var bv = $('#addOrEditForm').data('bootstrapValidator');
+            bv.validate();
+            if (bv.isValid()){
+                zero2one.request("/remote/couponservice/couponAddOrEdit",$("#addOrEditForm").serialize(),function (data) {
+                    if (data.success) {
+                        window.location.reload();
+                    }else {
+                        $.messager.alert("温馨提示", data.msg)
+                    }
+                });
+            }
+        });
+
+        //编辑板块状态
+        function changeStatus(publish) {
+            //获取选中行的数据
+            var datas = $('#coupon_data').bootstrapTable('getSelections');
+            //判断是否选中行数据，如果没有则提示
+            if(datas.length > 0){
+                $.messager.confirm("温馨提示", "您确定要更改状态吗?", function () {
+                    //发送请求,执行批量删除
+                    $.post("/remote/couponservice/updateCoupon", {"publish" : publish,"ids" : zero2one.array2str(datas)},
+                        function(data){
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                $.messager.alert("温馨提示", data.msg)
+                            }
+                        }, "json");
+                })
+            }else{
+                $.messager.alert("温馨提示", "请至少选择一条数据操作");
+
+            }
+        }
+
+    </script>
+
+</div>
+</body>
+</html>

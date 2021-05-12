@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>销售区域（社区）</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <link href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css" rel="stylesheet">
+    <style type="text/css">
+        .tangram-suggestion-main {z-index: 99999999999;}
+        body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";font-size:14px;}
+        #l-map{height:350px;width:80%;}
+        #r-result{width:100%;}
+    </style>
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4>销售区域（社区）</h4>
+                    <div>
+                        <button class="btn btn-success btn-xs btn-round" id="addBtn">增加</button>
+                        <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+                        <button class="btn btn-danger btn-xs btn-round" onclick="delOrActive(0)">注销</button>
+<!--                        <button class="btn btn-cyan btn-xs btn-round" onclick="delOrActive(1)">启用</button>-->
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="zTreeDemoBackground left">
+                        <ul id="tree" class="ztree"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h4>销售区域（社区）</h4>
+                </div>
+                <div class="card-body">
+                    <form id="searchForm">
+                        <input id="ids" name="ids" type="hidden" value="">
+                    </form>
+                    <table id="grid_data"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">商品分类（全国）</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" method="post">
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-dept">区域名称</span>
+                                    <input type="hidden" name="id" class="form-control" aria-describedby="basic-dept" id="id">
+                                    <input type="text" name="name" class="form-control" aria-describedby="basic-dept" id="name">
+                                    <input type="hidden" name="parentId" class="form-control" aria-describedby="basic-dept" id="parentId">
+                                    <input type="hidden" name="level" class="form-control" aria-describedby="basic-dept" id="level">
+                                    <div class="input-group-btn">
+                                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-xs-8">
+                                    <div class="input-group m-b-10">
+                                        <span class="input-group-addon">地址</span>
+                                        <div id="r-result"><input class="form-control" type="text" id="address" name="address" size="20" /></div>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-6">
+                                    <div class="input-group m-b-10">
+                                        <span class="input-group-addon" >经度</span>
+                                        <input type="text" name="lon" class="form-control" id="lon" aria-describedby="basic-account" readonly="readonly">
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="input-group m-b-10">
+                                        <span class="input-group-addon">纬度</span>
+                                        <input type="text" name="lat" class="form-control" id="lat" aria-describedby="basic-account" readonly="readonly">
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <div align="center"><div id="l-map"></div>
+                                    <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="button" id="saveFormBtn" class="btn btn-primary" >保存</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=MGR9YbWrgQMZkX9ZSAKugp1DGQnZhA0e"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+<script src="js/uploadImg.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.bmap.js"></script>
+<script type="text/javascript">
+
+    //页面初始化完成加载商品分类数据
+    zero2one.requestV("/remote/goodSaleArea/tree", {}, function (data) {
+        $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data.data);
+    });
+
+    var zj;
+    var ids;
+    var parentId;
+    function onClick(event, treeId, treeNode) {
+        console.log(treeNode);
+        zj = {id:treeNode.id, name:treeNode.name, level:treeNode.level, open:treeNode.open==false?0:1,
+            iconCls:treeNode.iconCls, status:treeNode.status, address:treeNode.address, lat:treeNode.lat
+            , lon:treeNode.lon};
+        ids = zero2one.getChildNodes("tree", treeNode);
+        $("#ids").val(treeNode.level > 0 ? ids : "");
+        if(treeNode.getParentNode() != null){
+            parentId = treeNode.getParentNode().id;
+        }
+        if (treeNode.level >1 ){
+            getByIds();
+        }
+    }
+
+    function getByIds() {
+        var columns = [
+            {field: 'id',title: 'ID'},
+            {field: 'name',title: '名称'},
+            {field: 'level',title: '级别'},
+            {field: 'status',title: '状态'},
+            {field: 'address',title: '地址'},
+            {field: 'lat',title: '纬度',visible:false},
+            {field: 'lon',title: '经度',visible:false},
+        ];
+        //进入主界面加载数据
+        $('#grid_data').bootstrapTable('refresh');
+        zero2one.datagrid("grid_data", "/remote/goodSaleArea/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+    }
+
+    //点击添加按钮
+    $("#addBtn").click(function () {
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择上级再操作");
+            return;
+        }
+        if (zj.level == 0){
+            $.messager.alert("温馨提示", "请选择下一级再操作");
+            return;
+        }
+        if(zj.level == 2){
+            $.messager.alert("温馨提示", "不能再添加下级了");
+            return;
+        }
+        $("#addOrEditForm")[0].reset();
+        $("input[type='hidden']").val("");//清空hidden值
+        $("input[name=parentId]").val(zj.id);
+        $("input[name=level]").val(zj.level+2);
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击编辑按钮
+    $("#editBtn").click(function () {
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择要编辑的项再操作");
+            return;
+        }
+        $("#addOrEditForm").formloader({data: zj});
+        $("input[name=parentId]").val(parentId);
+        $("input[name=level]").val(zj.level+1);
+        $("#addOrEditStatus").val(1);
+        $("#addOrEditModal").modal("show");
+    });
+
+    function delOrActive(status){
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择项再操作");
+            return;
+        }
+        $.messager.confirm("温馨提示", "您确定要注销吗?", function () {
+            zero2one.request("/remote/goodSaleArea/status",{id : ids, status: status},function (data) {
+                window.location.reload();
+            });
+        })
+    }
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            address: {validators: {notEmpty: {message: '区域地址不能为空'}}}
+        }
+    });
+
+    $("#saveFormBtn").click(function () {
+        if ($("#name").val()==''){
+            $.messager.alert("温馨提示", "请输入区域名称");
+            return ;
+        }
+        var bv = $('#addOrEditForm').data('bootstrapValidator');
+        bv.validate();
+        if (bv.isValid()) {
+            zero2one.request("/remote/goodSaleArea/addOrEdit",$("#addOrEditForm").serialize(),function (data) {
+                if (data.success){
+                    window.location.reload();
+                }else {
+                    $.messager.alert("温馨提示", data.msg);
+                }
+
+            })
+        }
+    });
+
+    zero2one.bmap("广东","address","lat","lon");
+
+</script>
+</body>
+</html>

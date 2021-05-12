@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.business.mapper.BusinessInfoMapper">
+
+    <select id="getBusinessByName" resultType="java.util.HashMap">
+          SELECT business_id id,business_name 'name' FROM business_info WHERE business_name LIKE CONCAT('%',#{keyword},'%')
+    </select>
+
+</mapper>

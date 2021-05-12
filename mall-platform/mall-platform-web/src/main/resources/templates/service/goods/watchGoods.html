@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>添加商品(全国)</title>
+    <#include "/header.html"/>
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="js/goods/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+    <link rel="stylesheet" href="js/goods/sku_style.css">
+    <link href="css/tg.tree.css" rel="stylesheet">
+    <!--日期选择插件-->
+    <style type="text/css">
+        .videoed { display:none; width:50px; height:50px; position: absolute; left:45%; top:45%; z-index:99; border-radius:100%; }
+        .videos{ display:none; border: 1px solid #080808; position:fixed; left:50%; top:50%; margin-left:-320px; margin-top:-210px; z-index:100; width:640px; height:360px; }
+        .vclose { position:absolute;right:1%; top:1%; border-radius:100%; cursor: pointer; }
+        .u-input .zd-input__inner{ width: 100%;}
+        .u-font-text{ display: inline-block; }
+        .u-font-text ol{ display: flex; flex-direction: column; }
+        .u-font-text ol li { display: block; line-height: 28px; color:#2ba3f6; }
+    </style>
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header"><h4>添加商品导向</h4></div>
+                <div class="card-body">
+                    <form method="post" class="guide-box" data-navigateable="true" id="addOrEditForm">
+                        <ul class="nav-step step-dots">
+                            <li class="nav-step-item active"><span>商品信息</span><a class="active" data-toggle="tab" href="#step-1"></a></li>
+                            <li class="nav-step-item"><span>商品详情</span><a data-toggle="tab" href="#step-2"></a></li>
+                            <li class="nav-step-item"><span>商品规格</span><a data-toggle="tab" href="#step-3"></a></li>
+                            <li class="nav-step-item"><span>其他设置</span><a data-toggle="tab" href="#step-4"></a></li>
+                        </ul>
+                        <!--对应内容-->
+                        <div class="nav-step-content">
+
+                            <div class="nav-step-pane hidden active" id="step-1">
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">商品名称</span>
+                                            <input type="hidden" name="id">
+                                            <input type="text" name="productName" class="form-control" placeholder="商品名称不能为空">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon" id="basic-dept">商家名称</span>
+                                            <input type="hidden" name="businessId" class="form-control" aria-describedby="basic-dept" id="businessId">
+                                            <input type="text" name="businessName" class="form-control" aria-describedby="basic-dept" id="businessName" placeholder="商家名称不能为空">
+                                            <div class="input-group-btn">
+                                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">品牌名称</span>
+                                            <input type="hidden" name="brandId" class="form-control" id="brandId">
+                                            <input type="text" name="brandName" class="form-control" id="brandName">
+                                            <div class="input-group-btn">
+                                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">虚拟销量</span>
+                                            <input type="text" name="virtualAmount" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">商品生产地</span>
+                                            <input type="text" name="productPlace" class="form-control" placeholder="商品生产地不能为空" id="productPlace">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">商品排序</span>
+                                            <input type="text" name="productSort" class="form-control" placeholder="商品排序不能为空">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">商品分类</span>
+                                            <input type="hidden" name="typeId" class="form-control" id="typeId">
+                                            <input type="text" name="typeName" class="form-control" placeholder="商品分类不能为空" id="typeName">
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="input-group m-b-10">
+                                            <span class="input-group-addon">商品预警值</span>
+                                            <input type="text" name="warningValue" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="nav-step-pane hidden" id="step-2">
+                                <textarea id="editor" name="productDetails" style="width: 100%;"></textarea>
+                            </div>
+
+                            <div class="nav-step-pane hidden" id="step-3">
+                                <div style="display: none;">
+                                    <ul class="SKU_TYPE"><li is_required='0' propid='3' sku-type-name="挺哥"></li></ul>
+                                    <ul><li><label><input type="checkbox" class="sku_value" propvalid='31' value="我来了你在哪里" /></label></li></ul>
+                                </div>
+
+                                <button class="btn btn-info btn_query btn-round cloneSku" type="button">添加自定义sku属性</button>
+                                <!--sku模板,用于克隆,生成自定义sku-->
+                                <div id="skuCloneModel" style="display: none;" class="u_SKU_TYPE">
+                                    <div class="clear"></div>
+                                    <ul class="SKU_TYPE">
+                                        <li is_required='0' propid='' sku-type-name="">
+                                            <a href="javascript:void(0);" class="delCusSkuType">移除</a>
+                                            <input type="text" class="cusSkuTypeInput" placeholder="规格名称"/>：
+                                        </li>
+                                    </ul>
+                                    <ul class="SPECS_PROP">
+                                        <li>
+                                            <input type="checkbox" class="model_sku_val" propvalid='' value=""/>
+                                            <input type="text" class="cusSkuValInput" placeholder="规格属性"/>
+                                        </li>
+                                        <button class="btn btn-info btn_query btn-round cloneSkuVal" type="button">添加自定义属性值</button>
+                                    </ul>
+                                    <div class="clear"></div>
+                                </div>
+
+                                <!--单个sku值克隆模板-->
+                                <li style="display: none;" id="onlySkuValCloneModel">
+                                    <input type="checkbox" class="model_sku_val" propvalid='' value="" />
+                                    <input type="text" class="cusSkuValInput" placeholder="规格属性"/>
+                                    <a href="javascript:void(0);" class="delCusSkuVal">删除</a>
+                                </li>
+                                <div class="clear"></div>
+                                <div id="batchEditSkuTable" style="display: none;">
+                                    <table class="skuTable">
+                                        <caption style="text-align: left;font-size: large">批量设置：</caption>
+                                        <tbody>
+                                        <tr>
+                                            <th>商品库存</th><th>供货价</th><th>市场售价</th><th>商品价格</th><th>商品重量(KG)</th><th>商品体积(m³)</th><th>操作</th>
+                                        </tr>
+                                        <tr propvalids="" propids="" propvalnames="" propnames="" class="sku_table_tr">
+                                            <td><input type="text" class="setting_sku_product_stock" name="product_stock"></td>
+                                            <td><input type="text" class="setting_sku_supply_price" name="supply_price"></td>
+                                            <td><input type="text" class="setting_sku_market_price" name="market_price"></td>
+                                            <td><input type="text" class="setting_sku_product_price" name="product_price"></td>
+                                            <td><input type="text" class="setting_sku_product_weight" name="product_weight"></td>
+                                            <td><input type="text" class="setting_sku_product_volume" name="product_volume"></td>
+                                            <td><button id="batchSet" class="btn btn-info btn_query btn-round" type="button">批量设置</button></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="skuTable"></div>
+                            </div>
+
+                            <div class="nav-step-pane hidden" id="step-4">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="main u-main">
+                                            <span class="label-left">商品主图</span>
+                                            <div class="upload-content">
+                                                <div class="content-img">
+                                                    <ul class="content-img-list"></ul>
+                                                    <div class="file">
+                                                        <i class="gcl gcladd"></i>
+                                                        <input type="file" name="fileOne" accept="image/*" id="upload1">
+                                                        <input type="hidden" name="mainPictureStatus" VALUE="0" id="mainPictureStatus" placeholder="添加或编辑图片状态控制">
+                                                        <input type="hidden" name="mainPicture">
+                                                        <input type="hidden" name="deleteMailUrl">
+                                                    </div>
+                                                    <div class="u-font-text">
+                                                        <ol>
+                                                            <li>1、商品主图大小不能超过3MB; 700*700 以上图片</li>
+                                                            <li>2、最多上传一张</li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="main u-main">
+                                            <span class="label-left">商品轮播图</span>
+                                            <div class="upload-content">
+                                                <div class="content-img">
+                                                    <ul class="content-img-list-one"></ul>
+                                                    <div class="file">
+                                                        <i class="gcl gcladd"></i>
+                                                        <input type="file" name="fileTwo" accept="image/*" id="upload2">
+                                                        <input type="hidden" name="detailPictureStatus" VALUE="0" id="detailPictureStatus" placeholder="添加或编辑图片状态控制">
+                                                        <input type="hidden" name="detailPicture">
+                                                        <input type="hidden" name="deleteDetailUrl">
+                                                    </div>
+                                                    <div class="u-font-text">
+                                                        <ol>
+                                                            <li>最多5张图片不能带有违禁文案，如其他平台LOGO、包赔、冷链运输等</li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="main u-main">
+                                            <span class="label-left">商品短视频</span>
+                                            <div class="upload-content">
+                                                <div class="content-img">
+                                                    <ul class="content-img-list-four"></ul>
+                                                    <div class="file">
+                                                        <i class="gcl gcladd"></i>
+                                                        <input type="file" name="fileFive" accept="video/*" id="upload5">
+                                                        <input type="hidden" name="videoSrcStatus" VALUE="0" id="videoSrcStatus" placeholder="添加或编辑图片状态控制">
+                                                        <input type="hidden" name="videoUrl">
+                                                        <input type="hidden" name="deleteVideoUrl">
+                                                    </div>
+                                                    <div class="u-font-text">
+                                                        <ol>
+                                                            <li>1、格式：MP4</li>
+                                                            <li>2、尺寸：1:1或16:9比例视频</li>
+                                                            <li>3、时长：15秒-60秒，建议控制在30秒内，节奏明快有助成交</li>
+                                                            <li>4、内容：突出表现1-2个商品核心卖点，画质清晰，真人演示等效果更好</li>
+                                                        </ol>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!--End 对应内容-->
+                        <hr>
+                        <div class="nav-step-button">
+                            <button class="btn btn-secondary disabled" data-wizard="prev" type="button">上一步</button>
+                            <button class="btn btn-secondary" data-wizard="next" type="button">下一步</button>
+                            <button class="btn btn-primary hidden" data-wizard="finish" type="button" id="saveBtn">完成</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="videos"></div>
+    <form id="fileForm" action="/remote/goods/images" method="post" enctype="multipart/form-data">
+        <input name="file" type="file" id="fileInput" style="display: none" accept="image/*">
+    </form>
+</div>
+</body>
+<#include "/footer.html"/>
+<!--向导插件-->
+<script src="js/goods/uploadImg.js"></script>
+<script src="js/uploadVideo.js"></script>
+<script type="text/javascript" src="js/jquery.bootstrap.wizard.min.js"></script>
+<!-- boostrap-combox下拉框检索插件 -->
+<script type="text/javascript" src="js/suggest/bootstrap-suggest.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.suggest.js"></script>
+<script type="text/javascript" src="js/goods/main.js"></script>
+<!--日期选择插件-->
+<script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+<script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+<script type="text/javascript" src="js/main.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.goods.tree.js"></script>
+<!-- ued富文本插件 -->
+<script type="text/javascript" src="js/plugin/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="js/plugin/ueditor/ueditor.all.min.js"> </script>
+<!--表单提交插件-->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!--SKU插件-->
+<script type="text/javascript" src="js/goods/createSkuTable.js"></script>
+<script type="text/javascript" src="js/goods/customSku.js"></script>
+<script type="text/javascript" src="js/goods/layer.js"></script>
+<script type="text/javascript" src="js/goods/getSetSkuVals.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<script type="text/javascript">
+
+    //复写UEDITOR的getActionUrl 方法,定义自己的Action
+    var ue = UE.getEditor('editor');
+    ue.ready(function() {ue.setHeight(450);});
+    UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
+    UE.Editor.prototype.getActionUrl = function(action) {
+        if (action == 'uploadimage' ) {
+            return '/UEditorUploadFile';
+        } else {
+            return this._bkGetActionUrl.call(this, action);
+        }
+    };
+
+    //商品生产地
+    zero2one.request("/remote/communityGoods/productPlaceTree",{}, function (data) {
+        $('#productPlace').zdCascader({
+            data: data.data,
+            onChange: function(data1, data2,data3) {
+                $("#productPlace").val(data3[1].name + "-" + data3[0].name)
+            }
+        });
+        //商品分类
+        zero2one.request("/remote/goods/tree",{}, function (data) {
+            $('#typeName').zdCascader({
+                data: data.data,
+                onChange: function(data1, data2,data3) {
+                    $("#typeName").val(data3[2].name + "-" +data3[1].name + "-" + data3[0].name);
+                    $("#typeId").val(data3[0].id)
+                }
+            });
+            //加载商品信息数据
+            zero2one.request("/remote/goods/load",{id: zero2one.getUrlParam('productId')}, function (data) {
+                $("#addOrEditForm").formloader({data: data.data});//填充表单
+                UE.getEditor('editor').setContent(data.data.productDetails);
+
+                //初始化sku值
+                if(data.data.skuServer.length > 0){
+                    var arrs = data.data.skuServer.split(";");
+                    for (let i =0; i < arrs.length-1; i++) {
+                        var arr = arrs[i].split(",");
+                        var start = arr.shift();//获取数组第一个元素且移除
+                        var last = arr.pop();//获取数组最后一个元素且移除
+                        var newArr = arr;//最新的数组
+                        if(newArr.length > 0){
+                           cloneSku(last, start, newArr);
+                        }
+                    }
+                }
+
+                zero2one.request("/remote/goods/loadSku",{id: zero2one.getUrlParam('productId')}, function (data) {
+                    initDataGrid(data);
+                });
+
+
+                //加载图片信息
+                $("#mainPictureStatus").val(1);
+                if(data.data.mainPicture.length > 0){
+                    addNewContent(".content-img-list", data.data.mainPicture.split(","));
+                }
+                $("#detailPictureStatus").val(1);
+                if(data.data.detailPicture.length > 0){
+                    addNewContent(".content-img-list-one", data.data.detailPicture.split(","));
+                }
+                $("#videoSrcStatus").val(1);
+                if(data.data.videoUrl.length > 0){
+                    addVideoContent(".content-img-list-four", data.data.videoUrl.split(","));
+                }
+            });
+        });
+    });
+
+    //根据商家名称匹配商家数据
+    zero2one.suggest("businessName","/remote/communityBusiness/getBusinessByName?keyword=","businessId","businessName","商家名称");
+
+    //根据品牌名称匹配品牌数据
+    zero2one.suggest("brandName","/remote/goodsBrand/getGoodsBrandByName?keyword=","brandId","brandName","品牌名称");
+
+    //选择商品主图还没有上传
+    var imgFile1 = uploadImg(".content-img-list", "upload1", 1024 * 1024 * 4, 0, "mainPictureStatus", "deleteMailUrl");
+    //选择商品轮播图还没有上传
+    var imgFile2 = uploadImg(".content-img-list-one", "upload2", 1024 * 1024 * 4, 6, "detailPictureStatus", "deleteDetailUrl");
+    //选择商品短视频还没有上传
+    var imgFile5 = uploadVideo(".content-img-list-four", "upload5", 1024 * 1024 * 10, 0, "videoSrcStatus", "deleteVideoUrl");
+
+    $('.guide-box').bootstrapWizard({
+        'tabClass': 'nav-step',
+        'nextSelector': '[data-wizard="next"]',
+        'previousSelector': '[data-wizard="prev"]',
+        'finishSelector': '[data-wizard="finish"]',
+        'onTabClick': function(e, t, i) {
+            if (!$('.guide-box').is('[data-navigateable="true"]')) return ! 1
+        },
+        'onTabShow': function(e, t, i) {
+            t.children(":gt(" + i + ").complete").removeClass("complete");
+            t.children(":lt(" + i + "):not(.complete)").addClass("complete");
+        },
+        'onFinish': function(e, t, i) {
+
+        }
+    });
+
+</script>
+
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>商品管理(全国)</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                        <li class="active" value="sale_data"><a href="#sale" id="sale-tab" role="tab" data-toggle="tab" onclick="tabChange(1,null,'sale_data')">出售中的商品(<span id="saleTotal">0</span>)</a></li>
+                        <li value="reviewed_data"><a href="#reviewed" role="tab" id="reviewed-tab" data-toggle="tab" onclick="tabChange(0,null,'reviewed_data')">审核中的商品(<span id="reviewedTotal">0</span>)</a></li>
+                        <li value="out_data"><a href="#out" role="tab" id="out-tab" data-toggle="tab" onclick="tabChange(1, 0,'out_data')">已经售馨商品(<span id="outTotal">0</span>)</a></li>
+                        <li value="warning_data"><a href="#warning" role="tab" id="warning-tab" data-toggle="tab" onclick="tabChange(1, 1,'warning_data')">库存警戒商品(<span id="warningTotal">0</span>)</a></li>
+                        <li value="off_data"><a href="#off" role="tab" id="off-tab" data-toggle="tab" onclick="tabChange(4,null,'off_data')">已经下架商品(<span id="offTotal">0</span>)</a></li>
+                        <li value="unReviewed_data"><a href="#unReviewed" role="tab" id="unReviewed-tab" data-toggle="tab" onclick="tabChange(2,null,'unReviewed_data')">审核不通过商品(<span id="unReviewedTotal">0</span>)</a></li>
+                        <li value="delete_data"><a href="#delete" role="tab" id="delete-tab" data-toggle="tab" onclick="tabChange(5,null,'delete_data')">商品回收站(<span id="deleteTotal">0</span>)</a></li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>商品名称:</label>
+                                <input type="hidden" class="form-control" name="status" value="1">
+                                <input type="hidden" class="form-control" name="flags" value="">
+                                <input type="text" class="form-control" name="productName">
+                            </div>
+                            <div class="form-group">
+                                <label>商家名称:</label>
+                                <input type="text" class="form-control" name="businessName">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round" type="button" id="searchFormBtn">查询</button>
+                                <button class="btn btn-success btn_query btn-round" type="button" id="addBtn">添加商品</button>
+                            </div>
+                        </form>
+
+                        <div class="tab-pane fade active in table-responsive" id="sale">
+                            <table id="sale_data" class="table text-nowrap"></table>
+                        </div>
+                        <div class="tab-pane fade table-responsive" id="reviewed">
+                            <table id="reviewed_data" class="table text-nowrap"></table>
+                        </div>
+                        <div class="tab-pane fade table-responsive" id="out">
+                            <table id="out_data" class="table text-nowrap"></table>
+                        </div>
+                        <div class="tab-pane fade table-responsive" id="warning">
+                            <table id="warning_data" class="table text-nowrap"></table>
+                        </div>
+                        <div class="tab-pane fade table-responsive" id="off">
+                            <table id="off_data" class="table text-nowrap"></table>
+                        </div>
+                        <div class="tab-pane table-responsive" id="unReviewed">
+                            <table id="unReviewed_data" class="table text-nowrap"></table>
+                        </div>
+                        <div class="tab-pane table-responsive" id="delete">
+                            <table id="delete_data" class="table text-nowrap"></table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--  添加与编辑模态框 -->
+<div class="modal fade" id="auditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">商品审核（全国）</h4>
+            </div>
+            <div class="modal-body">
+                <form id="addOrEditForm" method="post">
+                    <input type="hidden" name="ids">
+                    <div class="form-group">
+                        <label>审核状态</label>
+                        <select class="form-control" name="productStatus">
+                            <option value="1">审核通过</option>
+                            <option value="2">审核不通过</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>审核结果</label>
+                        <textarea class="form-control" name="approveResult" rows="6" placeholder="填写审核结果.."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" id="saveBtn">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<#include "/footer.html"/>
+<script type="text/javascript">
+
+    var columns = [
+        {checkbox: true},
+        {
+            field: 'operate',
+            title: '操作',
+            formatter: function (event, value, row, index) {
+                if(value.productStatus == 1){
+                    return  '<a href="#!" class="btn btn-xs btn-info m-r-5 down-btn" title="商品下架" data-toggle="tooltip"><i class="mdi mdi-arrow-down"></i></a>';
+                }else if(value.productStatus == 0){
+                    return '<a href="#!" class="btn btn-xs btn-primary m-r-5 up-btn" title="商品审核" data-toggle="tooltip"><i class="mdi mdi-arrow-up"></i></a>' +
+                        '<a href="#!" class="btn btn-xs btn-yellow m-r-5 edit-btn" title="商品编辑" data-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>' +
+                        '<a href="#!" class="btn btn-xs btn-pink m-r-5 watch-btn" title="查看商品" data-toggle="tooltip"><i class="mdi mdi-magnify"></i></a>' +
+                        '<a href="#!" class="btn btn-xs btn-danger del-btn" title="删除商品" data-toggle="tooltip"><i class="mdi mdi-window-close"></i></a>';
+                }else if(value.productStatus == 2){
+                    return '<a href="#!" class="btn btn-xs btn-yellow m-r-5 edit-btn" title="编辑商品" data-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>';
+                }else if(value.productStatus == 4){
+                    return '<a href="#!" class="btn btn-xs btn-yellow m-r-5 edit-btn" title="编辑商品" data-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>' +
+                        '<a href="#!" class="btn btn-xs btn-danger del-btn" title="删除商品" data-toggle="tooltip"><i class="mdi mdi-window-close"></i></a>';
+                }else if(value.productStatus == 5){
+                    return '<a href="#!" class="btn btn-xs btn-yellow m-r-5 edit-btn" title="编辑商品" data-toggle="tooltip"><i class="mdi mdi-pencil"></i></a>';
+                }
+            },  // 自定义方法
+            events: {
+                'click .up-btn': function (event, value, row, index) {
+                    goodsAudit(row);
+                },
+                'click .down-btn': function (event, value, row, index) {
+                    goodsDown(row);
+                },
+                'click .edit-btn': function (event, value, row, index) {
+                    goodsEdit(row);
+                },
+                'click .watch-btn': function (event, value, row, index) {
+                    goodsWatch(row);
+                },
+                'click .del-btn': function (event, value, row, index) {
+                    goodsDelete(row);
+                }
+            }
+        },
+        {field: 'id',title: '产品ID'},
+        {field: 'productName',title: '产品名称', width: 60},
+        {field: 'businessId',title: '商家ID',visible: false},
+        {field: 'businessName',title: '商家名称'},
+        {field: 'typeId',title: '商品分类ID',visible: false},
+        {field: 'typeName',title: '商品分类名称'},
+        {field: 'warningValue',title: '商品预警值'},
+        {field: 'brandId',title: '品牌ID',visible: false},
+        {field: 'brandName',title: '品牌名称'},
+        {field: 'productPlace',title: '商品生产地'},
+        {field: 'productStatus',title: '商品状态',visible: false},
+        {field: 'productSort',title: '商品排序'},
+        {field: 'virtualAmount',title: '虚拟销量'},
+        {field: 'originalPrice',title: '原价'},
+        {field: 'lowestPrice',title: '最低零售价'},
+        {field: 'skuName',title: '库存及销量'},
+        {field: 'approve_time',title: '审核时间', formatter: function (value) {return zero2one.dateFormat(value, 'Y-m-d H:i:s')}},
+        {field: 'approve_name',title: '审核人'},
+        {field: 'approve_result',title: '审核结果'}
+    ];
+
+    //商品下架
+    function goodsDown(row) {
+        $.messager.confirm("温馨提示", "您确定要商品下架吗?", function () {
+            zero2one.request("/remote/goods/status",{id : row.id, status: 4},function (data) {
+                window.location.reload();
+            });
+        })
+    }
+
+    //商品删除
+    function goodsDelete(row) {
+        $.messager.confirm("温馨提示", "您确定要删除商品吗?", function () {
+            zero2one.request("/remote/goods/status",{id : row.id, status: 5},function (data) {
+                window.location.reload();
+            });
+        })
+    }
+
+    //商品审核
+    function goodsAudit(row){
+        var datas = $("#reviewed_data").bootstrapTable('getSelections');
+        if(datas.length > 0){
+            $("input[name='ids']").val(zero2one.dynamicArray2str(datas, "id"));
+            $("#auditModal").modal("show");
+        }else {
+            $.messager.alert("温馨提示", "请选择一个或多个商品进行审核");
+        }
+    }
+    $("#saveBtn").click(function () {//审核操作
+        zero2one.request("/remote/goods/audit", $("#addOrEditForm").serialize(),function (data) {
+            window.location.reload();
+        });
+    });
+
+    //商品编辑
+    function goodsEdit(row) {
+        var gridId = $("#myTabs li.active").attr("value");
+        var datas = $("#"+gridId).bootstrapTable('getSelections');
+        if(datas.length == 1){
+            zero2one.tab("编辑商品(全国)","/toView?url=service/goods/editGoods&productId="+datas[0].id, 114);
+        }else {
+            $.messager.alert("温馨提示", "请选择一个商品进行编辑");
+        }
+    }
+
+    //查看商品详情
+    function goodsWatch(row) {
+        var gridId = $("#myTabs li.active").attr("value");
+        var datas = $("#"+gridId).bootstrapTable('getSelections');
+        if(datas.length == 1){
+            zero2one.tab("查看商品(全国)","/toView?url=service/goods/watchGoods&productId="+datas[0].id,115);
+        }else {
+            $.messager.alert("温馨提示", "请选择一个商品进行查看");
+        }
+    }
+
+    //进入主界面加载数据
+    zero2one.datagrids("sale_data", "/remote/goods/list",function (params) {
+        $("input[name='status']").val(1);
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns,function (data) {});
+
+    //tab切换操作
+    function tabChange(status, flag, gridId) {
+        $("input[name='status']").val(status);
+        $("input[name='flags']").val(flag == null ? "" : flag);
+        zero2one.datagrids(gridId, "/remote/goods/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns,function (data) {});
+    }
+
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        var gridId = $("#myTabs li.active").attr("value");
+        $('#'+ gridId).bootstrapTable('refresh');
+    });
+
+    //加载商品管理列表统计
+    zero2one.request("/remote/goods/report",{},function (data) {
+        $("#saleTotal").html(data.data.csz);
+        $("#reviewedTotal").html(data.data.shz);
+        $("#outTotal").html(data.data.ysx);
+        $("#warningTotal").html(data.data.kcjj);
+        $("#offTotal").html(data.data.yxj);
+        $("#unReviewedTotal").html(data.data.shbtg);
+        $("#deleteTotal").html(data.data.hsz);
+    });
+
+    //添加商品
+    $("#addBtn").click(function () {
+        zero2one.tab("添加商品(全国)","/toView?url=service/goods/addGoods",113);
+    })
+
+</script>
+
+</html>

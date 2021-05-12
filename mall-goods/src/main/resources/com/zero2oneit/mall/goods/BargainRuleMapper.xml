@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.BargainRuleMapper">
+    <update id="status">
+        UPDATE bargain_rule SET rule_status = #{status} WHERE id = #{id}
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM bargain_rule
+        <where>
+            <if test="ruleName!=null and ruleName!=''">
+                rule_name like CONCAT('%',#{ruleName},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAll" resultType="java.util.HashMap">
+    SELECT
+            id, rule_name ruleName, start_time startTime, end_time endTime, bargain_amount bargainAmount, help_count helpCount, bargain_count bargainCount,
+           rule_status ruleStatus,rule_order ruleOrder,operator_name operatorName,operator_time operatorTime
+    FROM bargain_rule
+        <where>
+            <if test="ruleName!=null and ruleName!=''">
+                rule_name like CONCAT('%',#{ruleName},'%')
+            </if>
+        </where>
+        ORDER BY  rule_order ASC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+
+</mapper>

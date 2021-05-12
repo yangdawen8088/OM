@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.GoodsProductInfoMapper">
+
+    <resultMap id="goodsMap" type="com.zero2oneit.mall.common.bean.goods.Products">
+        <id property="id" column="id"/>
+        <result property="businessId" column="business_id"/>
+        <result property="businessName" column="business_name"/>
+        <result property="typeId" column="type_id"/>
+        <result property="typeName" column="type_name"/>
+        <result property="productName" column="product_name"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="warningValue" column="warning_value"/>
+        <result property="brandId" column="brand_id"/>
+        <result property="brandName" column="brand_name"/>
+        <result property="skuName" column="sku_name"/>
+        <result property="productUnit" column="product_unit"/>
+        <result property="productWeight" column="product_weight"/>
+        <result property="productWeightUnit" column="product_weight_unit"/>
+        <result property="productPlace" column="product_place"/>
+        <result property="mainPicture" column="main_picture"/>
+        <result property="detailPicture" column="detail_picture"/>
+        <result property="whitePicture" column="white_picture"/>
+        <result property="videoSrc" column="video_src"/>
+        <result property="productStatus" column="product_status"/>
+        <result property="productSort" column="product_sort"/>
+        <result property="buyLimit" column="buy_limit"/>
+        <result property="produceTime" column="produce_time"/>
+        <result property="lifeTime" column="life_time"/>
+        <result property="lifeTimeUnit" column="life_time_unit"/>
+        <result property="storeCondition" column="store_condition"/>
+        <result property="moudleId" column="moudle_id"/>
+        <result property="startTime" column="start_time"/>
+        <association property="relation" javaType="com.zero2oneit.mall.common.bean.goods.ProductsRelation">
+            <result property="productStock" column="product_stock"/>
+            <result property="soldStock" column="sold_stock"/>
+            <result property="marketPrice" column="market_price"/>
+            <result property="productPrice" column="product_price"/>
+            <result property="saleAreaName" column="sale_area_name"/>
+            <result property="saleAmount" column="sale_amount"/>
+        </association>
+    </resultMap>
+
+    <select id="esList" parameterType="com.zero2oneit.mall.common.bean.goods.Products" resultMap="goodsMap">
+        SELECT t.*,g.*,k.start_time FROM goods_product_info t LEFT JOIN seckill_rule k ON t.bind_id = k.id INNER JOIN goods_product_info_relation g ON t.id = g.id where FIND_IN_SET(t.id,#{ids})
+    </select>
+
+    <insert id="copyGoods">
+        INSERT INTO goods_product_info(
+           SELECT #{nextId} id,business_id, business_name, type_id, type_name, product_name, bar_code, warning_value,
+            brand_id, brand_name, sku_name, product_unit, product_weight, product_weight_unit,product_place,
+            main_picture, detail_picture, white_picture, physical_picture, apply_time,(NULL) approve_time, (NULL) approve_name, 0 product_status,
+            (NULL) approve_result, video_src, product_sort, buy_limit, produce_time, life_time, store_condition, life_time_unit,moudle_id,bind_id
+           FROM goods_product_info WHERE id=#{id}
+        )
+    </insert>
+
+    <insert id="copyGoodsRelation">
+        INSERT INTO goods_product_info_relation(
+        SELECT 	#{nextId} id,product_name,product_stock,sold_stock,supply_price,market_price,product_price,sale_area_name,sale_amount
+        FROM goods_product_info_relation WHERE id=#{id}
+        )
+    </insert>
+
+    <update id="status">
+        UPDATE goods_product_info set product_status=#{status} WHERE id=#{id}
+    </update>
+
+    <update id="audit">
+        UPDATE goods_product_info SET product_status=#{productStatus},approve_time=NOW(),approve_name=#{userName},approve_result=#{approveResult}
+        WHERE FIND_IN_SET(id,#{ids})
+    </update>
+
+    <update id="bindSecKill">
+        UPDATE goods_product_info SET moudle_id = 1,bind_id=#{ruleId} WHERE FIND_IN_SET(id,#{productIds})
+    </update>
+
+    <update id="unSeckill">
+        UPDATE goods_product_info SET moudle_id = 0,bind_id=null WHERE FIND_IN_SET(id,#{productIds})
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(1) FROM goods_product_info t, goods_product_info_relation g
+        WHERE  t.id = g.id
+        <include refid="common_where_if"/>
+    </select>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT t.id, t.product_name productName,t.business_id businessId,t.business_name businessName,
+               t.type_id typeId,t.type_name typeName,t.bar_code barCode,t.warning_value warningValue,t.brand_id brandId,
+               t.brand_name brandName,t.sku_name skuName,t.product_unit productUnit,t.product_weight productWeight,
+               t.product_weight_unit productWeightUnit,t.product_place productPlace,t.main_picture mainPicture,
+               t.detail_picture detailPicture,t.white_picture whitePicture,t.physical_picture physicalPicture,t.video_src videoSrc,
+               t.product_sort productSort,t.buy_limit buyLimit,t.produce_time produceTime,t.life_time lifeTime,t.product_status productStatus,
+               t.life_time_unit lifeTimeUnit,t.store_condition storeCondition,g.product_stock productStock,
+               g.sold_stock soldStock,g.supply_price supplyPrice,g.market_price marketPrice,g.product_price productPrice,
+               g.sale_area_name saleAreaName,g.sale_amount saleAmount,t.approve_time,t.approve_name,t.approve_result,t.apply_time,t.moudle_id moudleId
+        FROM   goods_product_info t, goods_product_info_relation g
+        WHERE  t.id = g.id
+        <include refid="common_where_if"/>
+        limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="load" resultType="java.util.Map">
+        SELECT t.id, t.product_name productName,t.business_id businessId,t.business_name businessName,
+               t.type_id typeId,t.type_name typeName,t.bar_code barCode,t.warning_value warningValue,t.brand_id brandId,
+               t.brand_name brandName,t.sku_name skuName,t.product_unit productUnit,t.product_weight productWeight,
+               t.product_weight_unit productWeightUnit,t.product_place productPlace,t.main_picture mainPicture,
+               t.detail_picture detailPicture,t.white_picture whitePicture,t.physical_picture physicalPicture,t.video_src videoSrc,
+               t.product_sort productSort,t.buy_limit buyLimit,t.produce_time produceTime,t.life_time lifeTime,t.product_status productStatus,
+               t.life_time_unit lifeTimeUnit,t.store_condition storeCondition,g.product_stock productStock,
+               g.sold_stock soldStock,g.supply_price supplyPrice,g.market_price marketPrice,g.product_price productPrice,
+               g.sale_area_name saleAreaName,g.sale_amount saleAmount
+        FROM   goods_product_info t, goods_product_info_relation g
+        WHERE  t.id = g.id and t.id=#{id}
+    </select>
+
+    <sql id="common_where_if">
+        <if test="status != null and status !=''">
+            AND t.product_status = #{status}
+        </if>
+        <if test="flags !=null and flags == 0">
+            AND g.product_stock = 0
+        </if>
+        <if test="flags !=null and flags == 1">
+            AND g.product_stock &lt; t.warning_value
+        </if>
+        <if test="productName != null and productName !=''">
+            AND t.product_name  like CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="typeName != null and typeName !=''">
+            AND t.type_name  like CONCAT('%', #{typeName}, '%')
+        </if>
+        <if test="businessName != null and businessName !=''">
+            AND t.business_name  like CONCAT('%', #{businessName}, '%')
+        </if>
+        <if test="saleArea != null and saleArea !=''">
+            AND g.sale_area_name  like CONCAT('%', #{saleArea}, '%')
+        </if>
+    </sql>
+
+</mapper>

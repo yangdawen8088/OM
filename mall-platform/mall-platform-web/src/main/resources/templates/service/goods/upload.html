@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传图片</title>
+    <link href="js/goods/style.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="wrapper">
+    <table cellspacing="0" cellpadding="0" border="0" class="normTbe model2 hide">
+        <tbody>
+        <tr class="alonTr2">
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><select name="">
+                <option value="1">中国</option>
+                <option value="2">美国</option>
+            </select></td>
+            <td><a class="text_a" href="javascript:" onClick="deltr3(this)">删除</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <table cellspacing="0" cellpadding="0" border="0" class="normTbe model1 hide">
+        <tbody>
+        <tr class="alonTr">
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><input type="text" /></td>
+            <td><a href="javascript:" class="innerbtn">添加内件(<span>0</span>)</a>
+                <div class="pop_box hide">
+                    <div class="bg"></div>
+                    <div class="contentP">
+                        <div class="PTit">
+                            <h3>内件商品信息</h3>
+                            <a href="javascript:" class="closepop">x</a> </div>
+                        <div class="textmian">
+                            <table class="normTbe neijian" cellspacing="0" cellpadding="0" border="0";>
+                                <thead>
+                                <tr>
+                                    <th>内件商品描述</th>
+                                    <th>数量</th>
+                                    <th>重量</th>
+                                    <th>单价</th>
+                                    <th>总价</th>
+                                    <th>HSCODE</th>
+                                    <th>产地</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody class="tbody2">
+                                <tr>
+                                    <td><input type="text" /></td>
+                                    <td><input type="text" /></td>
+                                    <td><input type="text" /></td>
+                                    <td><input type="text" /></td>
+                                    <td><input type="text" /></td>
+                                    <td><input type="text" /></td>
+                                    <td><select name="">
+                                        <option value="1">中国</option>
+                                        <option value="2">美国</option>
+                                    </select></td>
+                                    <td><a class="text_a" href="javascript:" onClick="deltr2(this)">删除</a></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div class="btn_a1"> <a class="dtadd" href="javascript:;">新增内件</a> <a class="closepop" href="javascript:">确定内件</a> </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <a class="text_a" href="javascript:" onClick="deltr(this)">删除</a></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="itemInfo">
+        <table cellspacing="0" cellpadding="0" border="0" class="normTbe tabInfo">
+            <thead>
+            <tr>
+                <th><em>*</em> 件数：</th>
+                <th><em>*</em> 单件重量：</th>
+                <th><em>*</em> 总重量：</th>
+                <th>长度(厘米)：</th>
+                <th>宽度(厘米)：</th>
+                <th>高度(厘米)：</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody class="tbody1">
+            <tr>
+                <td><input type="text" value="10"/></td>
+                <td><input type="text" value="5kg"/></td>
+                <td><input type="text" value="10kg"/></td>
+                <td><input type="text" value="100cm"/></td>
+                <td><input type="text" value="50cm"/></td>
+                <td><input type="text" value="50cm"/></td>
+                <td><a href="javascript:" class="innerbtn">添加内件(<span>0</span>)</a>
+                    <div class="pop_box hide">
+                        <div class="bg"></div>
+                        <div class="contentP">
+                            <div class="PTit">
+                                <h3>内件商品信息</h3>
+                                <a href="javascript:" class="closepop">x</a> </div>
+                            <div class="textmian">
+                                <table class="normTbe neijian" cellspacing="0" cellpadding="0" border="0";>
+                                    <thead>
+                                    <tr>
+                                        <th>内件商品描述</th>
+                                        <th>数量</th>
+                                        <th>重量</th>
+                                        <th>单价</th>
+                                        <th>总价</th>
+                                        <th>HSCODE</th>
+                                        <th>产地</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="tbody2">
+                                    <tr>
+                                        <td><input type="text" /></td>
+                                        <td><input type="text" /></td>
+                                        <td><input type="text" /></td>
+                                        <td><input type="text" /></td>
+                                        <td><input type="text" /></td>
+                                        <td><input type="text" /></td>
+                                        <td><select name="">
+                                            <option value="1">中国</option>
+                                            <option value="2">美国</option>
+                                        </select></td>
+                                        <td><a class="text_a" href="javascript:" onClick="deltr2(this)">删除</a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="btn_a1">
+                                    <a class="addtr2" href="javascript:">新增内件</a>
+                                    <a class="closepop" href="javascript:">确定内件</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <a class="text_a" href="javascript:" onClick="deltr(this)">删除</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="copybtn">
+            <a href="javascript:" class="AddTr">新增</a>
+            <a href="javascript:" class="ture">确定</a>
+        </div>
+    </div>
+</div>
+<!-- itemInfo -->
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/goods/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>订单充值表</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/select2/select2.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>订单充值</h4></div>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade active in">
+                        <form class="form-inline" method="post" id="searchForm">
+                            <div class="form-group">
+                                <label>订单号:</label>
+                                <input type="text" class="form-control" name="outTradeNo">
+                            </div>
+                            <div class="form-group">
+                                <label>会员账号:</label>
+                                <input type="text" class="form-control" name="memberId">
+                            </div>
+                            <div class="form-group">
+                                <label>创建时间:</label>
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="startTime" placeholder="开始时间" style="width:120px;"> -
+                                <input type="text" class="form-control js-datepicker" data-date-format="yyyy-mm-dd" name="endTime" placeholder="结束时间" style="width:120px;">
+                            </div>
+                            <div class="form-group">
+                                <label>订单状态:</label>
+                                <select name="state" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="0">未支付</option>
+                                    <option value="1">已支付</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-info btn_query btn-round"  type="button" id="searchFormBtn" >查询</button>
+                            </div>
+                        </form>
+                        <table id="list_data"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!--日期选择插件-->
+<script src="js/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+<script src="js/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+<script type="text/javascript" src="js/main.min.js"></script>
+
+<script type="text/javascript">
+
+    //设置表头
+    var columns = [
+        {checkbox: true},
+        {field: 'outTradeNo',title: '订单号'},
+        {field: 'memberId',title: '会员账号'},
+        {field: 'money',title: '金额'},
+        /*{field: 'remark',title: '备注'},*/
+        {field: 'state',title: '订单状态',formatter: function (value, row, index) {
+                if (value=='0') {
+                    return "<button class=\"btn btn-warning btn-sm\">未&nbsp;支&nbsp;付</button>";
+                }else if(value=='1'){
+                    return "<button class=\"btn btn-success btn-sm\">已&nbsp;支&nbsp;付</button>";
+                }else if(value=='2'){
+                    return "<button class=\"btn btn-danger btn-sm\">业务处理失败</button>";
+                }
+            }},
+        {field: 'rechargeChannel',title: '充值梁道',formatter: function (value, row, index) {
+                if (value=='wxpay' || value=='0') {
+                    return "微信";
+                }else if(value=='alipay' || value=='1'){
+                    return "支付宝";
+                }else {
+                    return "未充值"
+                }
+            }},
+        {field: 'creationTime',title: '创建时间', formatter: function (value) {
+                return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+            }},
+        {field: 'finishTime',title: '完成时间', formatter: function (value) {
+                return zero2one.dateFormat(value, 'Y-m-d H:i:s')
+            }}
+    ];
+
+
+    //进入主界面加载数据
+    zero2one.datagrid("list_data", "/remote/OrderRecharge/list",function (params) {
+        return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+    }, columns);
+
+    //点击查询按钮重新加载页面数据
+    $("#searchFormBtn").click(function () {
+        $('#list_data').bootstrapTable('refresh');
+    });
+
+
+</script>
+</body>
+</html>

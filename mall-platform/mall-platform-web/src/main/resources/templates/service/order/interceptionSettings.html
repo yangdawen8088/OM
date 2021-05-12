@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>发布商品</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <meta name="keywords" content="LightYear,光年,后台模板,后台管理系统,光年HTML模板">
+    <meta name="description" content="LightYear是一个基于Bootstrap v3.3.7的后台管理系统的HTML模板。">
+    <meta name="author" content="yinqi">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+<!--    <meta name="author" content="yinqi">-->
+    <link href="css/style.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container-fluid p-t-15">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>提示：截止商品销售时间，请确认止售开始、结束时间！</h4>
+                    <div>
+                        当前时间：
+                        <span id="result"></span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form id="ruleEditForm" method="post" class="form-horizontal" onsubmit="return false;">
+                        <div class="form-group">
+
+                            <div class="contains">
+
+                                <!--商品分类-->
+                                <div class="wareSort clearfix">
+
+                                    <div class="layui-inline">
+                                        <label>
+                                            开始时间：
+                                            <input type="text" class="demo-input" id="startTime" name="startTime"  placeholder="截单开头时间">
+                                        </label>
+                                        <label>
+                                            结束时间：
+                                            <input type="text" class="demo-input" id="endingTime" name="endingTime" placeholder="截单结尾时间">
+                                        </label>
+                                        <button type="button" id="modifyAndSave" class="btn btn-purple">修改保存</button>
+
+                                        <div class="form-group  m-b-12">
+                                            <div class="col-xs-12">
+                                                <div>开关：</div>
+                                                <label class="lyear-switch switch-solid switch-primary">
+                                                    <input type="checkbox" onclick="switchok(checked)">
+                                                    <span></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/main.min.js"></script>
+<script type="text/javascript" src="js/sort.js"></script>
+<script type="text/javascript" src="js/laydate.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="/js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<script type="text/javascript">
+
+
+
+    //进入主界面加载数据
+    $.ajax({
+        type: 'post',
+        url:'/remote/fnyzOrder/cutOrderDate',
+        dataType: 'json',
+        success:function (data) {
+            $("#startTime").val(data.data.data.startTime);
+            $("#endingTime").val(data.data.data.endingTime);
+            //判断开关
+           if (data.data.data.switchs==0){
+               $('input[onclick="switchok(checked)"]').attr("checked", false);
+           }else {
+               $('input[onclick="switchok(checked)"]').attr("checked", true);
+           }
+        }
+    });
+
+
+
+    //修改保存点击事件
+    $("#modifyAndSave").click(function () {
+        zero2one.request("/remote/cutOrder/dataEditing",$("#ruleEditForm").serialize(),function (data) {
+            if (data.success) {
+                $.messager.alert("温馨提示", "您已修改保存成功");
+            }else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        });
+    });
+
+
+    //开关
+    function switchok(kg){
+        $.post("/remote/cutOrder/switch", {"kg": kg},function (data) {
+            if (data.code === 200) {
+                $.messager.alert("温馨提示", "您已修改保存成功");
+            } else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        },"json");
+    }
+
+
+
+
+    //当前时间
+    window.onload = function () {
+        showTime();
+    };
+    function showTime()
+    {
+        //创建Date对象
+        var today = new Date();
+        //分别取出年、月、日、时、分、秒
+        var year = today.getFullYear();
+        var month = today.getMonth()+1;
+        var day = today.getDate();
+        var hours = today.getHours();
+        var minutes = today.getMinutes();
+        var seconds = today.getSeconds();
+        //如果是单个数，则前面补0
+        month  = month<10  ? "0"+month : month;
+        day  = day <10  ? "0"+day : day;
+        hours  = hours<10  ? "0"+hours : hours;
+        minutes = minutes<10 ? "0"+minutes : minutes;
+        seconds = seconds<10 ? "0"+seconds : seconds;
+        //构建要输出的字符串
+        var str = year+"年"+month+"月"+day+"日 "+hours+":"+minutes+":"+seconds;
+        //获取id=result的对象
+        var obj = document.getElementById("result");
+        //将str的内容写入到id=result的<div>中去
+        obj.innerHTML = str;
+        //延时器
+        window.setTimeout("showTime()",1000);
+    }
+
+    //时间插件
+    lay('#version').html('-v'+ laydate.v);
+    //时间选择器
+    laydate.render({
+        elem: '#endingTime'
+        ,type: 'time'
+    });
+    //时间选择器
+    laydate.render({
+        elem: '#startTime'
+        ,type: 'time'
+    });
+
+
+</script>
+<style>
+
+    .demo-input{padding-left: 10px; height: 38px; min-width: 262px; line-height: 38px; border: 1px solid #e6e6e6;  background-color: #fff;  border-radius: 2px;}
+    .card-header{
+        background-color: #ffa622ba;
+        border:2px solid #ffeca8eb;
+        width: 100%;
+        padding: 0 20px;
+        color: #fff;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .card-header div{
+        font-size: 18px;
+    }
+    #result{
+
+    }
+    .layui-inline{
+        width: 450px;
+        margin: 50px auto;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .layui-inline .demo-input{
+        font-size: 22px;
+    }
+</style>
+</body>
+</html>

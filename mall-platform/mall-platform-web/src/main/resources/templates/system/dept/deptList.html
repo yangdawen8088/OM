@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>部门管理</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/materialdesignicons.min.css" rel="stylesheet">
+<link href="css/animate.css" rel="stylesheet">
+<link rel="stylesheet" href="js/zTree_v3/css/materialDesignStyle/materialdesign.css" type="text/css">
+<link href="css/style.min.css" rel="stylesheet">
+<link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-header">
+          <h4>部门管理</h4>
+          <div>
+            <button class="btn btn-success btn-xs btn-round" id="addBtn">增加
+            </button>
+            <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="zTreeDemoBackground left">
+            <ul id="tree" class="ztree"></ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header">
+          <h4>部门员工</h4>
+        </div>
+        <div class="card-body">
+          <form id="searchForm">
+            <input id="ids" name="ids" type="hidden" value="">
+          </form>
+          <table id="tb_departments"></table>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!--  添加与编辑模态框 -->
+  <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="exampleModalLabel">部门管理</h4>
+        </div>
+        <div class="modal-body">
+          <form id="addOrEditForm" action="/addOrEditDept" method="post" data-target="validator">
+            <div class="form-group">
+              <label for="recipient-name" class="control-label">部门名称：</label>
+              <input type="hidden" name="id">
+              <input type="text" class="form-control" id="recipient-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="example-select">部门级别</label>
+                <select class="form-control" id="example-select" name="deptLevel">
+                  <option value="1">1级</option>
+                  <option value="2">2级</option>
+                </select>
+            </div>
+            <div class="form-group">
+              <label for="parent_id" class="control-label">上级部门名称：</label>
+              <input type="hidden" name="parentId">
+              <input type="text" class="form-control" id="parent_id" name="parentName" readonly>
+            </div>
+            <div class="form-group">
+              <label class="control-label" for="dept-select">是否展开</label>
+              <select class="form-control" id="dept-select" name="open">
+                <option value="0" selected>折叠</option>
+                <option value="1">展开</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+              <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/zTree_v3/js/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+
+<script type="text/javascript">
+
+    //页面初始化完成加载部门数据
+    $.post("/deptList", {},
+        function(data){
+         $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data);
+        }, "json");
+
+    var flag;//判断是否是顶级部门
+    var zj;
+    var tb;
+    var ids;
+    function onClick(event, treeId, treeNode) {
+        flag = treeNode.deptLevel;
+
+        if(treeNode.getParentNode() != null){
+            tb = {parentId:treeNode.getParentNode().id, parentName:treeNode.getParentNode().name, id:treeNode.id, name:treeNode.name, deptLevel:treeNode.deptLevel, open:treeNode.open==false?0:1};
+        }
+        zj = {id:treeNode.id, name:treeNode.name, deptLevel:treeNode.deptLevel, open:treeNode.open};
+
+        if(treeNode.deptLevel == 0){
+            getDeptUserByIds();
+        }else{
+            ids = zero2one.getChildNodes("tree", treeNode);
+          $("#ids").val(ids);
+            getDeptUserByIds();
+        }
+    }
+
+    function getDeptUserByIds() {
+        //设置表头
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: 'ID'},
+            {field: 'dept_name',title: '部门名称'},
+            {field: 'account',title: '用户账号'},
+            {field: 'username',title: '用户名称'}
+        ];
+
+        //进入主界面加载数据
+        zero2one.datagrid("tb_departments", "/getDeptUserByIds",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+
+        $('#tb_departments').bootstrapTable('refresh');
+    }
+
+    //点击添加按钮弹出模态框
+    $("#addBtn").click(function () {
+
+        $('input[name=id]').val('');
+
+        if(zj == null){
+            $.messager.alert("温馨提示", "请先选择上级部门再操作");
+            return;
+        }
+        if(zj.deptLevel == 2){
+            $.messager.alert("温馨提示", "不能再添加下级部门了");
+            return;
+        }
+        //上级部门填充自己的ID和名称
+        $("input[name=parentId]").val(zj==null?"":zj.id);
+        $("input[name=parentName]").val(zj==null?"":zj.name);
+        $("#example-select").val(zj.deptLevel+1);
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击添加按钮弹出模态框
+    $("#editBtn").click(function () {
+
+        //	判断是否选中当前要编辑的部门
+        if(tb == null){
+            $.messager.alert("温馨提示", "请先选择要编辑的部门再操作");
+            return;
+        }
+        //判断是否是顶级部门
+        if(flag == 0){
+            $.messager.alert("温馨提示", "顶级部门无需编辑操作");
+            return;
+        }
+        //加载表单数据
+        $("#addOrEditForm").formloader({data: tb});
+
+        $("#addOrEditModal").modal("show");
+    });
+
+    //部门添加与编辑
+    $("#addOrEditForm").ajaxForm(function (data) {
+      if (data.success) {
+            window.location.reload();
+        } else {
+            $.messager.alert("温馨提示", data.msg)
+        }
+    });
+
+</script>
+
+</body>
+</html>

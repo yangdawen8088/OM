@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.GoodsCategoryMapper">
+
+    <update id="status">
+        UPDATE goods_category set category_status=#{status} WHERE id=#{id}
+    </update>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM goods_category t
+        <include refid="common_where_if"/>
+    </select>
+
+    <select id="categoryList" resultType="com.zero2oneit.mall.common.bean.goods.GoodsCategory">
+          SELECT
+                 t.id,t.name,t.parent_id parentId,t.category_level categoryLevel,t.order_id orderId,
+                 t.icon_cls iconCls,t.open,t.category_status categoryStatus
+            FROM goods_category t
+    </select>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT
+        t.id,t.name,t.order_id,t.category_level,t.icon_cls,
+        (CASE WHEN t.open = 0 THEN '折叠' ELSE '展开' END) 'open',
+        (CASE WHEN t.category_status = 0 THEN '注销' ELSE '有效' END) category_status
+        FROM goods_category t
+        <include refid="common_where_if"/>
+        ORDER BY t.order_id limit #{starIndex},#{pageSize}
+    </select>
+
+    <select id="getCategoryByName" resultType="java.util.HashMap">
+         SELECT b.id,CONCAT(a.name,"-",b.name) `name`
+         FROM goods_category a,goods_category b
+         WHERE a.id=b.parent_id AND b.name like CONCAT('%', #{keyword}, '%')
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="ids != null and ids !=''">
+                AND FIND_IN_SET(t.id,#{ids})
+            </if>
+        </where>
+    </sql>
+
+</mapper>

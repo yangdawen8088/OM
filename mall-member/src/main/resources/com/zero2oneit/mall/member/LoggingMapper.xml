@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.LoggingMapper">
+
+    <insert id="insertBlackpearl">
+            INSERT INTO fnyg_member.member_black_pearl_log ( member_id, price,type_state,creation_time,remark,sign,balance)
+                 VALUES
+             ( #{userId}, #{price},#{type},NOW(),#{remark},#{sign},#{balance});
+    </insert>
+    <insert id="insertIntegral">
+         INSERT INTO fnyg_member.member_integral_log ( member_id, price,type_state,creation_time,remark,sign,balance)
+                 VALUES
+             ( #{userId}, #{price},#{type},NOW(),#{remark},#{sign},#{balance});
+    </insert>
+    <insert id="insertVoucher">
+         INSERT INTO fnyg_member.member_voucher_log ( member_id, price,type_state,creation_time,remark,sign,balance)
+                 VALUES
+             ( #{userId}, #{price},#{type},NOW(),#{remark},#{sign},#{balance});
+    </insert>
+    <insert id="insertWhitePearl">
+         INSERT INTO fnyg_member.member_white_pearl_log ( member_id, price,type_state,creation_time,remark,sign,balance)
+                 VALUES
+             ( #{userId}, #{price},#{type},NOW(),#{remark},#{sign},#{balance});
+    </insert>
+    <insert id="insertCommission">
+        INSERT INTO fnyg_member.member_commission_log ( member_id, price,type_state,creation_time,remark,sign,balance)
+                 VALUES
+             ( #{userId}, #{price},#{type},NOW(),#{remark},#{sign},#{balance});
+    </insert>
+    <insert id="insertShareMoney">
+          INSERT INTO member_share_log ( member_id, price,type_state,creation_time,remark,sign,balance)
+                 VALUES
+             ( #{userId}, #{price},#{type},NOW(),#{remark},#{sign},#{balance});
+    </insert>
+
+    <select id="blackpearlLogTotal" resultType="java.lang.Integer">
+        SELECT count(*)  FROM   fnyg_member.member_black_pearl_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+    </select>
+    <select id="blackpearlLogRows" resultType="java.util.HashMap">
+        SELECT   id, CONCAT(member_id,'')memberId, price, type_state typeState, creation_time creationTime, remark, sign, balance
+            FROM fnyg_member.member_black_pearl_log
+            <where>
+              <if test="memberId != null and memberId != ''" >
+                AND member_id = #{memberId}
+              </if>
+               <if test="monthTime != null and monthTime != ''" >
+                   AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+               </if>
+                <if test="sign !=null and sign !=''">
+                    AND sign=#{sign}
+                </if>
+                <if test="startTime!=null and startTime.trim() neq ''">
+                    AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+                </if>
+                <if test="endTime!=null and endTime.trim() neq ''">
+                    AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+                </if>
+            </where>
+         ORDER BY creation_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+
+    <select id="integralLogTotal" resultType="java.lang.Integer">
+        SELECT count(*)  FROM  fnyg_member.member_integral_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') = #{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+    </select>
+    <select id="integralLogRows" resultType="java.util.HashMap">
+        SELECT id, CONCAT(member_id,'')memberId, price, type_state typeState, creation_time creationTime, remark, sign, balance
+        FROM fnyg_member.member_integral_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') = #{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        ORDER BY creation_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+
+    <select id="voucherLogTotal" resultType="java.lang.Integer">
+        SELECT count(*)  FROM  fnyg_member.member_voucher_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+    </select>
+    <select id="voucherLogRows" resultType="java.util.HashMap">
+        SELECT id, CONCAT(member_id,'')memberId, price, type_state typeState, creation_time creationTime, remark, sign, balance
+        FROM fnyg_member.member_voucher_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') = #{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        ORDER BY creation_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+
+    <select id="whitePearlLogTotal" resultType="java.lang.Integer">
+        SELECT count(*)  FROM  fnyg_member.member_white_pearl_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') = #{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+    </select>
+    <select id="whitePearlLogRows" resultType="java.util.HashMap">
+        SELECT id, CONCAT(member_id,'')memberId, price, type_state typeState, creation_time creationTime, remark, sign, balance
+        FROM fnyg_member.member_white_pearl_log
+        WHERE 1=1
+        <if test="memberId != null and memberId != ''" >
+            AND member_id = #{memberId}
+        </if>
+        <if test="monthTime != null and monthTime != ''" >
+            AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+        </if>
+        <if test="sign !=null and sign !=''">
+            AND sign=#{sign}
+        </if>
+        <if test="startTime!=null and startTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="endTime!=null and endTime.trim() neq ''">
+            AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        ORDER BY creation_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+    <select id="groupWhiteByMonth" resultType="java.util.HashMap">
+
+        SELECT SUM(zhichu) zhichu,SUM(shouru) shouru FROM (
+            SELECT SUM(price) zhichu,0 'shouru' FROM fnyg_member.member_white_pearl_log WHERE `sign`='-' AND member_id=#{memberId} and DATE_FORMAT(creation_time, '%Y-%m')=#{monthTime}
+         UNION ALL
+            SELECT 0 zhichu,SUM(price)'shouru' FROM fnyg_member.member_white_pearl_log WHERE `sign`='+' AND member_id=#{memberId} and DATE_FORMAT(creation_time, '%Y-%m')=#{monthTime}
+        ) c
+    </select>
+    <select id="groupIntegralByMonth" resultType="java.util.HashMap">
+
+         SELECT SUM(zhichu) zhichu,SUM(shouru) shouru FROM (
+            SELECT SUM(price) zhichu,0 'shouru' FROM fnyg_member.member_integral_log WHERE `sign`='-' AND member_id=#{memberId} and DATE_FORMAT(creation_time, '%Y-%m')=#{monthTime}
+         UNION ALL
+            SELECT 0 zhichu,SUM(price)'shouru' FROM fnyg_member.member_integral_log WHERE `sign`='+' AND member_id=#{memberId} and DATE_FORMAT(creation_time, '%Y-%m')=#{monthTime}
+        ) c
+    </select>
+    <select id="groupVoucherByMonth" resultType="java.util.HashMap">
+
+           SELECT SUM(zhichu) zhichu,SUM(shouru) shouru FROM (
+            SELECT SUM(price) zhichu,0 'shouru' FROM fnyg_member.member_voucher_log WHERE `sign`='-' AND member_id=#{memberId} and DATE_FORMAT(creation_time, '%Y-%m')=#{monthTime}
+         UNION ALL
+            SELECT 0 zhichu,SUM(price)'shouru' FROM fnyg_member.member_voucher_log WHERE `sign`='+' AND member_id=#{memberId} and DATE_FORMAT(creation_time, '%Y-%m')=#{monthTime}
+        ) c
+    </select>
+
+    <select id="commissionTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM member_commission_log
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND member_id = #{memberId}
+            </if>
+            <if test="monthTime != null and monthTime != ''" >
+                AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+            </if>
+            <if test="sign !=null and sign !=''">
+                AND sign=#{sign}
+            </if>
+            <if test="startTime!=null and startTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="endTime!=null and endTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+        </where>
+    </select>
+
+    <select id="commissionRows" resultType="java.util.HashMap">
+        SELECT id, CONCAT(member_id,'')memberId, price, type_state typeState, creation_time creationTime, remark, sign, balance FROM member_commission_log
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND member_id = #{memberId}
+            </if>
+            <if test="monthTime != null and monthTime != ''" >
+                AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+            </if>
+            <if test="sign !=null and sign !=''">
+                AND sign=#{sign}
+            </if>
+            <if test="startTime!=null and startTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="endTime!=null and endTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+        </where>
+        ORDER BY creation_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="sharingTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM member_share_log
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND member_id = #{memberId}
+            </if>
+            <if test="monthTime != null and monthTime != ''" >
+                AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+            </if>
+            <if test="sign !=null and sign !=''">
+                AND sign=#{sign}
+            </if>
+            <if test="startTime!=null and startTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="endTime!=null and endTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+        </where>
+    </select>
+
+    <select id="sharingRows" resultType="java.util.HashMap">
+        SELECT id, CONCAT(member_id,'')memberId, price, type_state typeState, creation_time creationTime, remark, sign, balance FROM member_share_log
+        <where>
+            <if test="memberId != null and memberId != ''" >
+                AND member_id = #{memberId}
+            </if>
+            <if test="monthTime != null and monthTime != ''" >
+                AND DATE_FORMAT(creation_time, '%Y-%m') =#{monthTime}
+            </if>
+            <if test="sign !=null and sign !=''">
+                AND sign=#{sign}
+            </if>
+            <if test="startTime!=null and startTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &gt;= STR_TO_DATE(#{startTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+            <if test="endTime!=null and endTime.trim() neq ''">
+                AND DATE_FORMAT(creation_time,'%Y-%m-%d %H:%i:%s') &lt;= STR_TO_DATE(#{endTime},'%Y-%m-%d %H:%i:%s')
+            </if>
+        </where>
+        ORDER BY creation_time DESC
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+
+</mapper>

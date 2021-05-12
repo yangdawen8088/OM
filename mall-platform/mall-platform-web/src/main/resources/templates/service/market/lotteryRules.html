@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>抽奖规则表</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link rel="stylesheet" href="js/dropzone/min/basic.min.css" />
+    <link rel="stylesheet" href="js/dropzone/min/dropzone.min.css" />
+
+    <!--日期选择插件-->
+    <link rel="stylesheet" href="js/bootstrap-datepicker/bootstrap-datepicker3.min.css">
+    <link rel="stylesheet" href="js/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css">
+    <link href="css/style.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><h4>抽奖规则</h4></div>
+            </div>
+        </div>
+
+    </div>
+
+        <div class="modal-body">
+            <form id="ruleEditForm"  method="post" data-target="validator">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <label for="payIntegral" class="control-label">支付积分：</label>
+                        <input type="text" class="form-control" id="payIntegral" name="payIntegral"  required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="integral" class="btn btn-primary">修改保存</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label for="ruleOne" class="control-label">规则一：</label>
+                        <textarea class="form-control" id="ruleOne" rows="3" name="ruleOne" ></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label for="ruleTwo" class="control-label">规则二：</label>
+                        <textarea class="form-control" id="ruleTwo" rows="3" name="ruleTwo" ></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label for="ruleThree" class="control-label">规则三：</label>
+                        <textarea class="form-control" id="ruleThree" rows="3" name="ruleThree" ></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label for="ruleFour" class="control-label">规则四：</label>
+                        <textarea class="form-control" id="ruleFour" rows="3" name="ruleFour" ></textarea>
+                    </div>
+                </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" id="cancel">取消修改</button>
+                        <button type="button" class="btn btn-danger" id="empty">清空规则</button>
+                        <button type="button" id="ruleSubtn" class="btn btn-primary">修改保存</button>
+                    </div>
+
+
+            </form>
+        </div>
+
+
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/ztree/jquery.ztree.excheck.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="/js/zero2one/zero2one.core.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+<script type="text/javascript" src="js/dropzone/min/dropzone.min.js"></script>
+
+<script type="text/javascript" src="js/inputmoney.js"></script>
+<!-- ckeditor富文本插件 -->
+<script src="js/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+
+<script type="text/javascript">
+
+    //进入主界面加载数据
+    $.ajax({
+        type: 'post',
+        url:'/lottery/remote/rule/findRule',
+        dataType: 'json',
+        success:function (data) {
+            // a=data;
+            $("#payIntegral").val(data.data.payIntegral);
+            $("#ruleOne").val(data.data.ruleOne);
+            $("#ruleTwo").val(data.data.ruleTwo);
+            $("#ruleThree").val(data.data.ruleThree);
+            $("#ruleFour").val(data.data.ruleFour);
+
+        }
+    });
+
+
+    //修改保存积分（点击事件）
+    $("#integral").click(function () {
+
+        zero2one.request("/lottery/remote/rule/payIntegral",$("#ruleEditForm").serialize(),function (data) {
+            if (data.success) {
+                window.location.reload();
+            }else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        });
+    });
+
+
+    //修改保存规则点击事件
+    $("#ruleSubtn").click(function () {
+        zero2one.request("/lottery/remote/rule/updateRuleInfo",$("#ruleEditForm").serialize(),function (data) {
+            if (data.success) {
+                window.location.reload();
+            }else {
+                $.messager.alert("温馨提示", data.msg)
+            }
+        });
+    });
+
+    //清空规则（点击事件）
+    $("#empty").click(function () {
+        $("#ruleOne").val("");
+        $("#ruleTwo").val("");
+        $("#ruleThree").val("");
+        $("#ruleFour").val("");
+    });
+
+    //取消修改规则（点击事件）
+    $("#cancel").click(function () {
+        window.location.reload();
+    })
+
+</script>
+
+</body>
+</html>

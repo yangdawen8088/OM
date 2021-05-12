@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.goods.mapper.GoodsSpuMapper">
+
+    <update id="status">
+        UPDATE goods_spu set product_status=#{status} WHERE id=#{id}
+    </update>
+
+    <update id="audit">
+        UPDATE goods_spu SET product_status=#{productStatus},approve_time=NOW(),approve_name=#{userName},approve_result=#{approveResult}
+        WHERE FIND_IN_SET(id,#{ids})
+    </update>
+
+    <select id="report" resultType="java.util.Map">
+        SELECT SUM(出售中) csz,SUM(审核中) shz,SUM(已售馨) ysx,SUM(库存警戒) kcjj,SUM(已下架) yxj,SUM(审核不通过) shbtg,SUM(回收站) hsz FROM (
+            SELECT COUNT(1) '出售中',0 '审核中',0 '已售馨',0 '库存警戒',0 '已下架',0 '审核不通过',0 '回收站' FROM goods_spu t WHERE t.product_status=1
+            UNION ALL
+            SELECT 0 '出售中',COUNT(1) '审核中',0 '已售馨',0 '库存警戒',0 '已下架',0 '审核不通过',0 '回收站' FROM goods_spu t WHERE t.product_status=0
+            UNION ALL
+            SELECT 0 '出售中',0 '审核中',0 '已售馨',0 '库存警戒',COUNT(1) '已下架',0 '审核不通过',0 '回收站' FROM goods_spu t WHERE t.product_status=4
+            UNION ALL
+            SELECT 0 '出售中',0 '审核中',0 '已售馨',0 '库存警戒',0 '已下架',COUNT(1) '审核不通过',0 '回收站' FROM goods_spu t WHERE t.product_status=2
+            UNION ALL
+            SELECT 0 '出售中',0 '审核中',0 '已售馨',0 '库存警戒',0 '已下架',0 '审核不通过',COUNT(1) '回收站' FROM goods_spu t WHERE t.product_status=5
+            UNION ALL
+            SELECT 0 '出售中',0 '审核中',COUNT(1) '已售馨',0 '库存警戒',0 '已下架',0 '审核不通过',0 '回收站' FROM goods_spu t,goods_sku k WHERE t.id=k.goods_id AND k.product_stock=0 AND t.product_status=1
+            UNION ALL
+            SELECT 0 '出售中',0 '审核中',0 '已售馨',COUNT(1) '库存警戒',0 '已下架',0 '审核不通过',0 '回收站' FROM goods_spu t,goods_sku k WHERE t.id=k.goods_id AND t.warning_value>=k.product_stock AND t.product_status=1
+        ) tt
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        SELECT count(1) FROM goods_spu t, goods_sku k WHERE t.id = k.goods_id
+        <include refid="common_where_if"/>
+    </select>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT t.id,t.business_id businessId,t.business_name businessName,t.type_id typeId,t.type_name typeName,t.product_name productName,
+               t.warning_value warningValue,t.lowest_price lowestPrice,t.original_price originalPrice,t.brand_id brandId,t.brand_name brandName,
+               t.product_place productPlace,t.main_picture mainPicture,t.detail_picture detailPicture,t.product_details productDetails,t.product_status productStatus,
+               t.video_url videoUrl,t.product_sort productSort,t.virtual_amount virtualAmount,t.sku_server skuServer,t.sku_client skuClient,
+               t.approve_time,t.approve_name,t.approve_result,GROUP_CONCAT(k.sku_name,'当前库存：',k.product_stock,' 已销售：',k.sold_stock,'&lt;br&gt;') skuName
+        FROM goods_spu t, goods_sku k
+        WHERE t.id = k.goods_id
+        <include refid="common_where_if"/>
+        GROUP BY t.id
+    </select>
+
+    <select id="load" resultType="java.util.Map">
+        SELECT t.id,t.business_id businessId,t.business_name businessName,t.type_id typeId,t.type_name typeName,t.product_name productName,
+               t.warning_value warningValue,t.brand_id brandId,t.brand_name brandName,
+               t.product_place productPlace,t.main_picture mainPicture,t.detail_picture detailPicture,t.product_details productDetails,
+               t.video_url videoUrl,t.product_sort productSort,t.virtual_amount virtualAmount,t.sku_server skuServer
+        FROM goods_spu t WHERE t.id = #{id}
+    </select>
+
+    <select id="loadSku" resultType="java.util.Map">
+        SELECT t.id,t.product_stock,t.sold_stock,t.supply_price,t.market_price,t.product_price,
+               t.product_picture,t.product_weight,t.product_volume
+          FROM goods_sku t WHERE t.goods_id=#{id}
+    </select>
+
+    <sql id="common_where_if">
+        <if test="status != null and status !=''">
+            AND t.product_status = #{status}
+        </if>
+        <if test="flags !=null and flags == 0">
+            AND k.product_stock = 0
+        </if>
+        <if test="flags !=null and flags == 1">
+            AND k.product_stock &lt; t.warning_value
+        </if>
+        <if test="productName != null and productName !=''">
+            AND t.product_name  like CONCAT('%', #{productName}, '%')
+        </if>
+        <if test="businessName != null and businessName !=''">
+            AND t.business_name  like CONCAT('%', #{businessName}, '%')
+        </if>
+    </sql>
+
+</mapper>

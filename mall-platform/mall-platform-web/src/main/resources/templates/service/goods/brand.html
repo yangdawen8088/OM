@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>商品品牌（全国）</title>
+    <link rel="icon" href="favicon.ico" type="image/ico">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="js/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_1805932_ysrcp4y0uy9.css">
+    <link rel="stylesheet" href="css/uploadImg.css">
+    <link href="js/ztree/zTreeStyle/zTreeStyle.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid p-t-15">
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h4>商品分类（全国）</h4>
+                    <div>
+                        <button class="btn btn-success btn-xs btn-round" id="addBtn">增加</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="zTreeDemoBackground left">
+                        <ul id="tree" class="ztree"></ul>
+                    </div>
+                    <div style="color: red;font-size: 15px">（注：商品分类第四级才需要添加商品品牌）</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <button class="btn btn-info btn-xs btn-round" id="editBtn">编辑</button>
+                    <button class="btn btn-danger btn-xs btn-round" onclick="delOrActive(0)">注销</button>
+                    <button class="btn btn-cyan btn-xs btn-round" onclick="delOrActive(1)">启用</button>
+                </div>
+                <div class="card-body">
+                    <form id="searchForm">
+                        <input id="ids" name="ids" type="hidden" value="">
+                    </form>
+                    <table id="grid_data"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--  添加与编辑模态框 -->
+    <div class="modal fade" id="addOrEditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">商品品牌（全国）</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="addOrEditForm" method="post">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-menuName">品牌名称</span>
+                                    <input type="hidden" name="id">
+                                    <input type="hidden" name="categoryId">
+                                    <input type="hidden" name="categoryName">
+                                    <input type="hidden" name="brandStatus">
+                                    <input type="hidden" name="addOrEditStatus" VALUE="0" id="addOrEditStatus" placeholder="添加或编辑图片状态控制">
+                                    <input type="hidden" name="logo">
+                                    <input type="hidden" name="deleteUrl">
+                                    <input type="text" name="brandName" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-orderId">菜单排序</span>
+                                    <input type="text" name="orderId" class="form-control" onkeyup="this.value=this.value.replace(/\D/g,'')">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="input-group m-b-10">
+                                    <span class="input-group-addon" id="basic-initial">品牌首字母</span>
+                                    <input type="text" name="initial" class="form-control" maxlength="1" placeholder="如: 大写 A 字母" onkeyup="value=value.replace(/[^\w\/]/ig,'').toUpperCase()">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="main u-main">
+                                    <span class="label-left">上传图片</span>
+                                    <div class="upload-content">
+                                        <div class="content-img">
+                                            <ul class="content-img-list"></ul>
+                                            <div class="file">
+                                                <i class="gcl gcladd"></i>
+                                                <input type="file" name="file" accept="image/*" id="upload">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <span style="color: red; font-size: 20px">(注：商品分类第四级才需要添加图片)</span>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="saveBtn">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table.js"></script>
+<script type="text/javascript" src="js/bootstrap-table/bootstrap-table-zh-CN.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.version.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.core.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrapvalidator/dist/js/bootstrapValidator.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- 表单填充插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.formloader.js"></script>
+<!-- ztree树插件 -->
+<script type="text/javascript" src="js/ztree/jquery.ztree.core.min.js"></script>
+<script type="text/javascript" src="js/zero2one/zero2one.ztree.js"></script>
+<script src="js/uploadImg.js"></script>
+<script type="text/javascript">
+
+    //页面初始化完成加载商品分类数据
+    zero2one.requestV("/remote/goodsCategory/tree", {}, function (data) {
+        $.fn.zTree.init($("#tree"), {callback: {onClick: onClick}}, data);
+    });
+
+    var zj;
+    var ids;
+    function onClick(event, treeId, treeNode) {
+        zj = {id:treeNode.id,name:treeNode.name, categoryLevel:treeNode.categoryLevel};
+        ids = zero2one.getChildNodes("tree", treeNode);
+        $("#ids").val(treeNode.categoryLevel > 0 ? ids : "");
+        getByIds();
+    }
+
+    function getByIds() {
+        var columns = [
+            {checkbox: true},
+            {field: 'id',title: 'ID'},
+            {field: 'brandName',title: '品牌名称'},
+            {field: 'initial',title: '品牌首字母'},
+            {field: 'orderId',title: '分类排序'},
+            {field: 'brand_status',title: '品牌状态'},
+            {field: 'brandStatus',title: '品牌状态', visible: false},
+            {field: 'logo',title: '品牌logo', visible: false},
+            {field: 'categoryId',title: '所属商品分类ID'},
+            {field: 'categoryName',title: '所属商品分类名称'}
+        ];
+        //进入主界面加载数据
+        $('#grid_data').bootstrapTable('refresh');
+        zero2one.datagrid("grid_data", "/remote/goodsBrand/list",function (params) {
+            return $.extend(zero2one.tableInitParam(params), zero2one.form2json("searchForm"));
+        }, columns);
+    }
+
+    //点击添加按钮
+    $("#addBtn").click(function () {
+        if(zj.categoryLevel != 3){
+            $.messager.alert("温馨提示", "请选择第四级商品分类操作");
+            return;
+        }
+        $("#addOrEditForm")[0].reset();
+        $("input[type='hidden']").val("");//清空hidden值
+        $("input[name='categoryId']").val(zj.id);
+        $("input[name='categoryName']").val(zj.name);
+        $(".content-img-list").html("");//清空图片回显信息
+        $("#addOrEditModal").modal("show");
+    });
+
+    //点击编辑按钮
+    $("#editBtn").click(function () {
+        var datas = $('#grid_data').bootstrapTable('getSelections');
+        if(datas.length == 1){
+            $("#addOrEditForm").formloader({data: datas[0]});
+            $("#addOrEditStatus").val(1);
+            if(datas[0].logo.length > 0){
+                addNewContent(".content-img-list", datas[0].logo.split(","));
+            }
+            $("#addOrEditModal").modal("show");
+        }else{
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+        }
+    });
+
+    function delOrActive(status){
+        var datas = $('#grid_data').bootstrapTable('getSelections');
+        if(datas.length == 1){
+            $.messager.confirm("温馨提示", "您确定要注销吗?", function () {
+                zero2one.request("/remote/goodsBrand/status",{id : datas[0].id, status: status},function (data) {
+                    window.location.reload();
+                });
+            })
+        }else{
+            $.messager.alert("温馨提示", "请选择一条数据操作");
+        }
+    }
+
+    $('#addOrEditForm').bootstrapValidator({
+        fields: {
+            brandName: {validators: {notEmpty: {message: '品牌名称不能为空'}}},
+            orderId: {validators: {notEmpty: {message: '排序不能为空'}}},
+            initial: {validators: {notEmpty: {message: '首字母不能为空'}}}
+        }
+    });
+
+    //选择图片还没有上传
+    var imgFile = uploadImg(".content-img-list", "upload", 1024 * 1024 * 4, 0);
+
+    $("#saveBtn").click(function () {
+        var bv = $('#addOrEditForm').data('bootstrapValidator');
+        bv.validate();
+        if (bv.isValid()) {
+            var formFile = new FormData();
+            // 遍历图片imgFile添加到formFile里面
+            $.each(imgFile,function (i, v) {
+                formFile.append("file", v)
+            });
+            handleImage('logo', 'deleteUrl');//编辑处理删除的图片
+            zero2one.requestU("addOrEditForm","/remote/goodsBrand/addOrEdit",formFile,function (data) {
+                window.location.reload();
+            })
+        }
+    });
+
+</script>
+</body>
+</html>

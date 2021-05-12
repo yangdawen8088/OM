@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.market.mapper.AdvertMapper">
+
+    <insert id="add" parameterType="com.zero2oneit.mall.common.bean.market.Advert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO m_advert(advert_name,advert_position,pic_url,start_time,end_time,is_open,advert_status,city,advert_url,advert_order)
+        VALUES(#{advertName},#{advertPosition},#{picUrl},#{startTime},#{endTime},#{isOpen},#{advertStatus},#{city},#{advertUrl},#{advertOrder})
+    </insert>
+
+    <select id="selectAll" resultType="java.util.Map">
+        SELECT t.id,t.advert_name advertName,t.pic_url picUrl,t.city,t.advert_order advertOrder,t.operator_time operatorTime,
+        t.advert_url advertUrl,DATE_FORMAT(t.start_time,'%Y-%m-%d') startTime,DATE_FORMAT(t.end_time,'%Y-%m-%d') endTime,t.advert_position advertPosition,
+        (CASE WHEN t.advert_status = 1 THEN '发布' ELSE '关闭' END) advertStatus
+        FROM m_advert t
+        <include refid="common_where_if"/>
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+
+    <select id="selectTotal" resultType="java.lang.Integer">
+        select count(1) from m_advert t
+        <include refid="common_where_if"/>
+    </select>
+
+    <sql id="common_where_if">
+        <where>
+            <if test="advertName != null and advertName !=''">
+                AND t.advert_name  like CONCAT('%', #{advertName}, '%')
+            </if>
+        </where>
+    </sql>
+
+</mapper>

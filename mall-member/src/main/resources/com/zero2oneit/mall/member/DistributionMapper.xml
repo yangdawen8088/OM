@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zero2oneit.mall.member.mapper.DistributionMapper">
+
+    <update id="marketKgEdit">
+        UPDATE sys_mechanism_distribute SET
+        <if test="kg =='true'">
+            market_kg =1
+        </if>
+        <if test="kg =='false'">
+            market_kg =0
+        </if>
+        WHERE id = #{ids}
+    </update>
+    <update id="postKgEdit">
+        UPDATE sys_mechanism_distribute SET
+        <if test="kg =='true'">
+            post_kg =1
+        </if>
+        <if test="kg =='false'">
+            post_kg =0
+        </if>
+        WHERE id = #{ids}
+    </update>
+    <update id="migrantKgEdit">
+        UPDATE sys_mechanism_distribute SET
+        <if test="kg =='true'">
+            migrant_kg =1
+        </if>
+        <if test="kg =='false'">
+            migrant_kg =0
+        </if>
+        WHERE id = #{ids}
+    </update>
+
+
+    <select id="total" resultType="java.lang.Integer">
+      SELECT count(*) FROM sys_mechanism_distribute
+        <where>
+            <if test="configurationLevel != null and configurationLevel !=''">
+                configuration_level LIKE CONCAT('%',#{configurationLevel},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="DistributionListRows" resultType="java.util.HashMap">
+        SELECT id, configuration_level configurationLevel, one_level oneLevel, two_level twoLevel, type, market_kg marketKg, post_kg postKg, migrant_kg migrantKg
+        FROM sys_mechanism_distribute
+        <where>
+            <if test="configurationLevel != null and configurationLevel !=''">
+                configuration_level LIKE CONCAT('%',#{configurationLevel},'%')
+            </if>
+        </where>
+        LIMIT #{starIndex},#{pageSize}
+    </select>
+    <select id="getProportion" resultType="java.math.BigDecimal">
+         SELECT  one_level oneLevel FROM  sys_mechanism_distribute WHERE id=1
+    </select>
+
+    <select id="commissionInquire" resultType="com.zero2oneit.mall.common.bean.member.MechanismDistribute">
+          SELECT configuration_level configurationLevel, one_level oneLevel, two_level twoLevel
+             FROM  sys_mechanism_distribute
+           WHERE type =4
+    </select>
+    <select id="commissionSwitch" resultType="com.zero2oneit.mall.common.bean.member.MechanismDistribute">
+         SELECT market_kg marketKg, post_kg postKg, migrant_kg migrantKg
+             FROM  sys_mechanism_distribute
+           WHERE type =1
+    </select>
+    <select id="memberSwitch" resultType="com.zero2oneit.mall.common.bean.member.MechanismDistribute">
+         SELECT market_kg marketKg, post_kg postKg, migrant_kg migrantKg
+             FROM  sys_mechanism_distribute
+           WHERE type =3
+    </select>
+    <select id="withdrawalSwitch" resultType="com.zero2oneit.mall.common.bean.member.MechanismDistribute">
+         SELECT market_kg marketKg, post_kg postKg, migrant_kg migrantKg
+             FROM  sys_mechanism_distribute
+           WHERE type =4
+    </select>
+    <select id="sharingCommissionRules" resultType="com.zero2oneit.mall.common.bean.member.MechanismDistribute">
+          SELECT configuration_level configurationLevel, one_level oneLevel, two_level twoLevel
+             FROM  sys_mechanism_distribute
+           WHERE type =5
+    </select>
+
+
+</mapper>

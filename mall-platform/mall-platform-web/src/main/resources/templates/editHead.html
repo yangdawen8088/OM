@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>修改头像</title>
+<link rel="icon" href="favicon.ico" type="image/ico">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/materialdesignicons.min.css" rel="stylesheet">
+<link href="css/style.min.css" rel="stylesheet">
+<link rel="stylesheet" href="js/jcrop/css/jquery.Jcrop.css">
+<link rel="stylesheet" href="js/jcrop/css/changeHeadImg.css">
+<link rel="stylesheet" href="js/jcrop/css/uploadUserPhoto.css">
+<link rel="stylesheet" href="js/jcrop/css/personalCenter.css">
+<link rel="stylesheet" href="js/jcrop/css/base.css">
+</head>
+  
+<body>
+<div class="container-fluid p-t-15">
+  
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          
+          <div class="edit-avatar">
+
+            <img src= "${((system.headPhoto)??)?string(system.headPhoto ,'images/logo-ico.png')}" alt="..." class="img-avatar" style="cursor: pointer;">
+            <div class="avatar-divider"></div>
+            <div class="edit-avatar-content">
+              <button class="btn btn-default">修改头像</button>
+              <p class="m-0">选择一张你喜欢的图片，裁剪后会自动生成264x264大小,上传图片大小不能超过3M。</p>
+            </div>
+
+            <div class="modal fade" id="headImgModal" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalLabel" data-backdrop="static" data-keyboard="false">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content" style="width: 850px;">
+
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+
+                  <div class="modal-body">
+                    <div class="account_con clearfix">
+                      <div class="content_img tab">
+                        <div class="fl">
+                          <input type="hidden" id="repeatCommitFlag" value="0">
+                          <p class="use_photo">使用新头像</p>
+                          <p class="normal_notice">你可以上传JPG、PNG、JPEG文件，文件需小于3MB</p>
+                          <p id="AlertForIE89" class="alert_for_IE">请保证您的本地目录路径上载至服务器功能开启！</p>
+                          <div class="upLoad upload_img_left">
+                            <span>上传头像</span>
+                            <form id="myForm" action="/headImgUpload" class="upload_form" method="POST" enctype="multipart/form-data">
+                              <input class="photo-file" type="file" unselectable="on" name="file" id="fcupload" onchange="readURLMy(this);" />
+                              <img id="target" alt="" style="" name="" src="" >
+                              <input type="hidden" name="headimgfile" value="headimgfile"/>
+                              <input type="hidden" id="x" name="x" />
+                              <input type="hidden" id="y" name="y" />
+                              <input type="hidden" id="w" name="w" />
+                              <input type="hidden" id="h" name="h" />
+                              <input type="button" style="display: none" value="保存头像" id="uploadPhoto" class="submit_css">
+                              <input type="button" style="display: none" id="canclePhoto" value="取消" class="button_css">
+                            </form>
+                            <p class="error_msg" id="error_photo_type" style="display:none">图片格式错误，请重新选择</p>
+                          </div>
+
+                        </div>
+                        <div class="fr js_cur_img">
+                          <div class="cur_img_text">
+                            <p>当前头像</p>
+                          </div>
+                          <div class="cur_img">
+                            <img src="images/logo-ico.png" alt="当前头像">
+                          </div>
+                        </div>
+                        <div class="cur_img_right clearfix hide">
+                          <!--<p>系统会根据 您上传的图片生成头像，如图所示。</p>-->
+                          <div id="preview-pane" style="display: none">
+                            <div class="preview-container">
+                              <img src="" class="jcrop-preview" alt="" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          <hr>
+
+          <form method="post" action="/editUser" class="site-form" data-target="validator" id="editUserForm">
+            <div class="form-group">
+              <label for="account">用户账号</label>
+              <input type="text" class="form-control" name="account" id="account" value="${system.account}" readonly/>
+            </div>
+            <div class="form-group">
+              <label for="username">用户名称</label>
+              <input type="text" class="form-control" name="username" id="username" placeholder="输入用户名称" required value="${system.username}">
+            </div>
+            <div class="form-group">
+              <label for="email">用户邮箱</label>
+              <input type="email" class="form-control" name="email" id="email" aria-describedby="emailHelp" placeholder="请输入正确的邮箱地址" value="${system.email}">
+            </div>
+            <div class="form-group">
+              <label for="profile">用户简介</label>
+              <textarea class="form-control" name="profile" id="profile" rows="3">${system.profile}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">保存</button>
+          </form>
+ 
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+</div>
+
+<!-- juqery核心插件 -->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<!-- bootstrap核心插件 -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- jquery-form表单提交插件 -->
+<script type="text/javascript" src="js/jquery-form/jquery.form.js"></script>
+<!-- bootstrap表单验证插件 -->
+<script type="text/javascript" src="js/bootstrap-validator-master/dist/validator.js"></script>
+<!-- bootstrap弹出框插件 -->
+<script type="text/javascript" src="js/jquery.bootstrap.min.js"></script>
+<!-- Jcrop截图插件 -->
+<script type="text/javascript" src="js/jcrop/jquery.Jcrop.js"></script>
+<script type="text/javascript" src="js/jcrop/out.js"></script>
+<!-- email自动填充插件 -->
+<script type="text/javascript" src="js/email/autoMail.js"></script>
+
+<script type="text/javascript">
+
+    $('#email').autoMail(
+        {emails: ['qq.com', '163.com', '126.com', 'sina.com', 'sohu.com', 'yahoo.cn', 'gmail.com', 'hotmail.com', 'live.cn']
+    });
+
+
+    $("#editUserForm").ajaxForm(function (data) {
+        if (data.success) {
+            parent.location.reload();
+        } else {
+            $.messager.alert("温馨提示", data.msg)
+        }
+    });
+
+    //Jcrop全局API
+    var jcrop_api = null,
+        boundx,
+        boundy,
+        $mainImg = $('#target'),
+        $preview = $('#preview-pane'),
+        $pcnt = $('#preview-pane .preview-container'),
+        $pimg = $('#preview-pane .preview-container img'),
+        xsize = $pcnt.width(),
+        ysize = $pcnt.height();
+
+    $('form').show();
+    $('#canclePhoto').on('click',function () {
+        $('#headImgModal').modal('hide');
+    });
+
+
+    $(".btn-default").click(function () {
+        $('#headImgModal').modal('show');
+    });
+
+    $(".img-avatar").click(function () {
+        $('#headImgModal').modal('show');
+    });
+
+    //点击保存头像方法
+    $("#uploadPhoto").click(function () {
+        $("#myForm").ajaxSubmit(function (data) {
+           window.parent.location.reload();
+        })
+    });
+
+</script>
+</body>
+</html>
