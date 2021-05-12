@@ -216,17 +216,3 @@ Linux环境部署
 * 
 
 
-
-## Contact-Me
-
-QQ群号：768162721(1群) (进群前，请在网页右上角点star)
-
-微信：18520707666 (加此微信请备注意图)
-
-
-
-##  许可证
-
-[Apache License 2.0](https://github.com/macrozheng/mall-admin-web/blob/master/LICENSE)
-
-Copyright (c) 2018-2020 zero2oneit
